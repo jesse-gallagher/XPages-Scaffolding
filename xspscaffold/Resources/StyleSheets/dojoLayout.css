@@ -1,0 +1,57 @@
+html,body {
+	overflow: hidden
+}
+
+html body .lotusColLeft {
+	overflow: auto !important;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	
+	padding-top: 1em !important;
+}
+
+.lotusColRight {
+	overflow: auto !important;
+}
+
+.lotusContentContainer {
+	margin-top: 2px !important;
+}
+html body .lotusContent {
+	overflow: auto !important;
+	min-height: 0 !important;
+	padding: 20px 25px 25px !important;
+}
+
+.borderHeader {
+	padding: 0 !important;
+	height: 99px !important;
+}
+
+.dijitBorderContainerNoGutterPane {
+	padding: 0 !important;
+}
+
+.lotusActionBar {
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	margin-bottom: 0 !important;
+	border-bottom: 1px solid #eee;
+	padding: 5px !important;
+	height: 33px !important;
+}
+.lotusActionBar .lotusBtn {
+	min-height: 29px;
+}
+.lotusActionBar .lotusBtn img {
+	vertical-align: bottom;
+}
+
+.notesViewPanel {
+	padding: 0 !important;
+}
+
+.lotusActionBar .lotusSearch {
+	padding-top: 5px;
+	margin: 0 5px;
+}

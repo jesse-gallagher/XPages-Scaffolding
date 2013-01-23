@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:div styleClass="lotusBreadcrumbs" role="navigation">
+		<xp:link value="/" text="${database.title}"/>
+		&#160;&gt;&#160;
+		<xp:repeat var="crumb">
+			<xp:this.value><![CDATA[#{javascript:
+				var result = []
+				var ref = compositeData.doc.getParentId()
+				while(ref) {
+					var parent = database.getDocumentByUNID(ref)
+					result.unshift({
+						unid: ref,
+						form: parent.getItemValueString("Form")
+					})
+					
+					ref = parent.getParentDocumentUNID()
+				}
+				return result
+			}]]></xp:this.value>
+		
+			<xp:link value="/0/#{crumb.unid}" text="#{crumb.form}"/>
+			&#160;&gt;&#160;
+		</xp:repeat>
+		<xp:text value="#{compositeData.doc.Form}"/>
+	</xp:div>
+</xp:view>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:div styleClass="messages">
+		<xp:repeat loaded="${javascript:flashScope.errorMessages != null}" value="#{flashScope.errorMessages}" var="message">
+			<xp:text value="#{message}" styleClass="lotusMessage" tagName="div"/>
+		</xp:repeat>
+	</xp:div>
+	<xp:div styleClass="messages">
+		<xp:repeat loaded="${javascript:flashScope.warningMessages != null}" value="#{flashScope.warningMessages}" var="message">
+			<xp:text value="#{message}" styleClass="lotusMessage lotusWarning" tagName="div"/>
+		</xp:repeat>
+	</xp:div>
+	<xp:div styleClass="messages">
+		<xp:repeat loaded="${javascript:flashScope.confirmationMessages != null}" value="#{flashScope.confirmationMessages}" var="message">
+			<xp:text value="#{message}" styleClass="lotusMessage lotusConfirm" tagName="div"/>
+		</xp:repeat>
+	</xp:div>
+	<xp:div styleClass="messages">
+		<xp:repeat loaded="${javascript:flashScope.informationalMessages != null}" value="#{flashScope.informationalMessages}" var="message">
+			<xp:text value="#{message}" styleClass="lotusMessage lotusInfo" tagName="div"/>
+		</xp:repeat>
+	</xp:div>
+</xp:view>

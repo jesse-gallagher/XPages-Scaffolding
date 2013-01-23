@@ -1,0 +1,32 @@
+<theme extends="oneuiv2.1_green" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd" >
+	
+	<resources>
+		<styleSheet href="/oneuiFixes.css"/>
+		<styleSheet href="/notesView.css"/>
+		<styleSheet href="/dojoLayout.css"/>
+		<styleSheet href="/outlines.css"/>
+		<styleSheet href="/style.css"/>
+		
+		<dojoModule name="dojo.behavior"/>
+		<script src="/behavior.js" clientSide="true"/>
+	</resources>
+	
+	<!-- Let's try the claro theme instead of tundra -->
+	<resource dojoTheme="true">
+		<content-type>text/css</content-type>
+		<href>/.ibmxspres/dojoroot/dijit/themes/claro/claro.css</href>
+	</resource>
+	
+	
+	<control>
+		<name>ViewRoot</name>
+		<property>
+			<name>pageIcon</name>
+			<value>/$Icon</value>
+		</property>
+		<property>
+			<name>styleClass</name>
+			<value>xsp lotusui claro</value>
+		</property>
+	</control>
+</theme>

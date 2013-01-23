@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xp:div styleClass="docFooter">
+		Created by&#160;<xc:username value="#{compositeData.doc.CreatedBy}"/>&#160;on&#160;<xc:date value="#{compositeData.doc.DateComposed}"/>
+		<xp:br/>
+		Last Modified by&#160;<xc:username value="#{compositeData.doc.ModifiedBy}"/>&#160;on&#160;<xc:date value="#{compositeData.doc.DateModified}"/>
+	</xp:div>
+</xp:view>

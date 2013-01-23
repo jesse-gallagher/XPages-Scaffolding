@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><note class="form" replicaid="85257AFC000AE926" version="9.0" xmlns="http://www.lotus.com/dxl">
+<noteinfo noteid="286" sequence="5" unid="9B003C3DB9834B4A85257AFC000B5064">
+<created><datetime>20130122T210334,76-05</datetime></created>
+<modified><datetime>20130122T210336,72-05</datetime></modified>
+<revised><datetime>20130122T210336,70-05</datetime></revised>
+<lastaccessed><datetime>20130122T210336,70-05</datetime></lastaccessed>
+<addedtofile><datetime>20130122T210334,81-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>frostillicus/JSFUtil.java</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>frostillicus/JSFUtil.java</text></item>
+
+
+</note>

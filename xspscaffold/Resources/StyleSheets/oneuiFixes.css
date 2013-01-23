@@ -1,0 +1,80 @@
+/* The body and form have different background colors, which makes the linksbar look broken */
+html body.claro {
+        background-color: #FAFAFA;
+}
+
+/* Section headers should have no margins */
+body .lotusForm .lotusSection h2 {
+        margin: 0;
+}
+body .lotusForm .lotusWidget2 h2 { margin: 0 }
+
+/* We don't want the title bar to spill over to two lines */
+.lotusPlaceBar h2 {
+        overflow: hidden !important;
+        white-space: nowrap;
+}
+
+/* Fix the padding of linksbar items and the header cutting off the top one */
+body .lotusMenu ul li a {
+        padding-top: 5px;
+        padding-bottom: 3px;
+}
+body .lotusMenu ul li[role=menuitem], body .lotusMenu ul li.lotusSelected { min-height: 26px; }
+body .lotusHeader {
+        margin-top: 0;
+}
+body .lotusMenu ul li img {
+        min-width: 16px;
+        max-width: 16px;
+        min-height: 16px;
+        max-height: 16px;
+}
+
+/* Subsections should really be distinguished in some way */
+.lotusSection .lotusSubsection {
+        margin-left: 2em;
+}
+
+/* Table headers should have SOME styling, at least */
+.lotusTable th {
+        font-weight: bold;
+        color: #F16D0E;
+}
+
+/* Headers in vertical tables can get scrunched quite a bit when the next cell is huge */
+.lotusVertTable th {
+        min-width: 100px;
+        width: 150px;
+}
+.lotusVertTable { width: 100% }
+
+/* Fix up padding in check box groups */
+table.xspCheckBox {
+        border-collapse: collapse;
+        border-spacing: 0;
+}
+table.xspCheckBox td { padding: 0 }
+
+/* Make sure tab content in an embedded dialog scrolls */
+.dialogTabs .dijitTabPane {
+        overflow: auto !important;
+}
+
+/* Category links get tripled-up padding */
+td.xspColumnViewStart a.xspColumnViewStart, td.xspColumnViewMiddle a.xspColumnViewMiddle, td.xspColumnViewEnd a.xspColumnViewEnd {
+        padding: 0 !important;
+}
+td.xspColumnViewStart button, td.xspColumnViewMiddle button, td.xspColumnViewEnd button { padding: 0 }
+
+.lotusMenu .lotusMenuSubsection {
+        margin-left: 20px !important;
+}
+.lotusMenu .lotusMenuSubsection h3 {
+        margin-left: 0 !important;
+}
+
+/* Fix radio/checkbox tables inside forms */
+.lotusForm .xspRadioButton td label, .lotusForm .xspCheckBox td label {
+        width: auto;
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:button styleClass="lotusBtn" id="switchToEdit"
+		value="Edit" icon="/tango/accessories-text-editor-16x16.png" rendered="#{!pageController.editable}">
+		<xp:eventHandler event="onclick" submit="true" refreshMode="complete">
+			<xp:this.action>
+				<xp:changeDocumentMode mode="edit" var="doc"/>
+			</xp:this.action>
+		</xp:eventHandler>
+	</xp:button>
+</xp:view>

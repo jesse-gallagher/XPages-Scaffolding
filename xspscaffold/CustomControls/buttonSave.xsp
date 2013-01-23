@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:button id="save" value="Save" rendered="#{javascript:doc.isEditable()}">
+		<xp:eventHandler event="onclick" submit="true" refreshMode="complete" action="#{pageController.save}"/>
+	</xp:button>
+</xp:view>

@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='85257AFC000AE926'>
+<noteinfo noteid='16e' unid='618C5BB5308349A3852577EF0068CAB1' sequence='3'>
+<created><datetime>20101204T140436,33-05</datetime></created>
+<modified><datetime>20130122T205914,12-05</datetime></modified>
+<revised><datetime>20130104T111525,42-05</datetime></revised>
+<lastaccessed><datetime>20130122T205914,11-05</datetime></lastaccessed>
+<addedtofile><datetime>20130122T205914,11-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=MTC</name><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
+<item name='OriginalModTime'><datetime dst='true'>20061024T120302,07-04</datetime></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata></item>
+<item name='$TITLE'><text>NavPage</text></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAATwABANbd5QAQAAAA
+</rawitemdata></item>
+<item name='$DesignerVersion'><text>8.5.2</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>NavPage</text></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQAAAAAAAAAAADgEAAA4BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSAOAQAADgEAABZTGQAAQAAAAQAAACDBAEAhf8JAAEAAAogAIECgwQBAIX/
+CAABAAAK3QYAAK3/cf8qAAAAAAADABYACAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1haW5PdXQArf8U
+ABsACAAAAAgATWFpbk91dADq/z4AGwABhAAAZACUAgEAAAoAAAAAAAAAAAEBAAoBAAAKAAAFAP//
+/wABAAAAAAAAAAAAAAAAAAAAAAAAAOz/IgHgDwQAAAAAAAAAAAAAAAAAAAAAAAAAAABIAAAAIAE6
+AAAAIAE6AAAAIAELAAkAAQAACgEAAAoBAAAKAQAACgEAAAoBAAAKAAAAAAAAIAFEAUQBAwADAAMA
+BQD///8ABQD///8ABQD///8ABQD///8ABQD///8AAQBXbIMABQA/gIAABQD39/cAAQBXbIMABQA/
+gIAAAQAAAAAAAQD///8AAQD///8AAAAAAAIAAgAAAAAAAwADAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAEAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAEAAAAAAAAAEwAAAAAAAAAAAAAAAAAA
+AAAAAAAAAFRlbXBPdXRsaW5lTm90ZXNWaWV3/P86AAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAA
+AAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAK4C3gYAAK4Ahf8IAAEAAAo=
+</rawitemdata></item>
+<item name='$Flags'><text>C34WQ1</text></item></note>
+

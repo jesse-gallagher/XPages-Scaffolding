@@ -1,0 +1,22 @@
+html body .lotusMenu ul li h3.lotusHeading a {
+	display: block;
+	margin-left: 0;
+	background-image: url("/iksg/p.nsf/design/mac-arrows.gif?Open&ImgIndex=1");
+	background-repeat: no-repeat;
+	background-position: 5px 3px;
+	cursor: pointer;
+}
+html body .lotusMenu ul li h3.lotusHeading a.collapsed {
+	background-image: url("/iksg/p.nsf/design/mac-arrows.gif?Open&ImgIndex=2");
+}
+html body .lotusMenu .lotusMenuSubsection a {
+	font-weight: bold !important;
+}
+
+html body .lotusMenu .sectionHeader a {
+	color: #777 !important;
+}
+html body .lotusMenu h3.lotusHeading {
+	padding-bottom: 0 !important;
+	padding-top: 0 !important;
+}

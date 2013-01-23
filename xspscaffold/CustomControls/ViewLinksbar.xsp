@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex" xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xe:navigator id="nav">
+		<xe:this.treeNodes>
+			<xe:beanTreeNode nodeBean="frostillicus.DominoOutline" />
+			<!--			<xe:dominoViewListTreeNode var="dbView" href="/View.xsp?viewName=#{javascript:java.net.URLEncoder.encode(dbView.getName(), 'UTF-8')}"-->
+<!--				image="/tango/x-office-spreadsheet-mod.gif"/>-->
+		</xe:this.treeNodes>
+	</xe:navigator>
+</xp:view>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:button id="cancel" value="Cancel" rendered="#{javascript:doc.isEditable()}">
+		<xp:eventHandler event="onclick" submit="true" refreshMode="complete" disableValidators="true" action="#{pageController.cancel}"/>
+	</xp:button>
+</xp:view>
