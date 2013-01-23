@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex" xmlns:xc="http://www.ibm.com/xsp/custom"
+	beforePageLoad="#{pageController.beforePageLoad}" afterPageLoad="#{pageController.afterPageLoad}"
 	pageTitle="#{dbView.name}">
+	
 	<xp:this.data>
 		<xp:dominoView var="dbView" viewName="#{param.viewName}"/>
 	</xp:this.data>
