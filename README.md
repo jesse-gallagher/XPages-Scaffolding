@@ -12,6 +12,8 @@ XPages Scaffolding is a basic database structure designed to quickly get started
 - DominoDocumentMap, a bean for easily accessing document fields by UNID via EL
 - A JSFUtil class with a number of handy utility methods including MIMEBean methods (http://www.timtripcony.com/blog.nsf/d6plinks/TTRY-8NKTPN)
 - Some Notes-client design elements for good measure, such as:
-	 - A basic outline, frameset, and shared actions
-	 - A subform that does some simple modified-by tracking
-	 - A "Formula Console" form for testing/executing arbitrary formula/LS code in the context of the database
+	- A basic outline, frameset, and shared actions
+	- A subform that does some simple modified-by tracking
+	- A "Formula Console" form for testing/executing arbitrary formula/LS code in the context of the database
+
+The scaffolding requires the Extension Library and probably Domino 8.5.3 or above (though it may work on 8.5.2).
