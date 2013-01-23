@@ -21,7 +21,11 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import com.ibm.xsp.extlib.beans.PeopleBean;
+import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public class JSFUtil {
 
@@ -64,10 +68,6 @@ public class JSFUtil {
 		return (PeopleBean)getVariableValue("peopleBean");
 	}
 
-	//	public static Connection getConnection(String connectionName) throws SQLException {
-	//		return JdbcUtil.getConnection(FacesContext.getCurrentInstance(), connectionName);
-	//	}
-
 	public static String pluralize(String input) {
 		if(input.endsWith("s")) {
 			return input + "es";
@@ -91,7 +91,6 @@ public class JSFUtil {
 		URL url = new URL(urlString);
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		conn.setRequestProperty("User-Agent", "Firefox/2.0");
-		//conn.setRequestProperty("Cookie", cookie);
 
 		BufferedReader in = new BufferedReader(new InputStreamReader((InputStream)conn.getContent()));
 		StringWriter resultWriter = new StringWriter();
@@ -200,18 +199,6 @@ public class JSFUtil {
 	}
 	public static Date toDate(Object columnValue) throws NotesException {
 		return ((DateTime)columnValue).toJavaDate();
-	}
-
-	@SuppressWarnings("unchecked")
-	public static String iterableToSQL(Iterable input) {
-		// This isn't a particularly safe implementation, but I don't have the desire to
-		//  look for the "right" way to do it with PreparedStatements
-		StringBuilder result = new StringBuilder();
-		for(Object element : input) {
-			if(result.length() > 0) { result.append(", "); }
-			result.append("'" + element.toString().replaceAll("'", "\\'") + "'");
-		}
-		return result.toString();
 	}
 
 	public static boolean isSpecialText(String specialText) {
@@ -500,5 +487,72 @@ public class JSFUtil {
 		} catch (Throwable exception) { }
 
 		return true;
+	}
+
+	public static Serializable restoreState(Document doc, String itemName) throws Exception {
+		Session session = ExtLibUtil.getCurrentSession();
+		boolean convertMime = session.isConvertMime();
+		session.setConvertMime(false);
+
+		Serializable result = null;
+		Stream mimeStream = session.createStream();
+		MIMEEntity entity = doc.getMIMEEntity(itemName);
+		entity.getContentAsBytes(mimeStream);
+
+		ByteArrayOutputStream streamOut = new ByteArrayOutputStream();
+		mimeStream.getContents(streamOut);
+		mimeStream.recycle();
+
+		byte[] stateBytes = streamOut.toByteArray();
+		ByteArrayInputStream byteStream = new ByteArrayInputStream(stateBytes);
+		ObjectInputStream objectStream;
+		if(entity.getHeaders().toLowerCase().contains("content-encoding: gzip")) {
+			GZIPInputStream zipStream = new GZIPInputStream(byteStream);
+			objectStream = new ObjectInputStream(zipStream);
+		} else {
+			objectStream = new ObjectInputStream(byteStream);
+		}
+		Serializable restored = (Serializable)objectStream.readObject();
+		result = restored;
+
+
+		entity.recycle();
+
+		session.setConvertMime(convertMime);
+
+		return result;
+	}
+	public static void saveState(Serializable object, Document doc, String itemName) throws NotesException {
+		try {
+			Session session = ExtLibUtil.getCurrentSession();
+			boolean convertMime = session.isConvertMime();
+			session.setConvertMime(false);
+
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+			ObjectOutputStream objectStream = new ObjectOutputStream(new GZIPOutputStream(byteStream));
+			objectStream.writeObject(object);
+			objectStream.flush();
+			objectStream.close();
+
+			Stream mimeStream = session.createStream();
+			MIMEEntity previousState = doc.getMIMEEntity(itemName);
+			MIMEEntity entity = previousState == null ? doc.createMIMEEntity(itemName) : previousState;
+			ByteArrayInputStream byteIn = new ByteArrayInputStream(byteStream.toByteArray());
+			mimeStream.setContents(byteIn);
+			entity.setContentFromBytes(mimeStream, "application/x-java-serialized-object", MIMEEntity.ENC_NONE);
+			MIMEHeader header = entity.getNthHeader("Content-Encoding");
+			if(header == null) {
+				header = entity.createHeader("Content-Encoding");
+			}
+			header.setHeaderVal("gzip");
+
+			header.recycle();
+			entity.recycle();
+			mimeStream.recycle();
+
+			session.setConvertMime(convertMime);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
