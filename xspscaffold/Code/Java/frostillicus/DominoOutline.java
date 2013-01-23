@@ -108,7 +108,7 @@ public class DominoOutline extends BasicNodeList {
 			}
 			// Look for its children
 			OutlineEntry nextEntry = outline.getNext(entry);
-			while(nextEntry.getLevel() > level) {
+			while(nextEntry != null && nextEntry.getLevel() > level) {
 				nextEntry = processNode(database, outline, nextEntry, containerNode);
 			}
 
