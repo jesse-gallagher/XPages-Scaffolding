@@ -1,0 +1,161 @@
+<theme extends="webstandard" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd">
+	<resources>
+		<metaData name="viewport" content="width=device-width, initial-scale=1.0" />
+		<metaData name="apple-mobile-web-app-capable" content="yes" />
+		<metaData names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<styleSheet href="/css/bootstrap.min.css" />
+		<styleSheet href="/css/bootstrap-responsive.min.css" />
+
+		<script src="/js/jquery-1.9.1.min.js" clientSide="true" />
+		<script src="/js/bootstrap.min.js" clientSide="true" />
+	</resources>
+
+	<resource rendered="#{javascript:context.getProperty('xsp.resources.aggregate').equals('true')}">
+		<content-type>text/css</content-type>
+		<href>aggregation.css</href>
+	</resource>
+
+	<control>
+		<name>Button.Command</name>
+		<property>
+			<name>styleClass</name>
+			<value>btn</value>
+		</property>
+	</control>
+	<control>
+		<name>Button.Submit</name>
+		<property>
+			<name>styleClass</name>
+			<value>btn btn-primary</value>
+		</property>
+	</control>
+	<control>
+		<name>Button.Cancel</name>
+		<property>
+			<name>styleClass</name>
+			<value>btn</value>
+		</property>
+	</control>
+
+	<control>
+		<name>InputField.EditBox</name>
+		<property>
+			<name>styleClass</name>
+			<value />
+		</property>
+	</control>
+
+	<!-- Data tables -->
+	<control>
+		<name>DataTable</name>
+		<property>
+			<name>styleClass</name>
+			<value>table table-striped</value>
+		</property>
+		<property>
+			<name>rows</name>
+			<value>30</value>
+		</property>
+	</control>
+
+	<!-- ================== Pager / PagerControl ================================ -->
+
+	<!-- Pager -->
+	<control>
+		<name>Pager</name>
+		<property>
+			<name>outerStyleClass</name>
+			<value>xspPagerContainer</value>
+		</property>
+		<property>
+			<name>styleClass</name>
+			<value>xspPager</value>
+		</property>
+	</control>
+
+	<!-- PagerControl -->
+	<control>
+		<name>PagerControl.Pager</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.First</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspFirst</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Previous</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspPrevious</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Next</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspNext</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Last</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspLast</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Group</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspGroup</value>
+		</property>
+		<property>
+			<name>currentStyleClass</name>
+			<value>xspCurrentItem</value>
+		</property>
+		<property>
+			<name>firstStyleClass</name>
+			<value>xspFirstItem</value>
+		</property>
+		<property>
+			<name>lastStyleClass</name>
+			<value>xspLastItem</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Status</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspStatus</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Goto</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspGoto</value>
+		</property>
+	</control>
+
+	<control>
+		<name>PagerControl.Pager.Separator</name>
+		<property>
+			<name>styleClass</name>
+			<value>xspPagerNav xspSeparator</value>
+		</property>
+	</control>
+</theme>

@@ -1,0 +1,27 @@
+/* h/t http://bootstrap4xpages.com/bs4xp/site.nsf/article.xsp?documentId=F435B6DC54486B67C1257B6B002E5A6C&amp;action=openDocument */
+
+/*keep showing images if css aggregation is used*/
+[class^="icon-"],
+[class*=" icon-"] {
+  background-image: url("../../../img/glyphicons-halflings.png") !important;
+}
+.icon-white,
+.nav-pills > .active > a > [class^="icon-"],
+.nav-pills > .active > a > [class*=" icon-"],
+.nav-list > .active > a > [class^="icon-"],
+.nav-list > .active > a > [class*=" icon-"],
+.navbar-inverse .nav > .active > a > [class^="icon-"],
+.navbar-inverse .nav > .active > a > [class*=" icon-"],
+.dropdown-menu > li > a:hover > [class^="icon-"],
+.dropdown-menu > li > a:focus > [class^="icon-"],
+.dropdown-menu > li > a:hover > [class*=" icon-"],
+.dropdown-menu > li > a:focus > [class*=" icon-"],
+.dropdown-menu > .active > a > [class^="icon-"],
+.dropdown-menu > .active > a > [class*=" icon-"],
+.dropdown-submenu:hover > a > [class^="icon-"],
+.dropdown-submenu:focus > a > [class^="icon-"],
+.dropdown-submenu:hover > a > [class*=" icon-"],
+.dropdown-submenu:focus > a > [class*=" icon-"],
+#user-nav > ul > li > a > i, #sidebar li a i {
+  background-image: url("../../../img/glyphicons-halflings-white.png") !important;
+}

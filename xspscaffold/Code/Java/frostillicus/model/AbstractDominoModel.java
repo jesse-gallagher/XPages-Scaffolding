@@ -454,6 +454,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	 * **********************************************************************
 	 */
 	protected Document document() throws NotesException {
+		@SuppressWarnings("unused")
 		Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 
 		Database database = ModelUtils.getDatabase(server_, filePath_);
