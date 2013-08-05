@@ -58,9 +58,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		}
 	}
 
-	/*
-	 * ********************************************************************** List methods**********************************************************************
-	 */
+	/* **********************************************************************
+	 * List methods
+	 ************************************************************************/
 	public E get(final int index) {
 		if (!getCache().containsKey(index)) {
 			try {
@@ -87,9 +87,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 						for (String position : collapsedPositions_.keySet()) {
 							int collapseIndex = Integer.valueOf(position.contains(".") ? ModelUtils.strLeft(position, ".") : position);
 							if (currentPosition.startsWith(position + ".")) {
-								// int skipCount = current.getSiblingCount() - Integer.valueOf(ModelUtils.strRightBack(currentPosition, ".")) + 1;
-								// nav.skip(skipCount);
-								// break;
+								//int skipCount = current.getSiblingCount() - Integer.valueOf(ModelUtils.strRightBack(currentPosition, ".")) + 1;
+								//nav.skip(skipCount);
+								//break;
 							}
 							if (collapseIndex <= topLevel) {
 								nav.skip(collapsedPositions_.get(position));
@@ -97,10 +97,10 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 						}
 					}
 
-					// getCache().put(index, createFromViewEntry(nav.getNth(index + 1), columnInfo_));
+					//getCache().put(index, createFromViewEntry(nav.getNth(index + 1), columnInfo_));
 					getCache().put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
-					// System.out.println("fetched index " + index + ", which is pos " + nav.getCurrent().getPosition('.'));
-					// nav.skip(1);
+					//					System.out.println("fetched index " + index + ", which is pos " + nav.getCurrent().getPosition('.'));
+					//					nav.skip(1);
 				} else {
 					ViewEntryCollection vec = getEntries();
 					getCache().put(index, createFromViewEntry(vec.getNthEntry(index + 1), columnInfo_));
@@ -233,10 +233,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		return (T[]) toArray();
 	};
 
-	/*
-	 * ********************************************************************** TabularDataModel methods
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * TabularDataModel methods
+	 ************************************************************************/
 	@Override
 	public int getRowCount() {
 		return size();
@@ -383,10 +382,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		return null;
 	}
 
-	/*
-	 * ********************************************************************** Misc. leftovers
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * Misc. leftovers
+	 ************************************************************************/
 	public void search(final String searchQuery) {
 		if (category_ != null) {
 			throw new UnsupportedOperationException("Cannot search a category-filtered view");

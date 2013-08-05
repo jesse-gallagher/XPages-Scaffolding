@@ -33,10 +33,11 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	private final int columnIndentLevel_;
 	private final String viewRowPosition_;
 
-	/*
-	 * ********************************************************************** Cover the three ways a model object can be created ViewEntry and Document are
-	 * similar, except ViewEntry reads in column values for speedier access**********************************************************************
-	 */
+	/* **********************************************************************
+	 * Cover the three ways a model object can be created
+	 * ViewEntry and Document are similar, except ViewEntry reads in column
+	 * 	values for speedier access
+	 ************************************************************************/
 	protected AbstractDominoModel(final Database database) throws NotesException {
 		server_ = database.getServer();
 		filePath_ = database.getFilePath();
@@ -98,10 +99,10 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		viewRowPosition_ = "";
 	}
 
-	/*
-	 * ********************************************************************** Hooks and utility methods for concrete classes These are named without "get" to
-	 * avoid steeping on doc fields' toes**********************************************************************
-	 */
+	/* **********************************************************************
+	 * Hooks and utility methods for concrete classes
+	 * These are named without "get" to avoid steeping on doc fields' toes
+	 ************************************************************************/
 	protected boolean querySave(final Document doc) {
 		return true;
 	}
@@ -150,10 +151,9 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		return viewRowPosition_;
 	}
 
-	/*
-	 * ********************************************************************** DataObject methods
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * DataObject methods
+	 ************************************************************************/
 	public Class<?> getType(final Object keyObject) {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
@@ -334,10 +334,9 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		values_.put(key, value);
 	}
 
-	/*
-	 * ********************************************************************** Reflection seeker methods
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * Reflection seeker methods
+	 ************************************************************************/
 	private final Method findGetter(final String key) {
 		String lkey = key.toLowerCase();
 		if (!getterCache_.containsKey(lkey)) {
@@ -374,10 +373,9 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		return setterCache_.get(lkey);
 	}
 
-	/*
-	 * ********************************************************************** ViewRowData methods
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * ViewRowData methods
+	 ************************************************************************/
 	public final Object getColumnValue(final String key) {
 		return getValue(key);
 	}
@@ -405,10 +403,9 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		return getValue((Object) key);
 	}
 
-	/*
-	 * ********************************************************************** The dirty work of actually saving or deleting the document
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * The dirty work of actually saving or deleting the document
+	 ************************************************************************/
 	public boolean save() {
 		if (isCategory()) {
 			throw new UnsupportedOperationException("Categories cannot be saved");
@@ -449,12 +446,11 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		}
 	}
 
-	/*
-	 * ********************************************************************** Misc. leftovers
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * Misc. leftovers
+	 ************************************************************************/
+	@SuppressWarnings("unused")
 	protected Document document() throws NotesException {
-		@SuppressWarnings("unused")
 		Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 
 		Database database = ModelUtils.getDatabase(server_, filePath_);
@@ -463,14 +459,14 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 			result = database.createDocument();
 
 			String key = server_ + "!!" + filePath_ + "/new";
-			// requestScope.put(key, result);
+			//			requestScope.put(key, result);
 		} else {
 			String key = server_ + "!!" + filePath_ + "/" + documentId_;
 			result = database.getDocumentByUNID(documentId_);
-			// if(!requestScope.containsKey(key)) {
-			// requestScope.put(key, database.getDocumentByUNID(documentId_));
-			// }
-			// result = (Document)requestScope.get(key);
+			//			if(!requestScope.containsKey(key)) {
+			//				requestScope.put(key, database.getDocumentByUNID(documentId_));
+			//			}
+			//			result = (Document)requestScope.get(key);
 		}
 		return result;
 	}
@@ -589,10 +585,9 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		return session.evaluate(formula, doc);
 	}
 
-	/*
-	 * ********************************************************************** For file-upload support
-	 * **********************************************************************
-	 */
+	/* **********************************************************************
+	 * For file-upload support
+	 ************************************************************************/
 	@SuppressWarnings("unused")
 	private class ModelFileRowData implements FileRowData, Serializable {
 		private static final long serialVersionUID = 8426819039178643175L;

@@ -6,10 +6,52 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <managed-bean-name>appConfig</managed-bean-name>
+    <managed-bean-class>config.AppConfig</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <managed-bean-name>docsByUNID</managed-bean-name>
     <managed-bean-class>frostillicus.DominoDocumentMap</managed-bean-class>
     <managed-bean-scope>application</managed-bean-scope>
   </managed-bean>
+  
+  <managed-bean>
+    <managed-bean-name>applicationDispatcher</managed-bean-name>
+    <managed-bean-class>frostillicus.event.SimpleEventDispatcher</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+    <managed-property>
+      <property-name>listenerClasses</property-name>
+      <list-entries>
+        <value-class>java.lang.String</value-class>
+      </list-entries>
+    </managed-property>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>sessionDispatcher</managed-bean-name>
+    <managed-bean-class>frostillicus.event.SimpleEventDispatcher</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>listenerClasses</property-name>
+      <list-entries>
+        <value-class>java.lang.String</value-class>
+      </list-entries>
+    </managed-property>
+  </managed-bean>
+  
+  <converter>
+    <converter-id>commonNameConverter</converter-id>
+    <converter-class>converter.CommonNameConverter</converter-class>
+  </converter>
+  <converter>
+    <converter-id>iterableCommaConverter</converter-id>
+    <converter-class>converter.IterableCommaConverter</converter-class>
+  </converter>
+  <converter>
+    <converter-id>iterableSemicolonConverter</converter-id>
+    <converter-class>converter.IterableSemicolonConverter</converter-class>
+  </converter>
+  
   <lifecycle>
     <phase-listener>frostillicus.FlashScopePhaseListener</phase-listener>
   </lifecycle>

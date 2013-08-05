@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><note class="form" replicaid="85257BBE00551DCF" version="9.0" xmlns="http://www.lotus.com/dxl">
+<noteinfo noteid="2ee" sequence="3" unid="C069A9EF8A9556DB85257BBE006EC1B3">
+<created><datetime dst="true">20130805T160945,47-04</datetime></created>
+<modified><datetime dst="true">20130805T160945,67-04</datetime></modified>
+<revised><datetime dst="true">20130805T160945,66-04</datetime></revised>
+<lastaccessed><datetime dst="true">20130805T160945,66-04</datetime></lastaccessed>
+<addedtofile><datetime dst="true">20130805T160945,47-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>converter/IterableSemicolonConverter.java</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>converter/IterableSemicolonConverter.java</text></item></note>

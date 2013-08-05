@@ -1,4 +1,4 @@
-package frostillicus;
+package util;
 
 
 import javax.faces.application.Application;

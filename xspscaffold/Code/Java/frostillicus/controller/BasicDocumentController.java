@@ -1,8 +1,9 @@
 package frostillicus.controller;
 
-import frostillicus.JSFUtil;
 
 import javax.faces.context.FacesContext;
+
+import util.JSFUtil;
 import lotus.domino.*;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 import com.ibm.xsp.model.domino.wrapped.DominoDocument;

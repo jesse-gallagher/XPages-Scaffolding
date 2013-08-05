@@ -1,12 +1,13 @@
 package frostillicus.controller;
 
-import frostillicus.JSFUtil;
 
 import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.PhaseEvent;
+
+import util.JSFUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.component.UIViewRootEx;
