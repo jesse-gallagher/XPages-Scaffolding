@@ -3,9 +3,8 @@
 	beforePageLoad="#{pageController.beforePageLoad}" afterPageLoad="#{pageController.afterPageLoad}"
 	pageTitle="Home">
 
-	<xc:Layout navigationPath="/Home">
+	<xc:layout navigationPath="/Home">
 		<xp:this.facets>
-			<xc:ViewLinksbar xp:key="LeftColumn"/>
 		</xp:this.facets>
-	</xc:Layout>
+	</xc:layout>
 </xp:view>

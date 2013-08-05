@@ -5,9 +5,9 @@
     <default-prefix>xc</default-prefix>
   </faces-config-extension>
   <composite-component>
-    <component-type>Layout</component-type>
-    <composite-name>Layout</composite-name>
-    <composite-file>/Layout.xsp</composite-file>
+    <component-type>layout</component-type>
+    <composite-name>layout</composite-name>
+    <composite-file>/layout.xsp</composite-file>
     <composite-extension>
       <designer-extension>
         <in-palette>true</in-palette>
