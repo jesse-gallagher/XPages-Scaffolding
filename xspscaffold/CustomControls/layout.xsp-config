@@ -22,8 +22,6 @@
 		&lt;xp:tr&gt;&#xd;
 			&lt;xp:td style="width: 200px"&gt;&lt;xp:callback facetName="LeftColumn" id="callback1"&gt;&lt;/xp:callback&gt;&lt;/xp:td&gt;&#xd;
 			&lt;xp:td&gt;&#xd;
-				&lt;p&gt;&lt;xp:callback facetName="Breadcrumbs"/&gt;&lt;/p&gt;&#xd;
-				&lt;p&gt;&lt;xp:callback facetName="ActionBar"/&gt;&lt;/p&gt;&#xd;
 				&lt;p&gt;&lt;xp:callback id="callback2"/&gt;&lt;/p&gt;&#xd;
 			&lt;/xp:td&gt;&#xd;
 			&lt;xp:td style="width: 200px"&gt;&lt;xp:callback facetName="RightColumn" id="callback3"&gt;&lt;/xp:callback&gt;&lt;/xp:td&gt;&#xd;

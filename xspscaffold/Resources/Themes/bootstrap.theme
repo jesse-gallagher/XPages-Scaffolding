@@ -6,6 +6,7 @@
 
 		<styleSheet href="/css/bootstrap.min.css" />
 		<styleSheet href="/css/bootstrap-responsive.min.css" />
+		<styleSheet href="/fluid.css"/>
 
 		<script src="/js/jquery-1.9.1.min.js" clientSide="true" />
 		<script src="/js/bootstrap.min.js" clientSide="true" />

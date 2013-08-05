@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><note class="form" replicaid="85257BBE00551DCF" version="9.0" xmlns="http://www.lotus.com/dxl">
-<noteinfo noteid="2b6" sequence="5" unid="03DFBB7562334AF985257BBE006BD4A6">
+<noteinfo noteid="2b6" sequence="18" unid="03DFBB7562334AF985257BBE006BD4A6">
 <created><datetime dst="true">20130805T153747,90-04</datetime></created>
-<modified><datetime dst="true">20130805T155346,10-04</datetime></modified>
-<revised><datetime dst="true">20130805T155346,09-04</datetime></revised>
-<lastaccessed><datetime dst="true">20130805T155346,09-04</datetime></lastaccessed>
+<modified><datetime dst="true">20130805T162830,22-04</datetime></modified>
+<revised><datetime dst="true">20130805T162830,21-04</datetime></revised>
+<lastaccessed><datetime dst="true">20130805T162830,21-04</datetime></lastaccessed>
 <addedtofile><datetime dst="true">20130805T153747,90-04</datetime></addedtofile></noteinfo>
 <updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
-<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
-<item name="$TITLE"><text>Bootstrap.theme</text></item>
 <item name="$Flags"><text>34567Cg~`</text></item>
+<item name="$TITLE" sign="true"><text>bootstrap.theme</text></item>
 <item name="$DesignerVersion"><text>8.5.3</text></item>
 
 
-<item name="$FileNames" sign="true"><text>Bootstrap.theme</text></item>
+<item name="$FileNames" sign="true"><text>bootstrap.theme</text></item>
 <item name="$CSSFiles"><textlist><text>aggregation.css</text></textlist></item></note>

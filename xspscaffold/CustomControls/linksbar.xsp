@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xc="http://www.ibm.com/xsp/custom">
+	<ul class="nav nav-tabs nav-stacked video-sidebar" id="sidebar">
+		<li class="${view.pageName=='/Home.xsp' ? 'active' : ''}"><xc:link value="/Home.xsp" text="Home"/></li>
+	</ul>
+</xp:view>

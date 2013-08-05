@@ -5,9 +5,9 @@
     <default-prefix>xc</default-prefix>
   </faces-config-extension>
   <composite-component>
-    <component-type>actionBar</component-type>
-    <composite-name>actionBar</composite-name>
-    <composite-file>/actionBar.xsp</composite-file>
+    <component-type>linksbar</component-type>
+    <composite-name>linksbar</composite-name>
+    <composite-file>/linksbar.xsp</composite-file>
     <composite-extension>
       <designer-extension>
         <in-palette>true</in-palette>

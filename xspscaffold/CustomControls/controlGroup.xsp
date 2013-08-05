@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<div class="control-group">
+		<xp:label styleClass="control-label">
+			<xp:this.for><![CDATA[#{javascript:
+				var children = getComponent("controls").children
+				children.length < 1 ? "" : children[0].id
+			}]]></xp:this.for>
+			<xp:text value="#{compositeData.label}"/>
+			<xp:panel tagName="small" rendered="#{not empty compositeData.sublabel}"><xp:text value="#{compositeData.sublabel}"/></xp:panel>
+		</xp:label>
+		<div class="controls">
+			<xp:callback id="controls" />
+			
+			<xp:message id="message1" styleClass="help-inline">
+				<xp:this.for><![CDATA[#{javascript:
+					var children = getComponent("controls").children
+					children.length < 1 ? "" : children[0].id
+				}]]></xp:this.for>
+			</xp:message>
+		</div>
+	</div>
+</xp:view>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<div class="box">
+		<xp:div rendered="#{!empty compositeData.title}" styleClass="box-title">
+			<h3><xp:text value="#{compositeData.title}"/></h3>
+			
+			<xp:div styleClass="actions" rendered="#{javascript:compositeData.collapsible == true}">
+				<a href="#" class="btn btn-mini content-slideUp"><i class="icon-angle-down"></i></a>
+			</xp:div>
+		</xp:div>
+		<div class="box-content">
+			<xp:callback id="boxContent"/>
+		</div>
+	</div>			
+</xp:view>

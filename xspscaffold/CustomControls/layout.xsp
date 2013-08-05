@@ -8,76 +8,63 @@
 	<xe:keepSessionAlive id="keepSessionAlive1" />
 	<xc:navigationRules />
 
-	<xe:djBorderContainer style="width: 100%; height: 100%" styleClass="lotusFrame" gutters="false" persist="true">
-		<xe:djBorderPane id="lotusBanner" region="top" styleClass="borderHeader">
-			<div class="lotusBanner">
-				<div class="lotusRightCorner">
-					<div class="lotusInner">
-						<xe:outline styleClass="lotusInlinelist lotusUtility">
-							<xe:this.treeNodes>
-								<xe:userTreeNode/>
-								<xe:basicLeafNode label="|" />
-								<xe:basicLeafNode label="Log Out" href="/?Logout&amp;RedirectTo=${facesContext.externalContext.requestContextPath}" />
-							</xe:this.treeNodes>
-						</xe:outline>
-						<xe:outline styleClass="lotusInlinelist lotusLinks">
-							<xe:this.treeNodes>
-								<xe:basicLeafNode href="/" label="${database.title}" selected="true" />
-							</xe:this.treeNodes>
-						</xe:outline>
-					</div>
-				</div>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				
+				<xc:link styleClass="brand" value="/" text="${database.title}"/>
+				<div class="nav-collapse collapse">
+					<xp:text loaded="${context.user.name ne 'anonymous'}">
+						<p class="navbar-text pull-right">Logged in as&#160;<xc:link value="/?Logout" styleClass="navbar-link" text="${context.user.commonName}"/></p>
+					</xp:text>
+					<ul class="nav">
+						<li class="${javascript: /^\/Home(\/.*)?/.test(compositeData.navigationPath) ? 'active' : ''}"><xc:link value="/Home.xsp" text="Home"/></li>
+					</ul>
+				</div> <!--/.nav-collapse -->
 			</div>
-			<div class="lotusTitleBar">
-				<div class="lotusRightCorner">
-					<div class="lotusInner">
-						<div class="lotusTitleBarContent">
-							<xe:outline styleClass="lotusTabs">
-								<xe:this.treeNodes>
-									<xe:pageTreeNode page="Home" label="Home" styleClass="${javascript:/\/Home(\/.*)?/.test(compositeData.navigationPath) ? 'lotusSelected' : ''}" />
-								</xe:this.treeNodes>
-							</xe:outline>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="lotusPlaceBar">
-				<div class="lotusRightCorner">
-					<div class="lotusInner">
-						<xp:text tagName="h2" style="margin:0" value="#{view.pageTitle}" />
-					</div>
-				</div>
-			</div>
-		</xe:djBorderPane>
-		<xe:djBorderPane id="lotusColLeft" region="leading" styleClass="lotusColLeft">
-			<xp:this.rendered><![CDATA[#{javascript:
-					this.children.length > 0
-			}]]></xp:this.rendered>
-			<xp:callback xp:key="LeftColumn" facetName="LeftColumn" id="callback3" />
-		</xe:djBorderPane>
-		<xe:djBorderPane id="lotusColRight" region="trailing" styleClass="lotusColRight" splitter="true">
-			<xp:this.rendered><![CDATA[#{javascript:
-					this.children.length > 0
-			}]]></xp:this.rendered>
-			<xp:callback xp:key="RightColumn" facetName="RightColumn" id="callback2" />
-		</xe:djBorderPane>
-		<xe:djBorderPane id="lotusContent" region="center" styleClass="lotusContentContainer" style="padding: 0">
-			<xe:djBorderContainer style="width: 100%; height: 100%" gutters="false">
-				<xe:djBorderPane region="top" styleClass="lotusActionBar">
-					<xp:this.rendered><![CDATA[#{javascript:
-						this.children.length > 0
-					}]]></xp:this.rendered>
-					<xp:callback id="callback4" facetName="ActionBar" />
-				</xe:djBorderPane>
-				<xe:djBorderPane region="center" styleClass="lotusContent #{compositeData.contentStyleClass}">
-					<xp:callback id="breadcrumbsCallback" facetName="Breadcrumbs"/>
+		</div>
+	</div>
 
-					<xc:messages />
+	<div class="container">
+		<div class="row">
+			<xp:div styleClass="span2" id="LeftColumn">
+				<xp:this.rendered><![CDATA[#{javascript:
+					this.children.length > 0
+				}]]></xp:this.rendered>
+			
+				<xp:callback facetName="LeftColumn" />
+			</xp:div>
+			<xp:div>
+				<xp:this.styleClass><![CDATA[#{javascript:
+					var left = getComponent("LeftColumn").children.length > 0;
+					var right = getComponent("RightColumn").children.length > 0;
+					(left && right) ? "span8" : (left || right) ? "span10" : "span12"
+				}]]></xp:this.styleClass>
+				
+				<xc:messages/>
+			
+				<xp:callback/>
+			</xp:div>
+			<xp:div styleClass="span2" id="RightColumn">
+				<xp:this.rendered><![CDATA[#{javascript:
+					this.children.length > 0
+				}]]></xp:this.rendered>
+			
+				<xp:callback facetName="RightColumn" />
+			</xp:div>
+		</div>
 
-					<xp:callback id="callback5" />
-				</xe:djBorderPane>
-			</xe:djBorderContainer>
-		</xe:djBorderPane>
-	</xe:djBorderContainer>
+		<hr />
+
+		<footer>
+			<p>© 2013</p>
+		</footer>
+
+	</div>
 
 </xp:view>

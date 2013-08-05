@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://frostillic.us/bootstrap</namespace-uri>
+    <default-prefix>bs</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>box</component-type>
+    <composite-name>box</composite-name>
+    <composite-file>/box.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>title</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>collapsible</property-name>
+      <property-class>boolean</property-class>
+    </property>
+  </composite-component>
+</faces-config>

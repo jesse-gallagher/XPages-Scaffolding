@@ -11,11 +11,15 @@
     <managed-bean-scope>application</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <managed-bean-name>url</managed-bean-name>
+    <managed-bean-class>frostillicus.AliasManager</managed-bean-class>
+    <managed-bean-scope>application</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <managed-bean-name>docsByUNID</managed-bean-name>
     <managed-bean-class>frostillicus.DominoDocumentMap</managed-bean-class>
     <managed-bean-scope>application</managed-bean-scope>
   </managed-bean>
-  
   <managed-bean>
     <managed-bean-name>applicationDispatcher</managed-bean-name>
     <managed-bean-class>frostillicus.event.SimpleEventDispatcher</managed-bean-class>
@@ -38,7 +42,6 @@
       </list-entries>
     </managed-property>
   </managed-bean>
-  
   <converter>
     <converter-id>commonNameConverter</converter-id>
     <converter-class>converter.CommonNameConverter</converter-class>
@@ -51,7 +54,6 @@
     <converter-id>iterableSemicolonConverter</converter-id>
     <converter-class>converter.IterableSemicolonConverter</converter-class>
   </converter>
-  
   <lifecycle>
     <phase-listener>frostillicus.FlashScopePhaseListener</phase-listener>
   </lifecycle>
