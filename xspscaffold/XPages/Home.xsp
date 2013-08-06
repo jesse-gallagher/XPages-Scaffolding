@@ -8,9 +8,5 @@
 			<xc:linksbar xp:key="LeftColumn"/>
 		</xp:this.facets>
 		
-		<p>dsfdsf</p>
-		<p>dsfdsf</p>
-		<p>dsfdsf</p>
-		<p>dsfdsf</p>
 	</xc:layout>
 </xp:view>
