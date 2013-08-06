@@ -52,28 +52,20 @@ Behavior = {
 	},
         
 	// Convert xe:dialogs to Bootstrap
+	// h/t http://www.bootstrap4xpages.com/bs4xp/site.nsf/article.xsp?documentId=F7E581AA0B402846C1257B6B004582A1&action=openDocument
 	"div.dijitDialog": {
 		found: function(div) {
-			dojo.addClass(div, "modal");
-			// Clear out the margin-left for the modal
-			div.style.marginLeft = "inherit";
-
 			// Clear out margins for the inner form
 			dojo.query("form", div).style("margin", "0");
 
-			var titleBar = dojo.query(".dijitDialogTitleBar", div)[0];
-			dojo.addClass(titleBar, "modal-header");
+			var titleBar = $(".dijitDialogTitleBar", div).addClass("modal-header");
 
-			var titleNode = dojo.query(".dijitDialogTitle", titleBar)[0];
-			var title = titleNode.innerHTML;
-			titleNode.parentNode.removeChild(titleNode);
-                        
-			var icon = dojo.query(".dijitDialogCloseIcon", titleBar)[0];
-			dojo.removeClass(icon, "dijitDialogCloseIcon");
-			dojo.addClass(icon, "close");
-			icon.innerHTML += "&times;";
+			var titleNode = $(".dijitDialogTitle", titleBar);
+			var title = titleNode.text();
+			titleNode.remove();
 			
-			titleBar.innerHTML += "<h3>" + title + "</h3>";
+			$(".dijitDialogCloseIcon", titleBar).removeClass("dijitDialogCloseIcon").addClass("close");
+			titleBar.append("<h3>" + title + "</h3>");
 		}
 	}
 };

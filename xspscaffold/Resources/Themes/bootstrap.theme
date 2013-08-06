@@ -1,4 +1,4 @@
-<theme extends="webstandard" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd">
+<theme extends="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd">
 	<resources>
 		<metaData name="viewport" content="width=device-width, initial-scale=1.0" />
 		<metaData name="apple-mobile-web-app-capable" content="yes" />
@@ -157,6 +157,34 @@
 		<property>
 			<name>styleClass</name>
 			<value>xspPagerNav xspSeparator</value>
+		</property>
+	</control>
+	
+	
+	<!-- ================== Dialogs ================================ -->
+	<control>
+		<name>Dialog.Modal</name>
+		<property>
+			<name>styleClass</name>
+			<value>modal</value>
+		</property>
+		<property>
+			<name>style</name>
+			<value>margin-left: inherit</value>
+		</property>
+	</control>
+	<control>
+		<name>DialogContent</name>
+		<property>
+			<name>styleClass</name>
+			<value>modal-body</value>
+		</property>
+	</control>
+	<control>
+		<name>DialogBar</name>
+		<property>
+			<name>styleClass</name>
+			<value>modal-footer</value>
 		</property>
 	</control>
 </theme>
