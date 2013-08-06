@@ -2,7 +2,7 @@
 	<resources>
 		<metaData name="viewport" content="width=device-width, initial-scale=1.0" />
 		<metaData name="apple-mobile-web-app-capable" content="yes" />
-		<metaData names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<metaData name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 		<styleSheet href="/css/bootstrap.min.css" />
 		<styleSheet href="/css/bootstrap-responsive.min.css" />
