@@ -225,15 +225,15 @@ public enum JSFUtil {
 	}
 
 	public static boolean isSpecialText(final String specialText) {
-		return specialText.contains("");
+		return specialText.contains((char)127 + "");
 	}
 
 	public static String specialTextDecode(final String specialText, final ViewEntry viewEntry) throws NotesException {
 		String result = specialText;
 		//if(true) return result;
 
-		String specialStart = "";
-		String specialEnd = "�";
+		String specialStart = (char)127 + "";
+		String specialEnd = (char)160 + "";
 
 		// First, find the start and end of the special text
 		int start_pos = result.indexOf(specialStart);
