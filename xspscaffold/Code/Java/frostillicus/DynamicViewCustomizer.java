@@ -631,8 +631,8 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 	public static String specialTextDecode(String specialText, ViewEntry viewEntry) throws NotesException {
 		String result = specialText;
 
-		String specialStart = "";
-		String specialEnd = "�";
+		String specialStart = (char)127 + "";
+		String specialEnd = (char)160 + "";
 
 		// First, find the start and end of the special text
 		int start_pos = result.indexOf(specialStart);
