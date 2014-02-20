@@ -1,14 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><note class="form" replicaid="85257BBE00551DCF" version="9.0" xmlns="http://www.lotus.com/dxl">
-<noteinfo noteid="27e" sequence="3" unid="EC9E53B614CB7F8085257BBE005765E8">
-<created><datetime dst="true">20130805T115437,20-04</datetime></created>
-<modified><datetime dst="true">20130805T115437,41-04</datetime></modified>
-<revised><datetime dst="true">20130805T115437,40-04</datetime></revised>
-<lastaccessed><datetime dst="true">20130805T115437,40-04</datetime></lastaccessed>
-<addedtofile><datetime dst="true">20130805T115437,20-04</datetime></addedtofile></noteinfo>
+<?xml version="1.0" encoding="UTF-8"?><note class="form" maintenanceversion="1.0" replicaid="85257C85007FEF16" version="9.0" xmlns="http://www.lotus.com/dxl">
+<noteinfo noteid="2fa" sequence="2" unid="309A86FE5654DBF585257C85008055AE">
+<created><datetime>20140220T182145,42-05</datetime></created>
+<modified><datetime>20140220T182147,47-05</datetime></modified>
+<revised><datetime>20140220T182147,46-05</datetime></revised>
+<lastaccessed><datetime>20140220T182147,46-05</datetime></lastaccessed>
+<addedtofile><datetime>20140220T182145,63-05</datetime></addedtofile></noteinfo>
 <updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
 <wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
 <item name="$Flags"><text>34567Cg~[</text></item>
 <item name="$TITLE"><text>frostillicus/model/AbstractDominoManager.java</text></item>
+
+
+
 <item name="$DesignerVersion"><text>8.5.3</text></item>
 
 

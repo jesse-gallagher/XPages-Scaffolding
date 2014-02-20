@@ -1,8 +1,7 @@
 package frostillicus.model;
 
 import java.io.Serializable;
-import lotus.domino.ViewColumn;
-import lotus.domino.NotesException;
+import org.openntf.domino.ViewColumn;
 
 public class DominoColumnInfo implements Serializable {
 	private static final long serialVersionUID = -8895078572051370217L;
@@ -12,7 +11,7 @@ public class DominoColumnInfo implements Serializable {
 	private final boolean resortDescending_;
 	private final boolean category_;
 
-	protected DominoColumnInfo(final ViewColumn column) throws NotesException {
+	protected DominoColumnInfo(final ViewColumn column) {
 		itemName_ = column.getItemName();
 		resortAscending_ = column.isResortAscending();
 		resortDescending_ = column.isResortDescending();

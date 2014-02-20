@@ -26,7 +26,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 	@SuppressWarnings("unchecked")
 	@Override
 	public UIViewRoot createView(FacesContext context, String pageName) {
-		// Page name is in the format "/Home"
+		// Page name is in the format "/home"
 		String pageClassName = pageName.substring(1);
 
 		if(pageClassName.equalsIgnoreCase("$$OpenDominoDocument")) {

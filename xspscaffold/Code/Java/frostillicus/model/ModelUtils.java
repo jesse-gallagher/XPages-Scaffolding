@@ -10,18 +10,18 @@ import java.util.Map;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import lotus.domino.*;
+import org.openntf.domino.*;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public enum ModelUtils {
 	;
 
-	public static Database getDatabase(final String server, final String filePath) throws NotesException {
+	public static Database getDatabase(final String server, final String filePath) {
 		Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 		String key = "database-" + server + "!!" + filePath;
 		if (!requestScope.containsKey(key)) {
-			Session session = ExtLibUtil.getCurrentSession();
+			Session session = (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
 			requestScope.put(key, session.getDatabase(server, filePath));
 		}
 
@@ -70,16 +70,13 @@ public enum ModelUtils {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static List<DominoColumnInfo> getColumnInfo(final View view) throws NotesException {
+	public static List<DominoColumnInfo> getColumnInfo(final View view) {
 		List<ViewColumn> columns = view.getColumns();
 		List<DominoColumnInfo> result = new ArrayList<DominoColumnInfo>(columns.size());
 		for (ViewColumn column : columns) {
 			if (column.getColumnValuesIndex() < 65535) {
 				result.add(new DominoColumnInfo(column));
 			}
-
-			column.recycle();
 		}
 		return result;
 	}

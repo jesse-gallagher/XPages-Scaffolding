@@ -1,16 +1,15 @@
 package frostillicus.model;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 import com.ibm.xsp.model.TabularDataModel;
-import lotus.domino.*;
+import org.openntf.domino.*;
 
 @SuppressWarnings("serial")
-public class DominoModelList<E extends AbstractDominoModel> extends TabularDataModel implements Serializable, List<E> {
+public class DominoModelList<E extends AbstractDominoModel> extends AbstractModelList<E> {
 
 	@SuppressWarnings("unused")
 	private transient Map<Integer, E> cache_ = new HashMap<Integer, E>();
@@ -25,9 +24,11 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 	private String searchQuery_;
 	private Class<E> clazz_;
 
+	private final boolean invalid_;
+
 	private Map<String, Integer> collapsedPositions_ = new HashMap<String, Integer>();
 
-	public DominoModelList(final Database database, final String viewName, final String category, final Class<E> clazz) throws NotesException {
+	public DominoModelList(final Database database, final String viewName, final String category, final Class<E> clazz) {
 		server_ = database.getServer();
 		filePath_ = database.getFilePath();
 		viewName_ = viewName;
@@ -36,14 +37,12 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 
 		// Gather the view info now
 		View view = database.getView(viewName_);
-		if (view == null) {
-			throw new RuntimeException("A view named " + viewName_ + " was not found in the database " + (server_.isEmpty() ? "" : server_ + "!!") + filePath_ + ".");
-		}
+		invalid_ = view == null;
 
-		columnInfo_ = ModelUtils.getColumnInfo(view);
+		columnInfo_ = invalid_ ? null : ModelUtils.getColumnInfo(view);
 	}
 
-	protected E createFromViewEntry(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) throws NotesException {
+	protected E createFromViewEntry(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
 		try {
 			Constructor<E> con = clazz_.getConstructor(ViewEntry.class, List.class);
 			return con.newInstance(entry, columnInfo);
@@ -61,7 +60,10 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 	/* **********************************************************************
 	 * List methods
 	 ************************************************************************/
+	@SuppressWarnings("deprecation")
 	public E get(final int index) {
+		if(invalid_) { return null; }
+
 		if (!getCache().containsKey(index)) {
 			try {
 				if (searchQuery_ == null || searchQuery_.isEmpty()) {
@@ -80,32 +82,46 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 
 					// If we're in a collapsed category, we have to skip further
 					// TODO make this work with multi-level categories
-					ViewEntry current = nav.getCurrent();
-					String currentPosition = current.getPosition('.');
-					if (currentPosition.contains(".")) {
-						int topLevel = Integer.valueOf(ModelUtils.strLeft(currentPosition, "."));
-						for (String position : collapsedPositions_.keySet()) {
-							int collapseIndex = Integer.valueOf(position.contains(".") ? ModelUtils.strLeft(position, ".") : position);
-							if (currentPosition.startsWith(position + ".")) {
-								//int skipCount = current.getSiblingCount() - Integer.valueOf(ModelUtils.strRightBack(currentPosition, ".")) + 1;
-								//nav.skip(skipCount);
-								//break;
-							}
-							if (collapseIndex <= topLevel) {
-								nav.skip(collapsedPositions_.get(position));
+					try {
+						// Test to see if the nav itself is the problem in the NPE
+						//						@SuppressWarnings("unused")
+						//int count = nav.getCount();
+
+						ViewEntry current = nav.getCurrent();
+						String currentPosition = current.getPosition('.');
+						if (currentPosition.contains(".")) {
+							int topLevel = Integer.valueOf(ModelUtils.strLeft(currentPosition, "."));
+							for (String position : collapsedPositions_.keySet()) {
+								int collapseIndex = Integer.valueOf(position.contains(".") ? ModelUtils.strLeft(position, ".") : position);
+								if (currentPosition.startsWith(position + ".")) {
+									//int skipCount = current.getSiblingCount() - Integer.valueOf(ModelUtils.strRightBack(currentPosition, ".")) + 1;
+									//nav.skip(skipCount);
+									//break;
+								}
+								if (collapseIndex <= topLevel) {
+									nav.skip(collapsedPositions_.get(position));
+								}
 							}
 						}
-					}
 
-					//getCache().put(index, createFromViewEntry(nav.getNth(index + 1), columnInfo_));
-					getCache().put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
-					//					System.out.println("fetched index " + index + ", which is pos " + nav.getCurrent().getPosition('.'));
-					//					nav.skip(1);
+						//getCache().put(index, createFromViewEntry(nav.getNth(index + 1), columnInfo_));
+						getCache().put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
+						//					System.out.println("fetched index " + index + ", which is pos " + nav.getCurrent().getPosition('.'));
+						//					nav.skip(1);
+					} catch(NullPointerException npe) {
+						// Then we've probably hit an "Object has been removed or recycled" on the nav
+						System.out.println("=============================== NPE in DominoModelList");
+						System.out.println("=============================== Current class: " + getClass().getName());
+						System.out.println("=============================== Desired index: " + index);
+						System.out.println("=============================== Current cache: " + getCache());
+						System.out.println("=============================== Current reported size: " + size());
+						throw npe;
+					}
 				} else {
 					ViewEntryCollection vec = getEntries();
 					getCache().put(index, createFromViewEntry(vec.getNthEntry(index + 1), columnInfo_));
 				}
-			} catch (NotesException e) {
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -113,6 +129,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 	}
 
 	public int size() {
+		if(invalid_) { return 0; }
 		try {
 			if (searchQuery_ == null || searchQuery_.isEmpty()) {
 				ViewNavigator nav = getNavigator();
@@ -125,7 +142,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 				ViewEntryCollection vec = getEntries();
 				return vec == null ? 0 : vec.getCount();
 			}
-		} catch (NotesException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -295,6 +312,8 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 
 	@Override
 	public void setResortOrder(final String columnName, final String sortOrder) {
+		if(invalid_) return;
+
 		if (category_ != null) {
 			return;
 		}
@@ -358,7 +377,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 				ViewNavigator nav = getNewNavigator();
 				nav.gotoPos(rowPosition, '.');
 				collapsedPositions_.put(rowPosition, nav.getCurrent().getDescendantCount());
-			} catch (NotesException ne) {
+			} catch (Exception ne) {
 				throw new RuntimeException(ne);
 			}
 			clearCache();
@@ -386,6 +405,8 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 	 * Misc. leftovers
 	 ************************************************************************/
 	public void search(final String searchQuery) {
+		if(invalid_) return;
+
 		if (category_ != null) {
 			throw new UnsupportedOperationException("Cannot search a category-filtered view");
 		}
@@ -395,7 +416,8 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		searchQuery_ = searchQuery;
 	}
 
-	public E getByKey(final Object key) throws NotesException {
+	@SuppressWarnings("deprecation")
+	public E getByKey(final Object key) {
 		View view = getView();
 		ViewEntry entry;
 		if (key instanceof List) {
@@ -415,7 +437,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		return "[" + getClass().getName() + ": " + server_ + "!!" + filePath_ + "/" + viewName_ + "-" + category_ + sortColumn_ + ascending_ + searchQuery_ + "]";
 	}
 
-	protected ViewNavigator getNavigator() throws NotesException {
+	protected ViewNavigator getNavigator() {
 		final Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 		final String key = "viewnav-" + this.toString();
 		if (!requestScope.containsKey(key)) {
@@ -424,7 +446,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		return (ViewNavigator) requestScope.get(key);
 	}
 
-	protected ViewNavigator getNewNavigator() throws NotesException {
+	protected ViewNavigator getNewNavigator() {
 		View view = getView();
 		ViewNavigator nav = null;
 		if (category_ == null) {
@@ -436,7 +458,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		return nav;
 	}
 
-	protected ViewEntryCollection getEntries() throws NotesException {
+	protected ViewEntryCollection getEntries() {
 		final Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 		final String key = "viewentries-" + this.toString();
 		if (!requestScope.containsKey(key)) {
@@ -452,7 +474,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 		return (ViewEntryCollection) requestScope.get(key);
 	}
 
-	protected View getView() throws NotesException {
+	protected View getView() {
 		Database database = ModelUtils.getDatabase(server_, filePath_);
 		View view = database.getView(viewName_);
 		view.setAutoUpdate(false);
@@ -468,10 +490,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends TabularDataM
 
 	public final void clearCache() {
 		getCache().clear();
-		try {
-			getView().refresh();
-		} catch (NotesException ne) {
-		}
+		getView().refresh();
 
 		final Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 		String thisToString = this.toString();

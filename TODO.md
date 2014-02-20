@@ -1,3 +1,1 @@
-- Add plain-OneUI layout control
-- Look into using Renderers to render applicationLayout in a Bootstrap-friendly way
 - Add PhaseListeners to reset sessionScope on user change and set the SessionID cookie to HttpOnly

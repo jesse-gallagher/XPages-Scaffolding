@@ -1,23 +1,40 @@
 package frostillicus.model;
 
-import java.io.Serializable;
 import java.util.*;
-import lotus.domino.*;
 
+import javax.faces.context.FacesContext;
+
+import org.openntf.domino.*;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
-import com.ibm.xsp.model.DataObject;
 
-public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements Serializable, DataObject {
+public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager {
 	private static final long serialVersionUID = 1L;
 
-	abstract protected DominoModelList<E> getNamedCollection(final String name, final String category) throws NotesException;
+	abstract protected Class<E> getModelClass();
+	abstract protected String getViewPrefix();
 
-	abstract protected E createFromDocument(final Document doc) throws NotesException;
+	public DominoModelList<E> getNamedCollection(final String name, final String category) {
+		return new DominoModelList<E>(getDatabase(), getViewPrefix() + name, category, getModelClass());
+	}
 
-	abstract protected E create() throws NotesException;
+	protected E createFromDocument(final Document doc) {
+		try {
+			return getModelClass().getConstructor(Document.class).newInstance(doc);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-	protected Database getDatabase() throws NotesException {
-		return ExtLibUtil.getCurrentDatabase();
+	protected E create() {
+		try {
+			return getModelClass().getConstructor(Database.class).newInstance(getDatabase());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Database getDatabase() {
+		return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
 	}
 
 	public Class<?> getType(final Object key) {
@@ -35,21 +52,16 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 			if ("new".equals(key)) {
 				result = create();
 			} else if (ModelUtils.isUnid(key)) {
-				try {
-					Database database = getDatabase();
-					Document doc = database.getDocumentByUNID(key);
-					result = createFromDocument(doc);
-					doc.recycle();
-				} catch (NotesException ne) {
-					// Then the doc wasn't in the DB, most likely - ignore
-				}
+				Database database = getDatabase();
+				Document doc = database.getDocumentByUNID(key);
+				result = createFromDocument(doc);
 			} else {
 				Map<String, Object> cacheScope = ExtLibUtil.getViewScope();
 				String cacheKey = getClass().getName() + key;
 				if (!cacheScope.containsKey(cacheKey)) {
 					if (key.contains("^^")) {
 						String[] bits = key.split("\\^\\^");
-						cacheScope.put(cacheKey, getNamedCollection(bits[0], bits[1]));
+						cacheScope.put(cacheKey, getNamedCollection(bits[0], bits.length == 1 ? "" : bits[1]));
 					} else {
 						cacheScope.put(cacheKey, getNamedCollection(key, null));
 					}
@@ -58,7 +70,7 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 				result = cacheScope.get(cacheKey);
 			}
 			return result;
-		} catch (NotesException ne) {
+		} catch (Exception ne) {
 			// I'll want to know about this
 			throw new RuntimeException(ne);
 		}

@@ -21,7 +21,11 @@ public class AppConfig implements Serializable, DataObject {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
 		}
-		return getConfig().getString((String) keyObject);
+		ResourceBundle config = getConfig();
+		if(config.containsKey((String)keyObject)) {
+			return config.getString((String) keyObject);
+		}
+		return "";
 	}
 
 	public boolean isReadOnly(final Object keyObject) {

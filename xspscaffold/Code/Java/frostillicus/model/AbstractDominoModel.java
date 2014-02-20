@@ -9,19 +9,18 @@ import java.util.*;
 import javax.faces.context.FacesContext;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
-import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.ViewRowData;
 import com.ibm.xsp.model.FileRowData;
 import com.ibm.xsp.model.domino.wrapped.DominoDocument;
 import com.ibm.xsp.component.UIFileuploadEx.UploadedFile;
 import com.ibm.xsp.http.IUploadedFile;
 
-import lotus.domino.*;
+import org.openntf.domino.*;
 
-public abstract class AbstractDominoModel implements Serializable, DataObject, ViewRowData {
+public abstract class AbstractDominoModel implements ModelObject {
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, Object> values_ = new HashMap<String, Object>();
+	private Map<String, Object> values_ = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
 	private transient Map<String, Method> getterCache_ = new HashMap<String, Method>();
 	private transient Map<String, List<Method>> setterCache_ = new HashMap<String, List<Method>>();
 
@@ -38,7 +37,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	 * ViewEntry and Document are similar, except ViewEntry reads in column
 	 * 	values for speedier access
 	 ************************************************************************/
-	protected AbstractDominoModel(final Database database) throws NotesException {
+	protected AbstractDominoModel(final Database database) {
 		server_ = database.getServer();
 		filePath_ = database.getFilePath();
 		documentId_ = "";
@@ -48,14 +47,14 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	}
 
 	@SuppressWarnings("unchecked")
-	protected AbstractDominoModel(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) throws NotesException {
+	protected AbstractDominoModel(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
 		if (entry.isCategory()) {
 			category_ = true;
 			documentId_ = "";
 			server_ = "";
 			filePath_ = "";
 		} else {
-			Base parent = (Base) entry.getParent();
+			Base parent = entry.getParent();
 			View parentView = null;
 			if (parent instanceof ViewNavigator) {
 				parentView = ((ViewNavigator) parent).getParentView();
@@ -89,7 +88,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		entry.setPreferJavaDates(preferJavaDates);
 	}
 
-	protected AbstractDominoModel(final Document doc) throws NotesException {
+	protected AbstractDominoModel(final Document doc) {
 		Database database = doc.getParentDatabase();
 		server_ = database.getServer();
 		filePath_ = database.getFilePath();
@@ -103,21 +102,21 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	 * Hooks and utility methods for concrete classes
 	 * These are named without "get" to avoid steeping on doc fields' toes
 	 ************************************************************************/
-	protected boolean querySave(final Document doc) {
+	protected boolean querySave() {
 		return true;
 	}
 
-	protected void postSave(final Document doc) {
+	protected void postSave() {
 	}
 
-	protected boolean queryDelete(final Document doc) {
+	protected boolean queryDelete() {
 		return true;
 	}
 
 	protected void postDelete() {
 	}
 
-	protected abstract Collection<String> summaryFields();
+	protected abstract Collection<String> nonSummaryFields();
 
 	protected Collection<String> authorsFields() {
 		return Arrays.asList(new String[] {});
@@ -271,7 +270,6 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	}
 
 	// Methods for subclasses to use to bypass the read-only, ID, and getter/setter checks in getValue/setValue
-	@SuppressWarnings("unchecked")
 	protected final Object getValueImmediate(final Object keyObject) {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
@@ -279,7 +277,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		String key = ((String) keyObject).toLowerCase();
 
 		// check the cache for an existing value; if not found, fetch from the document
-		if (!values_.containsKey(key)) {
+		if (!values_.containsKey(key) && !isCategory()) {
 			try {
 				Document doc = document();
 
@@ -302,7 +300,6 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 							if (val instanceof DateTime) {
 								DateTime dt = (DateTime) val;
 								itemValue.set(i, dt.toJavaDate());
-								dt.recycle();
 							}
 						}
 						switch (itemValue.size()) {
@@ -314,11 +311,11 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 							break;
 						default:
 							values_.put(key, itemValue);
-							break;
+						break;
 						}
 					}
 				}
-			} catch (NotesException ne) {
+			} catch (Exception ne) {
 				ModelUtils.publishException(ne);
 				return null;
 			}
@@ -343,7 +340,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 			Method result = null;
 			for (Method method : getClass().getMethods()) {
 				String methodName = method.getName().toLowerCase();
-				if (method.getParameterTypes().length == 0 && methodName.equals("get" + lkey)) {
+				if (method.getParameterTypes().length == 0 && (methodName.equals("get" + lkey) || methodName.equals("is" + lkey))) {
 					try {
 						result = method;
 						break;
@@ -412,14 +409,29 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		}
 
 		try {
-			Document doc = document(true);
+			if (querySave()) {
+				Document doc = document(true);
 
-			if (querySave(doc) && doc.save()) {
-				postSave(doc);
-				return true;
+				if(doc.save()) {
+					if(documentId_.isEmpty()) {
+						documentId_ = doc.getUniversalID();
+					}
+
+					postSave();
+
+					// Attempt to update the FT index
+					Database database = doc.getParentDatabase();
+					lotus.domino.Session sessionAsSigner = (lotus.domino.Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "sessionAsSigner");
+					lotus.domino.Database signerDB = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
+					if(signerDB.isFTIndexed()) {
+						signerDB.updateFTIndex(false);
+					}
+
+					return true;
+				}
 			}
 			return false;
-		} catch (NotesException ne) {
+		} catch (Exception ne) {
 			ModelUtils.publishException(ne);
 			return false;
 		}
@@ -431,16 +443,18 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		}
 
 		try {
-			Document doc = document();
-			if (doc.isNewNote())
-				return false;
+			if(queryDelete()) {
+				Document doc = document();
+				if (doc.isNewNote())
+					return false;
 
-			if (queryDelete(doc) && doc.remove(true)) {
-				postDelete();
-				return true;
+				if (doc.remove(true)) {
+					postDelete();
+					return true;
+				}
 			}
 			return false;
-		} catch (NotesException ne) {
+		} catch (Exception ne) {
 			ModelUtils.publishException(ne);
 			return false;
 		}
@@ -450,7 +464,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	 * Misc. leftovers
 	 ************************************************************************/
 	@SuppressWarnings("unused")
-	protected Document document() throws NotesException {
+	protected Document document() {
 		Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
 
 		Database database = ModelUtils.getDatabase(server_, filePath_);
@@ -471,7 +485,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		return result;
 	}
 
-	protected Document document(final boolean applyChanges) throws NotesException {
+	protected Document document(final boolean applyChanges) {
 		Document doc = document();
 		if (applyChanges)
 			applyChanges(doc);
@@ -479,14 +493,14 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 	}
 
 	@SuppressWarnings("unchecked")
-	private void applyChanges(final Document doc) throws NotesException {
-		Session session = ExtLibUtil.getCurrentSession();
+	private void applyChanges(final Document doc) {
+		Session session = (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
 
-		Collection<String> summaryFields = summaryFields();
-		Collection<String> authorsFields = authorsFields();
-		Collection<String> readersFields = readersFields();
-		Collection<String> namesFields = namesFields();
-		Collection<String> attachmentFields = attachmentFields();
+		Set<String> nonSummaryFields = stringSet(nonSummaryFields());
+		Collection<String> authorsFields = stringSet(authorsFields());
+		Collection<String> readersFields = stringSet(readersFields());
+		Collection<String> namesFields = stringSet(namesFields());
+		Collection<String> attachmentFields = stringSet(attachmentFields());
 
 		for (Map.Entry<String, Object> entry : values_.entrySet()) {
 			String key = entry.getKey();
@@ -499,12 +513,9 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 						Item item = doc.getFirstItem(key);
 						if (item instanceof RichTextItem) {
 							rtitem = (RichTextItem) item;
-							System.out.println("using existing RT item");
 						} else {
-							item.recycle();
 							doc.removeItem(key);
 							rtitem = doc.createRichTextItem(key);
-							System.out.println("cleared out existing item");
 						}
 					} else {
 						rtitem = doc.createRichTextItem(key);
@@ -529,8 +540,7 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 
 						// facesContext.getApplication().getApplicationProperty("xsp.persistence.dir.xspupload", "")
 						if (success) {
-							EmbeddedObject attachment = rtitem.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", correctedFile.getAbsolutePath(), null);
-							attachment.recycle();
+							rtitem.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", correctedFile.getAbsolutePath(), null);
 							System.out.println("attached " + correctedFile.getAbsolutePath());
 
 							// if we're done: rename it back to the original filename, so it gets cleaned up by the server
@@ -539,14 +549,12 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 							System.out.println("failed rename");
 						}
 					}
-					rtitem.recycle();
 
 				} else {
 					Item item = null;
 					if (value instanceof Date) {
 						DateTime dt = session.createDateTime((Date) value);
 						item = doc.replaceItemValue(entry.getKey(), dt);
-						dt.recycle();
 					} else if (value instanceof List) {
 						Vector<Object> listVal = new Vector<Object>((List<?>) value);
 						for (int i = 0; i < listVal.size(); i++) {
@@ -555,17 +563,17 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 							}
 						}
 						item = doc.replaceItemValue(key, listVal);
-						doc.recycle(listVal);
+					} else if(value instanceof com.ibm.xsp.http.MimeMultipart) {
+						item = doc.replaceItemValue(key, value.toString());
 					} else {
+						value = value == null ? "" : value;
 						item = doc.replaceItemValue(key, value);
 					}
 					String lkey = key.toLowerCase();
-					item.setSummary("form".equals(lkey) || summaryFields.contains(lkey.toLowerCase()));
+					item.setSummary("form".equals(lkey) || !nonSummaryFields.contains(lkey));
 					item.setAuthors(authorsFields.contains(lkey));
 					item.setReaders(readersFields.contains(lkey));
 					item.setNames(namesFields.contains(lkey));
-
-					item.recycle();
 				}
 			}
 		}
@@ -574,15 +582,20 @@ public abstract class AbstractDominoModel implements Serializable, DataObject, V
 		if (doc.isNewNote()) {
 			DateTime created = session.createDateTime(new Date());
 			doc.replaceItemValue("$Created", created);
-			created.recycle();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected List<Object> evaluate(final String formula) throws NotesException {
+	protected List<Object> evaluate(final String formula) {
 		Document doc = document();
 		Session session = (Session) ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
 		return session.evaluate(formula, doc);
+	}
+
+
+	private SortedSet<String> stringSet(final Collection<String> input) {
+		SortedSet<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		result.addAll(input);
+		return result;
 	}
 
 	/* **********************************************************************
