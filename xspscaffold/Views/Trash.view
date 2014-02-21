@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<note class='view' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='85257AFC000AE926'>
-<noteinfo noteid='196' unid='F8DEDCC9918063B6852577EF0069F83A' sequence='3'>
-<created><datetime>20101204T141728,26-05</datetime></created>
-<modified><datetime>20130122T205915,17-05</datetime></modified>
-<revised><datetime>20130104T111529,03-05</datetime></revised>
-<lastaccessed><datetime>20130122T205915,16-05</datetime></lastaccessed>
-<addedtofile><datetime>20130122T205915,16-05</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Jesse Gallagher/O=MTC</name><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
+<note class='view' xmlns='http://www.lotus.com/dxl' version='9.0' maintenanceversion='1.0'
+ replicaid='85257C85007FEF16'>
+<noteinfo noteid='18e' unid='AC2EC7649C3CABEF85257C85007FF193' sequence='2'>
+<created><datetime>20140220T181729,15-05</datetime></created>
+<modified><datetime>20140220T181729,22-05</datetime></modified>
+<revised><datetime>20140220T181729,21-05</datetime></revised>
+<lastaccessed><datetime>20140220T181729,21-05</datetime></lastaccessed>
+<addedtofile><datetime>20140220T181729,15-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
 <wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
 <item name='$FormatNote' summary='true'>
 <rawitemdata type='4'>

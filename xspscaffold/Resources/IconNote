@@ -1,13 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <note default='true' class='icon' xmlns='http://www.lotus.com/dxl' version='9.0'
- replicaid='85257AFC000AE926'>
-<noteinfo noteid='11a' unid='B83B02AEE0186948852577EF006863FB' sequence='6'>
-<created><datetime>20101204T140013,39-05</datetime></created>
-<modified><datetime>20130122T211633,47-05</datetime></modified>
-<revised><datetime>20130122T211633,46-05</datetime></revised>
-<lastaccessed><datetime>20130122T211633,46-05</datetime></lastaccessed>
-<addedtofile><datetime>20130122T205911,72-05</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Jesse Gallagher/O=MTC</name><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
+ maintenanceversion='1.0' replicaid='85257C85007FEF16'>
+<noteinfo noteid='11e' unid='D06476774269B9CF85257C85007FEF23' sequence='9'>
+<created><datetime>20140220T181722,91-05</datetime></created>
+<modified><datetime>20140220T183511,55-05</datetime></modified>
+<revised><datetime>20140220T183511,54-05</datetime></revised>
+<lastaccessed><datetime>20140220T183511,54-05</datetime></lastaccessed>
+<addedtofile><datetime>20140220T181722,93-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
 <item name='IconBitmap' summary='true'>
 <rawitemdata type='6'>
 AiAgAQAA///////wD///gAH//gAAf/wAAD/4AAAf8AAAD+AAAAfgAAAHwAAAA8AAAAPAAAADgAAA
@@ -23,11 +24,11 @@ L2ZvgAAACMZmZmZmZmZmZmZmbIAAAACMZmZmZmZmZmZmZsgAAAAACMZmZmZmZmZmZmyAAAAAAACM
 9mZmZmZmZm/IAAAAAAAACIz2ZmZmZm/IgAAAAAAAAAAIiMZmZmyIgAAAAAAAAAAAAACIiIiIAAAA
 AAAAUEECICABAAD/////+A4DgA==
 </rawitemdata></item>
-<item name='$DefaultFrameset'><text>Outer Frame</text></item>
-<item name='$DefaultXPage'><text>Home.xsp</text></item>
-<item name='$Flags'><text>J7FKzNZ4q!</text></item>
-<item name='$FlagsNoRefresh'><text/></item>
 <item name='$AllowPost8HTML'><text>1</text></item>
 <item name='$Daos'><text>0</text></item>
-<item name='$TITLE'><text>XPages Scaffolding</text></item></note>
+<item name='$DefaultFrameset'><text>Outer Frame</text></item>
+<item name='$TITLE'><text>XPages Scaffolding</text></item>
+<item name='$Flags'><text>Jz47qNZFK!</text></item>
+<item name='$FlagsNoRefresh'><text>rv</text></item>
+<item name='$DefaultXPage'><text>home.xsp</text></item></note>
 

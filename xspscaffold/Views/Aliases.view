@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<note class='view' xmlns='http://www.lotus.com/dxl' version='9.0' replicaid='85257BBE00551DCF'>
-<noteinfo noteid='2fe' unid='F7FAC064F4062A4885257BBE006FA09B' sequence='1'>
-<created><datetime dst='true'>20130805T161916,11-04</datetime></created>
-<modified><datetime dst='true'>20130805T161916,13-04</datetime></modified>
-<revised><datetime dst='true'>20130805T161916,12-04</datetime></revised>
-<lastaccessed><datetime dst='true'>20130805T161916,12-04</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20130805T161916,12-04</datetime></addedtofile></noteinfo>
+<note class='view' xmlns='http://www.lotus.com/dxl' version='9.0' maintenanceversion='1.0'
+ replicaid='85257C85007FEF16'>
+<noteinfo noteid='196' unid='EEF75B820A97E44385257C85007FF1A4' sequence='2'>
+<created><datetime>20140220T181729,32-05</datetime></created>
+<modified><datetime>20140220T181729,40-05</datetime></modified>
+<revised><datetime>20140220T181729,39-05</datetime></revised>
+<lastaccessed><datetime>20140220T181729,39-05</datetime></lastaccessed>
+<addedtofile><datetime>20140220T181729,32-05</datetime></addedtofile></noteinfo>
 <updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
 <wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
 <item name='$FormatNote' summary='true'>

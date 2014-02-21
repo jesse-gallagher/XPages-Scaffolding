@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><note class="form" replicaid="85257BBE00551DCF" version="9.0" xmlns="http://www.lotus.com/dxl">
-<noteinfo noteid="2ee" sequence="3" unid="C069A9EF8A9556DB85257BBE006EC1B3">
-<created><datetime dst="true">20130805T160945,47-04</datetime></created>
-<modified><datetime dst="true">20130805T160945,67-04</datetime></modified>
-<revised><datetime dst="true">20130805T160945,66-04</datetime></revised>
-<lastaccessed><datetime dst="true">20130805T160945,66-04</datetime></lastaccessed>
-<addedtofile><datetime dst="true">20130805T160945,47-04</datetime></addedtofile></noteinfo>
+<?xml version="1.0" encoding="UTF-8"?><note class="form" maintenanceversion="1.0" replicaid="85257C85007FEF16" version="9.0" xmlns="http://www.lotus.com/dxl">
+<noteinfo noteid="2aa" sequence="5" unid="60299D9DCD1B9ADE85257C85007FF6ED">
+<created><datetime>20140220T181742,85-05</datetime></created>
+<modified><datetime>20140220T181751,75-05</datetime></modified>
+<revised><datetime>20140220T181751,74-05</datetime></revised>
+<lastaccessed><datetime>20140220T181751,74-05</datetime></lastaccessed>
+<addedtofile><datetime>20140220T181742,86-05</datetime></addedtofile></noteinfo>
 <updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
 <wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
 <item name="$Flags"><text>34567Cg~[</text></item>
@@ -12,4 +12,7 @@
 <item name="$DesignerVersion"><text>8.5.3</text></item>
 
 
-<item name="$FileNames" sign="true"><text>converter/IterableSemicolonConverter.java</text></item></note>
+<item name="$FileNames" sign="true"><text>converter/IterableSemicolonConverter.java</text></item>
+
+
+</note>
