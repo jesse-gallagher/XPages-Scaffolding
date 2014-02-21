@@ -303,15 +303,15 @@ public abstract class AbstractDominoModel implements ModelObject {
 							}
 						}
 						switch (itemValue.size()) {
-						case 0:
-							values_.put(key, null);
+							case 0:
+								values_.put(key, null);
+								break;
+							case 1:
+								values_.put(key, itemValue.get(0));
+								break;
+							default:
+								values_.put(key, itemValue);
 							break;
-						case 1:
-							values_.put(key, itemValue.get(0));
-							break;
-						default:
-							values_.put(key, itemValue);
-						break;
 						}
 					}
 				}
@@ -594,7 +594,7 @@ public abstract class AbstractDominoModel implements ModelObject {
 
 	private SortedSet<String> stringSet(final Collection<String> input) {
 		SortedSet<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		result.addAll(input);
+		if(result != null) result.addAll(input);
 		return result;
 	}
 
