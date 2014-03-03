@@ -25,6 +25,7 @@ import com.ibm.xsp.extlib.component.dynamicview.ViewDesign.DefaultViewDef;
 import com.ibm.xsp.extlib.component.dynamicview.ViewDesign.ViewDef;
 import com.ibm.xsp.extlib.component.dynamicview.ViewDesign.ViewFactory;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
+import com.ibm.xsp.util.FacesUtil;
 
 import org.openntf.domino.utils.xml.XMLDocument;
 import org.openntf.domino.utils.xml.XMLNode;
@@ -276,7 +277,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 
 	@Override
 	public void afterCreateColumn(final FacesContext context, final int index, final ColumnDef colDef, final IControl column) {
-		UIDynamicViewPanel panel = (UIDynamicViewPanel)ExtLibUtil.getComponentFor(context.getViewRoot(), panelId);
+		UIDynamicViewPanel panel = (UIDynamicViewPanel)FacesUtil.getComponentFor(context.getViewRoot(), panelId);
 
 		// Patch in a converter to handle special text and icon columns
 		UIDynamicViewPanel.DynamicColumn col = (UIDynamicViewPanel.DynamicColumn)column.getComponent();
@@ -370,7 +371,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 
 		@Override
 		public String getAsString(final FacesContext context, final UIComponent component, final Object value) {
-			UIDynamicViewPanel panel = (UIDynamicViewPanel)ExtLibUtil.getComponentFor(context.getViewRoot(), panelId);
+			UIDynamicViewPanel panel = (UIDynamicViewPanel)FacesUtil.getComponentFor(context.getViewRoot(), panelId);
 
 			// First, apply any column-color info needed
 			ViewEntry entry = this.resolveViewEntry(context, panel.getVar());
