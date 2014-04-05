@@ -118,6 +118,10 @@ public abstract class AbstractDominoModel implements ModelObject {
 
 	protected abstract Collection<String> nonSummaryFields();
 
+	protected Collection<String> richTextFields() {
+		return Arrays.asList(new String[] {});
+	}
+
 	protected Collection<String> authorsFields() {
 		return Arrays.asList(new String[] {});
 	}
@@ -497,6 +501,7 @@ public abstract class AbstractDominoModel implements ModelObject {
 		Session session = (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
 
 		Set<String> nonSummaryFields = stringSet(nonSummaryFields());
+		Set<String> richTextFields = stringSet(richTextFields());
 		Collection<String> authorsFields = stringSet(authorsFields());
 		Collection<String> readersFields = stringSet(readersFields());
 		Collection<String> namesFields = stringSet(namesFields());
@@ -550,6 +555,13 @@ public abstract class AbstractDominoModel implements ModelObject {
 						}
 					}
 
+				} else if(richTextFields.contains(key.toLowerCase())) {
+					if(doc.hasItem(key)) doc.removeItem(key);
+					MIMEEntity entity = doc.createMIMEEntity(key);
+					Stream stream = doc.getAncestorSession().createStream();
+					stream.writeText(String.valueOf(value));
+					entity.setContentFromText(stream, "text/html", MIMEEntity.ENC_NONE);
+					stream.close();
 				} else {
 					Item item = null;
 					if (value instanceof Date) {
@@ -594,7 +606,7 @@ public abstract class AbstractDominoModel implements ModelObject {
 
 	private SortedSet<String> stringSet(final Collection<String> input) {
 		SortedSet<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		if(result != null) result.addAll(input);
+		if(input != null) result.addAll(input);
 		return result;
 	}
 

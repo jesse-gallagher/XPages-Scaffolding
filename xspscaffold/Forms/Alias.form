@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <note class='form' xmlns='http://www.lotus.com/dxl' version='9.0' maintenanceversion='1.0'
  replicaid='85257C85007FEF16'>
-<noteinfo noteid='1e6' unid='464AD117372DA23F85257C85007FF2CA' sequence='2'>
+<noteinfo noteid='1e6' unid='464AD117372DA23F85257C85007FF2CA' sequence='3'>
 <created><datetime>20140220T181732,26-05</datetime></created>
-<modified><datetime>20140220T181732,37-05</datetime></modified>
-<revised><datetime>20140220T181732,36-05</datetime></revised>
-<lastaccessed><datetime>20140220T181732,36-05</datetime></lastaccessed>
+<modified><datetime dst='true'>20140405T174205,93-04</datetime></modified>
+<revised><datetime dst='true'>20140405T174205,92-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20140405T174205,92-04</datetime></lastaccessed>
 <addedtofile><datetime>20140220T181732,26-05</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
-<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
+<updatedby><name>CN=Jesse Gallagher/O=Frost</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
 <item name='$Comment' sign='true'><text/></item>
 <item name='Date' summary='false' sign='true'>
 <rawitemdata type='400'>

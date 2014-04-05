@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><note class="form" maintenanceversion="1.0" replicaid="85257C85007FEF16" version="9.0" xmlns="http://www.lotus.com/dxl">
-<noteinfo noteid="316" sequence="1" unid="9117FFC8D005EDC585257C85008055B5">
-<created><datetime>20140220T182145,49-05</datetime></created>
-<modified><datetime>20140220T182145,88-05</datetime></modified>
-<revised><datetime>20140220T182145,87-05</datetime></revised>
-<lastaccessed><datetime>20140220T182145,87-05</datetime></lastaccessed>
-<addedtofile><datetime>20140220T182145,87-05</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
-<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
+<noteinfo noteid="352" sequence="2" unid="ABC90C4FB56C6DB285257CB10076D67F">
+<created><datetime dst="true">20140405T173801,59-04</datetime></created>
+<modified><datetime dst="true">20140405T173801,79-04</datetime></modified>
+<revised><datetime dst="true">20140405T173801,78-04</datetime></revised>
+<lastaccessed><datetime dst="true">20140405T173801,78-04</datetime></lastaccessed>
+<addedtofile><datetime dst="true">20140405T173801,60-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
 <item name="$Flags"><text>34567Cg~[</text></item>
 <item name="$TITLE"><text>frostillicus/model/ModelUtils.java</text></item>
 <item name="$DesignerVersion"><text>8.5.3</text></item>
 
 
-<item name="$FileNames" sign="true"><text>frostillicus/model/ModelUtils.java</text></item>
-
-
-</note>
+<item name="$FileNames" sign="true"><text>frostillicus/model/ModelUtils.java</text></item></note>

@@ -7,7 +7,7 @@ import javax.faces.context.FacesContext;
 import org.openntf.domino.*;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
-public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager {
+public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager<E> {
 	private static final long serialVersionUID = 1L;
 
 	abstract protected Class<E> getModelClass();

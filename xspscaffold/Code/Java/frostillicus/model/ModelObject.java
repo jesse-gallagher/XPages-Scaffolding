@@ -6,5 +6,5 @@ import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.ViewRowData;
 
 public interface ModelObject extends Serializable, DataObject, ViewRowData {
-
+	public boolean save();
 }

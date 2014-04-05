@@ -1,0 +1,87 @@
+<faces-config>
+	<faces-config-extension>
+		<namespace-uri>http://frostillic.us/model</namespace-uri>
+		<default-prefix>frm</default-prefix>
+	</faces-config-extension>
+	
+	<group>
+		<group-type>frostillicus.model.data_source</group-type>
+		
+		<property>
+			<property-name>managerName</property-name>
+			
+			<description>The bean or class name of the Manager object used to create or retrieve the object.</description>
+			<display-name>Manager Bean Name</display-name>
+			<property-class>string</property-class>
+			<property-extension>
+				<required>true</required>
+			</property-extension>
+		</property>
+		
+		<property>
+			<property-name>key</property-name>
+			
+			<description>The key used to retrieve the object, or "new" or blank for a new object.</description>
+			<display-name>Object Key</display-name>
+			<property-class>string</property-class>
+		</property>
+	</group>
+	
+	<complex-type>
+		<display-name>frostillic.us Model Data Source</display-name>
+		
+		<description>A model object data source</description>
+		<complex-id>frostillicus.model.ModelDataSource</complex-id>
+		<complex-class>frostillicus.model.ModelDataSource</complex-class>
+		
+		<group-type-ref>com.ibm.xsp.model.group.DataSource</group-type-ref>
+		<group-type-ref>frostillicus.model.data_source</group-type-ref>
+		
+		<complex-extension>
+			<tag-name>modelObjectData</tag-name>
+			<base-complex-id>dataInterface</base-complex-id>
+			<designer-extension/>
+		</complex-extension>
+	</complex-type>
+	
+	<complex-type>
+		<display-name>frostillic.us Model List Data Source</display-name>
+		
+		<description>A model list data source</description>
+		<complex-id>frostillicus.model.ModelListDataSource</complex-id>
+		<complex-class>frostillicus.model.ModelListDataSource</complex-class>
+		
+		<group-type-ref>com.ibm.xsp.model.group.DataSource</group-type-ref>
+		<group-type-ref>frostillicus.model.data_source</group-type-ref>
+		
+		<property>
+			<property-name>postOpenView</property-name>
+			
+			<description>Triggered after retrieving the collection.</description>
+			<display-name>Post Open View Method Binding</display-name>
+			<property-class>javax.faces.el.MethodBinding</property-class>
+			<property-extension>
+				<required>false</required>
+				<method-binding-property>true</method-binding-property>
+			</property-extension>
+		</property>
+		
+		<property>
+			<property-name>queryOpenView</property-name>
+			
+			<description>Triggered before retrieving the collection.</description>
+			<display-name>Query Open View Method Binding</display-name>
+			<property-class>javax.faces.el.MethodBinding</property-class>
+			<property-extension>
+				<required>false</required>
+				<method-binding-property>true</method-binding-property>
+			</property-extension>
+		</property>
+		
+		<complex-extension>
+			<tag-name>modelListData</tag-name>
+			<base-complex-id>dataInterface</base-complex-id>
+			<designer-extension/>
+		</complex-extension>
+	</complex-type>
+</faces-config>

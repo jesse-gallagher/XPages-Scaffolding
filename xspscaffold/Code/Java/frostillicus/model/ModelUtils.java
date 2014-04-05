@@ -1,5 +1,6 @@
 package frostillicus.model;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -87,5 +88,35 @@ public enum ModelUtils {
 
 	public static String strLeft(final String input, final String delimiter) {
 		return input.substring(0, input.indexOf(delimiter));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static ModelManager<?> findModelManager(final FacesContext context, final String managerName) throws IOException {
+		Object managerObject = context.getApplication().getVariableResolver().resolveVariable(context, managerName);
+		if(managerObject != null && !(managerObject instanceof ModelManager)) {
+			throw new IllegalArgumentException("managerObject must be an instance of " + ModelManager.class.getName());
+		}
+
+		// If the object is null, assume that the managerName is a class name and instantiate anew
+		if(managerObject == null) {
+			try {
+				Class<ModelManager<?>> managerClass = (Class<ModelManager<?>>)Class.forName(managerName);
+				managerObject = managerClass.newInstance();
+			} catch(ClassNotFoundException cnfe) {
+				IOException ioe = new IOException("Error while instantiating manager object for name '" + managerName + "'");
+				ioe.initCause(cnfe);
+				throw ioe;
+			} catch(InstantiationException ie) {
+				IOException ioe = new IOException("Error while instantiating manager object for name '" + managerName + "'");
+				ioe.initCause(ie);
+				throw ioe;
+			} catch(IllegalAccessException iae) {
+				IOException ioe = new IOException("Error while instantiating manager object for name '" + managerName + "'");
+				ioe.initCause(iae);
+				throw ioe;
+			}
+		}
+
+		return (ModelManager<?>)managerObject;
 	}
 }

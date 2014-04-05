@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <note class='filter' xmlns='http://www.lotus.com/dxl' version='9.0' maintenanceversion='1.0'
  replicaid='85257C85007FEF16'>
-<noteinfo noteid='1a2' unid='A1E11B168309281A85257C85007FF1C2' sequence='2'>
+<noteinfo noteid='1a2' unid='A1E11B168309281A85257C85007FF1C2' sequence='3'>
 <created><datetime>20140220T181729,62-05</datetime></created>
-<modified><datetime>20140220T181729,70-05</datetime></modified>
-<revised><datetime>20140220T181729,69-05</datetime></revised>
-<lastaccessed><datetime>20140220T181729,69-05</datetime></lastaccessed>
+<modified><datetime dst='true'>20140405T174215,42-04</datetime></modified>
+<revised><datetime dst='true'>20140405T174215,41-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20140405T174215,41-04</datetime></lastaccessed>
 <addedtofile><datetime>20140220T181729,62-05</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Jesse Gallagher/O=Frost</name></updatedby>
-<wassignedby><name>CN=Jesse Gallagher/O=Frost</name></wassignedby>
+<updatedby><name>CN=Jesse Gallagher/O=Frost</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
 <item name='$POID'><datetime dst='true'>20080313T103820,40-04</datetime></item>
 <item name='$SiteMapList' sign='true'>
 <rawitemdata type='1a'>
