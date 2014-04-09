@@ -1,4 +1,4 @@
-package frostillicus.model;
+package frostillicus.model.domino;
 
 import java.util.*;
 
@@ -6,6 +6,9 @@ import javax.faces.context.FacesContext;
 
 import org.openntf.domino.*;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
+
+import frostillicus.model.ModelManager;
+import frostillicus.model.ModelUtils;
 
 public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager<E> {
 	private static final long serialVersionUID = 1L;

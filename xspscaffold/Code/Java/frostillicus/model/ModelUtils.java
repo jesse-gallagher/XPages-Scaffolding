@@ -3,10 +3,10 @@ package frostillicus.model;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -61,27 +61,6 @@ public enum ModelUtils {
 		facesContext.addMessage("", message);
 	}
 
-	public static Map<String, Object> columnValuesToMap(final List<Object> columnValues, final List<DominoColumnInfo> columnInfo) {
-		Map<String, Object> result = new HashMap<String, Object>();
-
-		for (int i = 0; i < columnValues.size(); i++) {
-			result.put(columnInfo.get(i).getItemName(), columnValues.get(i));
-		}
-
-		return result;
-	}
-
-	public static List<DominoColumnInfo> getColumnInfo(final View view) {
-		List<ViewColumn> columns = view.getColumns();
-		List<DominoColumnInfo> result = new ArrayList<DominoColumnInfo>(columns.size());
-		for (ViewColumn column : columns) {
-			if (column.getColumnValuesIndex() < 65535) {
-				result.add(new DominoColumnInfo(column));
-			}
-		}
-		return result;
-	}
-
 	public static String strRightBack(final String input, final String delimiter) {
 		return input.substring(input.lastIndexOf(delimiter) + delimiter.length());
 	}
@@ -118,5 +97,11 @@ public enum ModelUtils {
 		}
 
 		return (ModelManager<?>)managerObject;
+	}
+
+	public static SortedSet<String> stringSet(final Collection<String> input) {
+		SortedSet<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		if(input != null) result.addAll(input);
+		return result;
 	}
 }

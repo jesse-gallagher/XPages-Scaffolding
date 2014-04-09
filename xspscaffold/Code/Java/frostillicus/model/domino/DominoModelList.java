@@ -1,11 +1,16 @@
-package frostillicus.model;
+package frostillicus.model.domino;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigInteger;
 import java.util.*;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 import com.ibm.xsp.model.TabularDataModel;
+
+import frostillicus.model.AbstractModelList;
+import frostillicus.model.ModelUtils;
+
 import org.openntf.domino.*;
 
 @SuppressWarnings("serial")
@@ -26,7 +31,8 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	private final boolean invalid_;
 
-	private Map<String, Integer> collapsedPositions_ = new HashMap<String, Integer>();
+	private Set<Integer> collapsedIds_ = new TreeSet<Integer>();
+	private Set<Integer> expandedIds_ = new TreeSet<Integer>();
 
 	public DominoModelList(final Database database, final String viewName, final String category, final Class<E> clazz) {
 		server_ = database.getServer();
@@ -39,7 +45,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		View view = database.getView(viewName_);
 		invalid_ = view == null;
 
-		columnInfo_ = invalid_ ? null : ModelUtils.getColumnInfo(view);
+		columnInfo_ = invalid_ ? null : DominoColumnInfo.fromView(view);
 	}
 
 	protected E createFromViewEntry(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
@@ -83,31 +89,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 					// If we're in a collapsed category, we have to skip further
 					// TODO make this work with multi-level categories
 					try {
-						// Test to see if the nav itself is the problem in the NPE
-						//						@SuppressWarnings("unused")
-						//int count = nav.getCount();
-
-						ViewEntry current = nav.getCurrent();
-						String currentPosition = current.getPosition('.');
-						if (currentPosition.contains(".")) {
-							int topLevel = Integer.valueOf(ModelUtils.strLeft(currentPosition, "."));
-							for (String position : collapsedPositions_.keySet()) {
-								int collapseIndex = Integer.valueOf(position.contains(".") ? ModelUtils.strLeft(position, ".") : position);
-								if (currentPosition.startsWith(position + ".")) {
-									//int skipCount = current.getSiblingCount() - Integer.valueOf(ModelUtils.strRightBack(currentPosition, ".")) + 1;
-									//nav.skip(skipCount);
-									//break;
-								}
-								if (collapseIndex <= topLevel) {
-									nav.skip(collapsedPositions_.get(position));
-								}
-							}
-						}
-
-						//getCache().put(index, createFromViewEntry(nav.getNth(index + 1), columnInfo_));
 						getCache().put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
-						//					System.out.println("fetched index " + index + ", which is pos " + nav.getCurrent().getPosition('.'));
-						//					nav.skip(1);
 					} catch(NullPointerException npe) {
 						// Then we've probably hit an "Object has been removed or recycled" on the nav
 						System.out.println("=============================== NPE in DominoModelList");
@@ -134,9 +116,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 			if (searchQuery_ == null || searchQuery_.isEmpty()) {
 				ViewNavigator nav = getNavigator();
 				int hiddenEntries = 0;
-				for (int hiddenCount : collapsedPositions_.values()) {
+				/*for (int hiddenCount : collapsedPositions_.values()) {
 					hiddenEntries += hiddenCount;
-				}
+				}*/
 				return nav == null ? 0 : getNavigator().getCount() - hiddenEntries;
 			} else {
 				ViewEntryCollection vec = getEntries();
@@ -366,30 +348,29 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@Override
 	public boolean isRowCollapsed() {
-		return collapsedPositions_.containsKey(getRowPosition());
+		return collapsedIds_.contains(get(getRowIndex()).noteId());
 	}
 
 	@Override
 	public void collapseRow(final String rowPosition) {
-		if (!collapsedPositions_.containsKey(rowPosition)) {
-			try {
-				// TODO make this work with multi-level categories
-				ViewNavigator nav = getNewNavigator();
-				nav.gotoPos(rowPosition, '.');
-				collapsedPositions_.put(rowPosition, nav.getCurrent().getDescendantCount());
-			} catch (Exception ne) {
-				throw new RuntimeException(ne);
-			}
-			clearCache();
-		}
+		ViewNavigator nav = getNewNavigator();
+		nav.gotoPos(rowPosition, '.');
+		ViewEntry current = nav.getCurrent();
+		int noteId = new BigInteger(current.getNoteID(), 16).intValue();
+		collapsedIds_.add(noteId);
+		expandedIds_.remove(noteId);
+		clearCache();
 	}
 
 	@Override
 	public void expandRow(final String rowPosition) {
-		if (collapsedPositions_.containsKey(rowPosition)) {
-			collapsedPositions_.remove(rowPosition);
-			clearCache();
-		}
+		ViewNavigator nav = getNewNavigator();
+		nav.gotoPos(rowPosition, '.');
+		ViewEntry current = nav.getCurrent();
+		int noteId = new BigInteger(current.getNoteID(), 16).intValue();
+		collapsedIds_.remove(noteId);
+		expandedIds_.add(noteId);
+		clearCache();
 	}
 
 	private final DominoColumnInfo findColumnByName(final String columnName) {
@@ -455,6 +436,17 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 			nav = view.createViewNavFromCategory(category_);
 		}
 		nav.setBufferMaxEntries(50); // The most common use will likely be a paged view
+		int[] expandedIds = new int[expandedIds_.size()];
+		int i = 0;
+		for(Integer id : expandedIds_) {
+			expandedIds[i++] = id;
+		}
+		int[] collapsedIds = new int[collapsedIds_.size()];
+		i = 0;
+		for(Integer id : collapsedIds_) {
+			collapsedIds[i++] = id;
+		}
+		nav.setAutoExpandGuidance(50, collapsedIds, expandedIds);
 		return nav;
 	}
 
@@ -478,6 +470,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		Database database = ModelUtils.getDatabase(server_, filePath_);
 		View view = database.getView(viewName_);
 		view.setAutoUpdate(false);
+		view.setEnableNoteIDsForCategories(true);
 		if (category_ == null) {
 			if (sortColumn_ != null) {
 				view.resortView(sortColumn_, ascending_);
