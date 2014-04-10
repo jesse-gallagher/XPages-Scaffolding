@@ -11,50 +11,43 @@ import util.JSFUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.component.UIViewRootEx;
-import com.ibm.xsp.extlib.util.ExtLibUtil;
-//import com.ibm.xsp.model.domino.DominoDocumentData;
 
-import lotus.domino.*;
+import org.openntf.domino.*;
 import java.util.*;
 
 public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerExImpl {
 
-	public ControllingViewHandler(ViewHandler arg0) {
-		super(arg0);
+	public ControllingViewHandler(final ViewHandler delegate) {
+		super(delegate);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public UIViewRoot createView(FacesContext context, String pageName) {
+	public UIViewRoot createView(final FacesContext context, final String pageName) {
 		// Page name is in the format "/home"
 		String pageClassName = pageName.substring(1);
 
 		if(pageClassName.equalsIgnoreCase("$$OpenDominoDocument")) {
 			// Handle the virtual document page. There may be a better way to do this, but this will do for now
-			try {
-				Database database = ExtLibUtil.getCurrentDatabase();
-				Map<String, String> param = (Map<String, String>)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "param");
-				Document doc = database.getDocumentByUNID(param.get("documentId"));
-				if(doc != null) {
-					String formName = doc.getItemValueString("Form");
-					doc.recycle();
+			Database database = (Database)resolveVariable(context, "database");
+			Map<String, String> param = (Map<String, String>)resolveVariable(context, "param");
+			Document doc = database.getDocumentByUNID(param.get("documentId"));
+			if(doc != null) {
+				String formName = doc.getItemValueString("Form");
 
-					// Now that we have the form, look for the XPageAlt
-					Form form = database.getForm(formName);
-					String formURL = form.getURL();
-					String formUNID = JSFUtil.strRightBack(JSFUtil.strLeftBack(formURL, "?Open"), "/");
-					Document formDoc = database.getDocumentByUNID(formUNID);
-					String xpageAlt = formDoc.getItemValueString("$XPageAlt");
-					formDoc.recycle();
-					form.recycle();
+				// Now that we have the form, look for the XPageAlt
+				Form form = database.getForm(formName);
+				String formURL = form.getURL();
+				String formUNID = JSFUtil.strRightBack(JSFUtil.strLeftBack(formURL, "?Open"), "/");
+				Document formDoc = database.getDocumentByUNID(formUNID);
+				String xpageAlt = formDoc.getItemValueString("$XPageAlt");
 
-					if(StringUtil.isEmpty(xpageAlt)) {
-						pageClassName = formName;
-					} else {
-						pageClassName = JSFUtil.strLeftBack(xpageAlt, ".xsp");
-					}
+				if(StringUtil.isEmpty(xpageAlt)) {
+					pageClassName = formName;
+				} else {
+					pageClassName = JSFUtil.strLeftBack(xpageAlt, ".xsp");
 				}
-			} catch(NotesException ne) { ne.printStackTrace();}
+			}
 		}
 
 		Class<? extends XPageController> controllerClass = null;
@@ -66,19 +59,20 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 		UIViewRootEx root = null;
 		try {
 			XPageController pageController = controllerClass.newInstance();
-			ExtLibUtil.getRequestScope().put("pageController", pageController);
+			Map<String, Object> requestScope = (Map<String, Object>)resolveVariable(context, "requestScope");
+			requestScope.put("controller", pageController);
 
 			root = (UIViewRootEx)super.createView(context, pageName);
-			ExtLibUtil.getViewScope().put("pageController", pageController);
-			ExtLibUtil.getRequestScope().remove("pageController");
+			root.getViewMap().put("controller", pageController);
+			requestScope.remove("controller");
 
-			MethodBinding beforeRenderResponse = context.getApplication().createMethodBinding("#{pageController.beforeRenderResponse}", new Class[] { PhaseEvent.class });
+			MethodBinding beforeRenderResponse = context.getApplication().createMethodBinding("#{controller.beforeRenderResponse}", new Class[] { PhaseEvent.class });
 			root.setBeforeRenderResponse(beforeRenderResponse);
 
-			MethodBinding afterRenderResponse = context.getApplication().createMethodBinding("#{pageController.afterRenderResponse}", new Class[] { PhaseEvent.class });
+			MethodBinding afterRenderResponse = context.getApplication().createMethodBinding("#{controller.afterRenderResponse}", new Class[] { PhaseEvent.class });
 			root.setAfterRenderResponse(afterRenderResponse);
 
-			MethodBinding afterRestoreView = context.getApplication().createMethodBinding("#{pageController.afterRestoreView}", new Class[] { PhaseEvent.class });
+			MethodBinding afterRestoreView = context.getApplication().createMethodBinding("#{controller.afterRestoreView}", new Class[] { PhaseEvent.class });
 			root.setAfterRestoreView(afterRestoreView);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -86,5 +80,9 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 		}
 
 		return root;
+	}
+
+	private static Object resolveVariable(final FacesContext context, final String varName) {
+		return context.getApplication().getVariableResolver().resolveVariable(context, varName);
 	}
 }
