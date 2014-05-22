@@ -379,8 +379,24 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 				if(value instanceof DateTime) {
 					return this.getValueDateTimeAsString(context, component, ((DateTime)value).toJavaDate());
 				}
-				if(value instanceof Date) {
-					return this.getValueDateTimeAsString(context, component, (Date)value);
+				if (value instanceof Date) {
+					// return getValueDateTimeAsString(context, component, (Date) value);
+					DateFormat fmt;
+					switch (colDef.getTimeDateFmt()) {
+					case ViewColumn.FMT_DATE: {
+						fmt = com.ibm.commons.util.DateTime.getDefaultDateFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+					}
+						break;
+					case ViewColumn.FMT_TIME: {
+						fmt = com.ibm.commons.util.DateTime.getDefaultTimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+					}
+						break;
+					default: {
+						fmt = com.ibm.commons.util.DateTime.getDefaultDatetimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+					}
+						break;
+					}
+					return fmt.format(value);
 				}
 				if(value instanceof Number) {
 					return this.getValueNumberAsString(context, component, (Number)value);
