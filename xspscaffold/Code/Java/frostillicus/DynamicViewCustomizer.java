@@ -2,6 +2,7 @@ package frostillicus;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -383,17 +384,17 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 					// return getValueDateTimeAsString(context, component, (Date) value);
 					DateFormat fmt;
 					switch (colDef.getTimeDateFmt()) {
-					case ViewColumn.FMT_DATE: {
-						fmt = com.ibm.commons.util.DateTime.getDefaultDateFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
-					}
+						case ViewColumn.FMT_DATE: {
+							fmt = com.ibm.commons.util.DateTime.getDefaultDateFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+						}
 						break;
-					case ViewColumn.FMT_TIME: {
-						fmt = com.ibm.commons.util.DateTime.getDefaultTimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
-					}
+						case ViewColumn.FMT_TIME: {
+							fmt = com.ibm.commons.util.DateTime.getDefaultTimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+						}
 						break;
-					default: {
-						fmt = com.ibm.commons.util.DateTime.getDefaultDatetimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
-					}
+						default: {
+							fmt = com.ibm.commons.util.DateTime.getDefaultDatetimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+						}
 						break;
 					}
 					return fmt.format(value);
@@ -781,7 +782,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 					break;
 				case 'H':
 					// @DocLevel
-					midResult = (viewEntry.getIndentLevel()+1) + ""; 
+					midResult = (viewEntry.getIndentLevel()+1) + "";
 					break;
 				case 'A':
 					// @DocNumber
