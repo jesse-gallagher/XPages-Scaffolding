@@ -306,6 +306,9 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		if (isCategory()) {
 			return "";
 		}
+		if(pageName == null) {
+			return "";
+		}
 		return pageName + (pageName.contains("?") ? "&" : "?") + "id=" + documentId_;
 	}
 
