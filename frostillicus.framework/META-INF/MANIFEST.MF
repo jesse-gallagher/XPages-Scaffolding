@@ -8,12 +8,14 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: javax.faces,
  org.eclipse.core.runtime,
  org.openntf.domino,
+ org.openntf.domino.design,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.xsp.extsn,
  com.ibm.xsp.extlib,
  com.ibm.xsp.domino
 Export-Package: frostillicus,
+ frostillicus.bean,
  frostillicus.controller,
  frostillicus.event,
  frostillicus.model,
