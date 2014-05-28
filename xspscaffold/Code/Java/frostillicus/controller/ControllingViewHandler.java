@@ -52,7 +52,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 
 		Class<? extends XPageController> controllerClass = null;
 		try {
-			controllerClass = (Class<? extends XPageController>)Class.forName("controller." + pageClassName);
+			controllerClass = (Class<? extends XPageController>)context.getContextClassLoader().loadClass("controller." + pageClassName);
 		} catch(ClassNotFoundException cnfe) {
 			controllerClass = BasicXPageController.class;
 		}
