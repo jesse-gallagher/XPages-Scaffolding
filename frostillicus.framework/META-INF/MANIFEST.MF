@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: frostillic.us Framework
+Bundle-SymbolicName: frostillicus.framework;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: frostillicus.framework.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.faces,
+ org.eclipse.core.runtime,
+ org.openntf.domino,
+ org.osgi.framework
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.ibm.xsp.extsn,
+ com.ibm.xsp.extlib,
+ com.ibm.xsp.domino
+Export-Package: frostillicus,
+ frostillicus.controller,
+ frostillicus.event,
+ frostillicus.model,
+ frostillicus.model.domino,
+ frostillicus.util
