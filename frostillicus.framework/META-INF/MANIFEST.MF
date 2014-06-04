@@ -14,10 +14,10 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.xsp.extsn,
  com.ibm.xsp.extlib,
  com.ibm.xsp.domino
-Export-Package: frostillicus,
- frostillicus.bean,
- frostillicus.controller,
- frostillicus.event,
- frostillicus.model,
- frostillicus.model.domino,
- frostillicus.util
+Export-Package: frostillicus.xsp,
+ frostillicus.xsp.bean,
+ frostillicus.xsp.controller,
+ frostillicus.xsp.event,
+ frostillicus.xsp.model,
+ frostillicus.xsp.model.domino,
+ frostillicus.xsp.util
