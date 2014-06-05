@@ -73,7 +73,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 		// Now actually init the container
 		ModelManager<?> manager = ModelUtils.findModelManager(context, managerName_);
 		if(manager == null) {
-			throw new IOException("Unable to locate manager for name '" + managerName_ + "'");
+			throw new IOException("Unable to locate frostillic.us manager for name '" + managerName_ + "'");
 		}
 		String key = StringUtil.isEmpty(key_) ? "new" : key_;
 		Object modelObject = manager.getValue(key);

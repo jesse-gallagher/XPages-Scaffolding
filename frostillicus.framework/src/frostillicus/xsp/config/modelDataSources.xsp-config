@@ -1,11 +1,11 @@
 <faces-config>
 	<faces-config-extension>
-		<namespace-uri>http://frostillic.us/model</namespace-uri>
-		<default-prefix>frm</default-prefix>
+		<namespace-uri>http://frostillic.us/framework</namespace-uri>
+		<default-prefix>ff</default-prefix>
 	</faces-config-extension>
 	
 	<group>
-		<group-type>frostillicus.model.data_source</group-type>
+		<group-type>frostillicus.xsp.model.data_source</group-type>
 		
 		<property>
 			<property-name>managerName</property-name>
