@@ -9,6 +9,11 @@
 	</lifecycle>
 
 	<managed-bean>
+		<managed-bean-name>docsByUNID</managed-bean-name>
+		<managed-bean-class>frostillicus.xsp.DominoDocumentMap</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
 		<managed-bean-name>flashScope</managed-bean-name>
 		<managed-bean-class>java.util.HashMap</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
