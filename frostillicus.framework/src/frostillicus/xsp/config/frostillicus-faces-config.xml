@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faces-config>
-  <application>
-  	<variable-resolver>frostillicus.xsp.bean.AnnotatedBeanResolver</variable-resolver>
-  </application>
-  <converter>
-    <converter-id>enumBindingConverter</converter-id>
-    <converter-class>frostillicus.xsp.converter.EnumBindingConverter</converter-class>
-  </converter>
+	<application>
+		<variable-resolver>frostillicus.xsp.bean.AnnotatedBeanResolver</variable-resolver>
+		<view-handler>frostillicus.xsp.controller.ControllingViewHandler</view-handler>
+	</application>
+	<converter>
+		<converter-id>enumBindingConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.EnumBindingConverter</converter-class>
+	</converter>
+	<converter>
+		<converter-id>commonNameConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.CommonNameConverter</converter-class>
+	</converter>
+	<converter>
+		<converter-id>iterableCommaConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.IterableCommaConverter</converter-class>
+	</converter>
+	<converter>
+		<converter-id>iterableSemicolonConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.IterableSemicolonConverter</converter-class>
+	</converter>
+	<lifecycle>
+		<phase-listener>frostillicus.xsp.FlashScopePhaseListener</phase-listener>
+	</lifecycle>
+
+	<managed-bean>
+		<managed-bean-name>flashScope</managed-bean-name>
+		<managed-bean-class>java.util.HashMap</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
 </faces-config>
