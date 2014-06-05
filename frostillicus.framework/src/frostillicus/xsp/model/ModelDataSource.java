@@ -56,6 +56,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 		return null;
 	}
 
+	@Override
 	public DataModel getDataModel() {
 		return getDataObject();
 	}
@@ -71,6 +72,9 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 
 		// Now actually init the container
 		ModelManager<?> manager = ModelUtils.findModelManager(context, managerName_);
+		if(manager == null) {
+			throw new IOException("Unable to locate manager for name '" + managerName_ + "'");
+		}
 		String key = StringUtil.isEmpty(key_) ? "new" : key_;
 		Object modelObject = manager.getValue(key);
 		if(modelObject == null) {
@@ -169,10 +173,12 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 		public AbstractModelObject getModelObject() {
 			return modelObject_;
 		}
+		@Override
 		public Object getDocument() {
 			return getModelObject();
 		}
 
+		@Override
 		public void deserialize(final ObjectInput in) throws IOException {
 			try {
 				modelObject_ = (AbstractModelObject)in.readObject();
@@ -183,6 +189,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 			}
 		}
 
+		@Override
 		public void serialize(final ObjectOutput out) throws IOException {
 			out.writeObject(modelObject_);
 		}
@@ -202,6 +209,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 			delegate_ = delegate;
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public DataModel createDataModel(final Object obj) {
 			if(obj instanceof FileDownloadValue) {
@@ -232,6 +240,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 			delegate_ = delegate;
 		}
 
+		@Override
 		public DocumentAdapter createDocumentAdapter(final FacesContext context, final Object obj) {
 			// A valid document adapter will come along as a Map "tuple" of model object -> field name
 			if(obj instanceof Map) {
@@ -253,19 +262,23 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 			id_ = modelObject.getId();
 		}
 
+		@Override
 		public void addAttachment(final FacesContext context, final Object document, final String name, final InputStream istream, final int length, final String description, final String type) {
 			System.out.println("called addAttachment");
 			// NOP
 		}
 
+		@Override
 		public void addOpenPageParameters(final FacesContext context, final String var, final ActionOutcomeUrl outcomeUrl) {
 			// NOP
 		}
 
+		@Override
 		public void delete(final FacesContext context, final Object document) {
 			((ModelObject)document).delete();
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public void deleteAttachments(final FacesContext context, final Object document, final String name, final boolean deleteAll) {
 			// In this case, "document" is a HashMap tuple
@@ -273,40 +286,49 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 			tuple.getKey().deleteAttachment(tuple.getValue(), name);
 		}
 
+		@Override
 		public String getDocumentId(final FacesContext context, final String var) {
 			return id_;
 		}
 
+		@Override
 		public String getDocumentPage(final FacesContext context, final String documentId) {
 			// TODO Do this, maybe?
 			return null;
 		}
 
+		@Override
 		public List<FileRowData> getEmbeddedImageList(final Object document, final String fieldName) {
 			System.out.println("requesting embedded image list for a " + document.getClass().getName());
 			return ((ModelObject)document).getAttachmentList(fieldName);
 		}
 
+		@Override
 		public String getParentId(final FacesContext context, final Object document) {
 			return "";
 		}
 
+		@Override
 		public boolean isEditable(final FacesContext context, final Object document) {
 			return true;
 		}
 
+		@Override
 		public void modifyField(final FacesContext context, final Object document, final String name, final Object value) {
 			((ModelObject)document).setValue(name, value);
 		}
 
+		@Override
 		public void save(final FacesContext context, final Object document) {
 			((ModelObject)document).save();
 		}
 
+		@Override
 		public void setDocument(final FacesContext context, final Object document, final Object value) {
 			// NOP
 		}
 
+		@Override
 		public void setUserReadOnly(final FacesContext context, final Object document, final boolean readOnly) {
 			// TODO Implement when read-only support exists at the model level
 			// NOP

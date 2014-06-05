@@ -29,9 +29,13 @@ public class AnnotatedBeanResolver extends VariableResolver {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object resolveVariable(final FacesContext facesContext, final String name) throws EvaluationException {
-		Object existing = delegate_.resolveVariable(facesContext, name);
-		if(existing != null) {
-			return existing;
+		if(name == null) return null;
+		// Check the delegate first, since this adds the beans to the appropriate scope as needed
+		if(delegate_ != null) {
+			Object existing = delegate_.resolveVariable(facesContext, name);
+			if(existing != null) {
+				return existing;
+			}
 		}
 
 		try {

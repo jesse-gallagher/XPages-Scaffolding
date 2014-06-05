@@ -37,4 +37,13 @@ public class FrostillicusLibrary extends AbstractXspLibrary {
 	public boolean isGlobalScope() {
 		return false;
 	}
+
+	@Override
+	public String[] getFacesConfigFiles() {
+		return new String[] { "frostillicus/xsp/config/frostillicus-faces-config.xml" };
+	}
+	@Override
+	public String[] getXspConfigFiles() {
+		return new String[] { "frostillicus/xsp/config/modelDataSources.xsp-config" };
+	}
 }

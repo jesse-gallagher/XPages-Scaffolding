@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <application>
+  	<variable-resolver>frostillicus.xsp.bean.AnnotatedBeanResolver</variable-resolver>
+  </application>
+  <converter>
+    <converter-id>enumBindingConverter</converter-id>
+    <converter-class>frostillicus.xsp.converter.EnumBindingConverter</converter-class>
+  </converter>
+</faces-config>

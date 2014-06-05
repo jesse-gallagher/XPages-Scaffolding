@@ -71,6 +71,8 @@ public enum ModelUtils {
 
 	@SuppressWarnings("unchecked")
 	public static ModelManager<?> findModelManager(final FacesContext context, final String managerName) throws IOException {
+		if(managerName == null) return null;
+
 		Object managerObject = context.getApplication().getVariableResolver().resolveVariable(context, managerName);
 		if(managerObject != null && !(managerObject instanceof ModelManager)) {
 			throw new IllegalArgumentException("managerObject must be an instance of " + ModelManager.class.getName());
@@ -79,7 +81,7 @@ public enum ModelUtils {
 		// If the object is null, assume that the managerName is a class name and instantiate anew
 		if(managerObject == null) {
 			try {
-				Class<ModelManager<?>> managerClass = (Class<ModelManager<?>>)Class.forName(managerName);
+				Class<ModelManager<?>> managerClass = (Class<ModelManager<?>>)FacesContext.getCurrentInstance().getContextClassLoader().loadClass(managerName);
 				managerObject = managerClass.newInstance();
 			} catch(ClassNotFoundException cnfe) {
 				IOException ioe = new IOException("Error while instantiating manager object for name '" + managerName + "'");

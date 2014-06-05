@@ -2,6 +2,8 @@ package frostillicus.xsp.event;
 
 import java.util.*;
 
+import javax.faces.context.FacesContext;
+
 public class SimpleXPagesEventDispatcher implements XPagesEventDispatcher {
 	private static final long serialVersionUID = 4297933143684795646L;
 
@@ -10,15 +12,17 @@ public class SimpleXPagesEventDispatcher implements XPagesEventDispatcher {
 	@SuppressWarnings("unchecked")
 	public void setListenerClasses(final List<String> listenerClassNames) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 		for (String className : listenerClassNames) {
-			Class<XPagesEventListener> listenerClass = (Class<XPagesEventListener>) Class.forName(className);
+			Class<XPagesEventListener> listenerClass = (Class<XPagesEventListener>) FacesContext.getCurrentInstance().getContextClassLoader().loadClass(className);
 			this.addListener(listenerClass.newInstance());
 		}
 	}
 
+	@Override
 	public void addListener(final XPagesEventListener listener) {
 		this.listeners.add(listener);
 	}
 
+	@Override
 	public void dispatch(final XPagesEvent event) {
 		for (XPagesEventListener listener : this.listeners) {
 			listener.receiveEvent(event);
