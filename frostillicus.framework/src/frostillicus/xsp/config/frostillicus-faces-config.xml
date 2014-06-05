@@ -4,22 +4,6 @@
 		<variable-resolver>frostillicus.xsp.bean.AnnotatedBeanResolver</variable-resolver>
 		<view-handler>frostillicus.xsp.controller.ControllingViewHandler</view-handler>
 	</application>
-	<converter>
-		<converter-id>enumBindingConverter</converter-id>
-		<converter-class>frostillicus.xsp.converter.EnumBindingConverter</converter-class>
-	</converter>
-	<converter>
-		<converter-id>commonNameConverter</converter-id>
-		<converter-class>frostillicus.xsp.converter.CommonNameConverter</converter-class>
-	</converter>
-	<converter>
-		<converter-id>iterableCommaConverter</converter-id>
-		<converter-class>frostillicus.xsp.converter.IterableCommaConverter</converter-class>
-	</converter>
-	<converter>
-		<converter-id>iterableSemicolonConverter</converter-id>
-		<converter-class>frostillicus.xsp.converter.IterableSemicolonConverter</converter-class>
-	</converter>
 	<lifecycle>
 		<phase-listener>frostillicus.xsp.FlashScopePhaseListener</phase-listener>
 	</lifecycle>

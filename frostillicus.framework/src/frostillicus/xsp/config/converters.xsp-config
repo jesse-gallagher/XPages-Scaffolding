@@ -1,0 +1,49 @@
+<faces-config>
+	<faces-config-extension>
+		<namespace-uri>http://frostillic.us/framework</namespace-uri>
+		<default-prefix>ff</default-prefix>
+	</faces-config-extension>
+
+	<converter>
+		<description>Concatenates an Iterable object with a string</description>
+		<display-name>Iterable Converter</display-name>
+		<converter-id>frostillicus.xsp.converter.IterableConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.IterableConverter</converter-class>
+		
+		<property>
+			<description>The string to use to join each part</description>
+			<display-name>Delimiter</display-name>
+			<property-name>delimiter</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<allow-run-time-binding>false</allow-run-time-binding>
+			</property-extension>
+		</property>
+		
+		<converter-extension>
+			<tag-name>convertIterable</tag-name>
+		</converter-extension>
+	</converter>
+	
+	<converter>
+		<description>Completes the binding of a text-based control to an Enum value</description>
+		<display-name>Enum Binding</display-name>
+		<converter-id>frostillicus.xsp.converter.EnumBindingConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.EnumBindingConverter</converter-class>
+		
+		<converter-extension>
+			<tag-name>enumBinding</tag-name>
+		</converter-extension>
+	</converter>
+	
+	<converter>
+		<description>Converts a string Domino name value to its common name part</description>
+		<display-name>Common Name Converter</display-name>
+		<converter-id>frostillicus.xsp.converter.CommonNameConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.CommonNameConverter</converter-class>
+		
+		<converter-extension>
+			<tag-name>convertCommonName</tag-name>
+		</converter-extension>
+	</converter>
+</faces-config>

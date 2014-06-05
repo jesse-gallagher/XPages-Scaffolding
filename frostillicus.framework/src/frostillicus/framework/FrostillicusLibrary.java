@@ -44,6 +44,9 @@ public class FrostillicusLibrary extends AbstractXspLibrary {
 	}
 	@Override
 	public String[] getXspConfigFiles() {
-		return new String[] { "frostillicus/xsp/config/modelDataSources.xsp-config" };
+		return new String[] {
+				"frostillicus/xsp/config/modelDataSources.xsp-config",
+				"frostillicus/xsp/config/converters.xsp-config"
+		};
 	}
 }
