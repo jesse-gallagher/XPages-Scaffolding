@@ -6,4 +6,9 @@
 			class="frostillicus.framework.FrostillicusLibrary"
 			type="com.ibm.xsp.Library"/>
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service
+			class="frostillicus.xsp.servlet.ServletFactory"
+			type="com.ibm.xsp.adapter.servletFactory"/>
+	</extension>
 </plugin>
