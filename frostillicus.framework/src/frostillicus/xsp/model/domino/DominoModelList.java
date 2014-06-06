@@ -9,6 +9,7 @@ import com.ibm.xsp.model.TabularDataModel;
 
 import frostillicus.xsp.model.AbstractModelList;
 import frostillicus.xsp.model.ModelUtils;
+import frostillicus.xsp.util.FrameworkUtils;
 
 import org.openntf.domino.*;
 
@@ -78,7 +79,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 					// getNth is top-level only, so let's skip to what we need
 					int lastFetchedIndex = 0;
-					Map<String, Object> requestScope = ModelUtils.getRequestScope();
+					Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
 					String key = "lastFetchedIndex-" + toString();
 					if (requestScope.containsKey(key)) {
 						lastFetchedIndex = (Integer) requestScope.get(key);
@@ -292,7 +293,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected ViewNavigator getNavigator() {
-		final Map<String, Object> requestScope = ModelUtils.getRequestScope();
+		final Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
 		final String key = "viewnav-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			requestScope.put(key, getNewNavigator());
@@ -324,7 +325,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected ViewEntryCollection getEntries() {
-		final Map<String, Object> requestScope = ModelUtils.getRequestScope();
+		final Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
 		final String key = "viewentries-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			View view = getView();
@@ -340,7 +341,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected View getView() {
-		Database database = ModelUtils.getDatabase(server_, filePath_);
+		Database database = FrameworkUtils.getDatabase(server_, filePath_);
 		View view = database.getView(viewName_);
 		view.setAutoUpdate(false);
 		view.setEnableNoteIDsForCategories(true);
@@ -358,7 +359,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		getCache().clear();
 		getView().refresh();
 
-		final Map<String, Object> requestScope = ModelUtils.getRequestScope();
+		final Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
 		String thisToString = this.toString();
 		requestScope.remove("viewnav-" + thisToString);
 		requestScope.remove("viewentries-" + thisToString);
@@ -367,7 +368,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@SuppressWarnings("unchecked")
 	private Map<Integer, E> getCache() {
-		Map<String, Object> cacheScope = ModelUtils.getRequestScope();
+		Map<String, Object> cacheScope = FrameworkUtils.getRequestScope();
 		String key = toString() + "_entrycache";
 		if (!cacheScope.containsKey(key)) {
 			cacheScope.put(key, new HashMap<Integer, E>());

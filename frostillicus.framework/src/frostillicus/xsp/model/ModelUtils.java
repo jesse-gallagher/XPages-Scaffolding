@@ -12,67 +12,14 @@ import java.util.TreeSet;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.openntf.domino.*;
-import org.openntf.domino.utils.Factory;
-
-import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public enum ModelUtils {
 	;
 
-	public static Database getDatabase(final String server, final String filePath) {
-		Map<String, Object> requestScope = getRequestScope();
-		String key = "database-" + server + "!!" + filePath;
-		if (!requestScope.containsKey(key)) {
-			Session session = getSession();
-			requestScope.put(key, session.getDatabase(server, filePath));
-		}
-
-		return (Database) requestScope.get(key);
-	}
-
-	public static Session getSession() {
-		try {
-			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
-		} catch(Exception e) {
-			// This indicates a non-XSP context
-			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
-			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
-			return session;
-		}
-	}
-	public static Session getSessionAsSigner() {
-		try {
-			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "sessionAsSigner");
-		} catch(Exception e) {
-			return getSession();
-		}
-	}
-
-	public static Database getDatabase() {
-		try {
-			return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
-		} catch(Exception e) {
-			// This indicates a non-XSP context
-			Session session = getSession();
-			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
-			Database database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
-			return database;
-		}
-	}
-
 	public static Map<String, Object> getCacheScope() {
 		try {
 			Map<String, Object> scope = ExtLibUtil.getViewScope();
-			return scope == null ? new HashMap<String, Object>() : scope;
-		} catch(Exception e) {
-			return new HashMap<String, Object>();
-		}
-	}
-	public static Map<String, Object> getRequestScope() {
-		try {
-			Map<String, Object> scope = ExtLibUtil.getRequestScope();
 			return scope == null ? new HashMap<String, Object>() : scope;
 		} catch(Exception e) {
 			return new HashMap<String, Object>();
@@ -110,14 +57,6 @@ public enum ModelUtils {
 		FacesMessage message = new FacesMessage(out.toString());
 		message.setSeverity(FacesMessage.SEVERITY_ERROR);
 		facesContext.addMessage("", message);
-	}
-
-	public static String strRightBack(final String input, final String delimiter) {
-		return input.substring(input.lastIndexOf(delimiter) + delimiter.length());
-	}
-
-	public static String strLeft(final String input, final String delimiter) {
-		return input.substring(0, input.indexOf(delimiter));
 	}
 
 	@SuppressWarnings("unchecked")

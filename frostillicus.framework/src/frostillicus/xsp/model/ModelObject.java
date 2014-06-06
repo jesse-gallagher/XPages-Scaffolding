@@ -22,7 +22,7 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 
 	public boolean isNew();
 
-	public boolean isCategory();
+	public boolean category();
 
 	public int columnIndentLevel();
 

@@ -7,7 +7,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
 import javax.faces.event.PhaseEvent;
 
-import frostillicus.xsp.util.JSFUtil;
+import frostillicus.xsp.util.FrameworkUtils;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.component.UIViewRootEx;
@@ -39,14 +39,14 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 				// Now that we have the form, look for the XPageAlt
 				Form form = database.getForm(formName);
 				String formURL = form.getURL();
-				String formUNID = JSFUtil.strRightBack(JSFUtil.strLeftBack(formURL, "?Open"), "/");
+				String formUNID = FrameworkUtils.strRightBack(FrameworkUtils.strLeftBack(formURL, "?Open"), "/");
 				Document formDoc = database.getDocumentByUNID(formUNID);
 				String xpageAlt = formDoc.getItemValueString("$XPageAlt");
 
 				if(StringUtil.isEmpty(xpageAlt)) {
 					pageClassName = formName;
 				} else {
-					pageClassName = JSFUtil.strLeftBack(xpageAlt, ".xsp");
+					pageClassName = FrameworkUtils.strLeftBack(xpageAlt, ".xsp");
 				}
 			}
 		}

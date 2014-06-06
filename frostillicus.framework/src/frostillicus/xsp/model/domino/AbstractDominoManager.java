@@ -6,6 +6,7 @@ import org.openntf.domino.*;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelUtils;
+import frostillicus.xsp.util.FrameworkUtils;
 
 public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager<E> {
 	private static final long serialVersionUID = 1L;
@@ -34,7 +35,7 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 	}
 
 	protected Database getDatabase() {
-		return ModelUtils.getDatabase();
+		return FrameworkUtils.getDatabase();
 	}
 
 	@Override

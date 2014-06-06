@@ -20,6 +20,7 @@ import com.ibm.xsp.model.domino.wrapped.DominoDocument;
 import frostillicus.xsp.model.AbstractModelObject;
 import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.model.Properties;
+import frostillicus.xsp.util.FrameworkUtils;
 
 import org.openntf.domino.*;
 import org.openntf.domino.utils.Factory;
@@ -177,7 +178,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public final boolean isCategory() {
+	public final boolean category() {
 		return category_;
 	}
 
@@ -282,7 +283,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	@Override
 	public boolean isReadOnly(final Object keyObject) {
-		if (isCategory()) {
+		if (category()) {
 			return true;
 		}
 		if (!(keyObject instanceof String)) {
@@ -301,7 +302,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	@Override
 	public void setValue(final Object keyObject, final Object value) {
-		if (isCategory()) {
+		if (category()) {
 			throw new UnsupportedOperationException("Categories cannot be modified");
 		}
 		if (!(keyObject instanceof String)) {
@@ -365,7 +366,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
 		}
-		if (isCategory()) {
+		if (category()) {
 			throw new UnsupportedOperationException("Categories cannot be modified");
 		}
 		docHolder_.setValue(keyObject, value);
@@ -377,7 +378,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 ************************************************************************/
 	@Override
 	public final String getOpenPageURL(final String pageName, final boolean readOnly) {
-		if (isCategory()) {
+		if (category()) {
 			return "";
 		}
 		if(pageName == null) {
@@ -391,7 +392,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 ************************************************************************/
 	@Override
 	public boolean save() {
-		if (isCategory()) {
+		if (category()) {
 			throw new UnsupportedOperationException("Categories cannot be saved");
 		}
 
@@ -437,7 +438,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 					// Attempt to update the FT index
 					Database database = doc.getParentDatabase();
-					Session sessionAsSigner = ModelUtils.getSessionAsSigner();
+					Session sessionAsSigner = FrameworkUtils.getSessionAsSigner();
 					if(sessionAsSigner != null) {
 						Database signerDB = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 						if(signerDB.isFTIndexed()) {
@@ -457,7 +458,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	@Override
 	public boolean delete() {
-		if (isCategory()) {
+		if (category()) {
 			throw new UnsupportedOperationException("Categories cannot be deleted");
 		}
 
@@ -485,14 +486,14 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 ************************************************************************/
 	//@SuppressWarnings("unused")
 	public Document document() {
-		if(isCategory()) {
+		if(category()) {
 			return null;
 		}
 		return docHolder_.getDocument();
 	}
 
 	public Document document(final boolean applyChanges) {
-		if(isCategory()) {
+		if(category()) {
 			return null;
 		}
 		return docHolder_.getDocument(applyChanges);
@@ -504,7 +505,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	protected List<Object> evaluate(final String formula) {
 		Document doc = document();
-		Session session = ModelUtils.getSession();
+		Session session = FrameworkUtils.getSession();
 		return session.evaluate(formula, doc);
 	}
 
@@ -575,7 +576,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 					throw new RuntimeException(ne);
 				}
 			} else {
-				Database database = ModelUtils.getSession().getDatabase(databasePath_);
+				Database database = FrameworkUtils.getSession().getDatabase(databasePath_);
 				Document doc;
 				if(StringUtil.isEmpty(documentId_)) {
 					doc = database.createDocument();

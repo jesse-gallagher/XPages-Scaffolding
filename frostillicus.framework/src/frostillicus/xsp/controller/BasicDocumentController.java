@@ -3,7 +3,7 @@ package frostillicus.xsp.controller;
 
 import javax.faces.context.FacesContext;
 
-import frostillicus.xsp.util.JSFUtil;
+import frostillicus.xsp.util.FrameworkUtils;
 import lotus.domino.*;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
@@ -43,10 +43,10 @@ public class BasicDocumentController extends BasicXPageController implements Doc
 			if(database.isFTIndexed()) {
 				database.updateFTIndex(false);
 			}
-			JSFUtil.addMessage("confirmation", doc.getValue("Form") + " " + (isNewNote ? "created" : "updated") + " successfully.");
+			FrameworkUtils.addMessage("confirmation", doc.getValue("Form") + " " + (isNewNote ? "created" : "updated") + " successfully.");
 			return "xsp-success";
 		} else {
-			JSFUtil.addMessage("error", "Save failed");
+			FrameworkUtils.addMessage("error", "Save failed");
 			return "xsp-failure";
 		}
 	}
@@ -58,7 +58,7 @@ public class BasicDocumentController extends BasicXPageController implements Doc
 
 		String formName = (String)doc.getValue("Form");
 		doc.getDocument(true).remove(true);
-		JSFUtil.addMessage("confirmation", formName + " deleted.");
+		FrameworkUtils.addMessage("confirmation", formName + " deleted.");
 		return "xsp-success";
 	}
 

@@ -4,11 +4,16 @@ import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 
+import org.openntf.domino.*;
+import org.openntf.domino.utils.Factory;
+import org.openntf.domino.utils.XSPUtil;
+
 import sun.misc.BASE64Decoder;
 
+import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.component.UIViewRootEx2;
 
-import lotus.domino.*;
+import lotus.domino.NotesException;
 import lotus.domino.local.NotesBase;
 
 import java.io.*;
@@ -22,18 +27,57 @@ import java.util.zip.GZIPOutputStream;
 import com.ibm.xsp.extlib.beans.PeopleBean;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
-public enum JSFUtil {
+public enum FrameworkUtils {
 	;
 
-	public static Database getDatabase(final String server, final String filePath) throws NotesException {
-		Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
+	public static Database getDatabase(final String server, final String filePath) {
+		Map<String, Object> requestScope = getRequestScope();
 		String key = "database-" + server + "!!" + filePath;
 		if (!requestScope.containsKey(key)) {
-			Session session = ExtLibUtil.getCurrentSession();
+			Session session = getSession();
 			requestScope.put(key, session.getDatabase(server, filePath));
 		}
 
 		return (Database) requestScope.get(key);
+	}
+
+	public static Session getSession() {
+		try {
+			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
+		} catch(Exception e) {
+			// This indicates a non-XSP context
+			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
+			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+			return session;
+		}
+	}
+	public static Session getSessionAsSigner() {
+		try {
+			return XSPUtil.getCurrentSessionAsSigner();
+		} catch(Exception e) {
+			return getSession();
+		}
+	}
+
+	public static Database getDatabase() {
+		try {
+			return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
+		} catch(Exception e) {
+			// This indicates a non-XSP context
+			Session session = getSession();
+			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
+			Database database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+			return database;
+		}
+	}
+
+	public static Map<String, Object> getRequestScope() {
+		try {
+			Map<String, Object> scope = ExtLibUtil.getRequestScope();
+			return scope == null ? new HashMap<String, Object>() : scope;
+		} catch(Exception e) {
+			return new HashMap<String, Object>();
+		}
 	}
 
 	public static Object getBindingValue(final String ref) {
@@ -49,7 +93,7 @@ public enum JSFUtil {
 		binding.setValue(context, newObject);
 	}
 
-	public static Object getVariableValue(final String varName) {
+	public static Object resolveVariable(final String varName) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		return context.getApplication().getVariableResolver().resolveVariable(context, varName);
 	}
@@ -58,24 +102,12 @@ public enum JSFUtil {
 		return (String) getBindingValue("#{context.user.name}");
 	}
 
-	public static Session getSession() {
-		return (Session) getVariableValue("session");
-	}
-
-	public static Session getSessionAsSigner() {
-		return (Session) getVariableValue("sessionAsSigner");
-	}
-
-	public static Database getDatabase() {
-		return (Database) getVariableValue("database");
-	}
-
 	public static UIViewRootEx2 getViewRoot() {
-		return (UIViewRootEx2) getVariableValue("view");
+		return (UIViewRootEx2) resolveVariable("view");
 	}
 
 	public static PeopleBean getPeopleBean() {
-		return (PeopleBean) getVariableValue("peopleBean");
+		return (PeopleBean) resolveVariable("peopleBean");
 	}
 
 	public static String pluralize(final String input) {
@@ -472,7 +504,7 @@ public enum JSFUtil {
 
 	@SuppressWarnings("unchecked")
 	public static Map<Object, Object> getFlashScope() {
-		return (Map<Object, Object>) getVariableValue("flashScope");
+		return (Map<Object, Object>) resolveVariable("flashScope");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -487,7 +519,7 @@ public enum JSFUtil {
 	}
 
 	// Via http://stackoverflow.com/questions/12740889/what-is-the-least-expensive-way-to-test-if-a-view-has-been-recycled
-	public static boolean isRecycled(final Base object) {
+	public static boolean isRecycled(final lotus.domino.Base object) {
 		if (!(object instanceof NotesBase)) {
 			// No reason to test non-NotesBase objects -> isRecycled = true
 			return true;
@@ -505,14 +537,14 @@ public enum JSFUtil {
 		return true;
 	}
 
-	public static Serializable restoreState(final Document doc, final String itemName) throws Exception {
-		Session session = ExtLibUtil.getCurrentSession();
+	public static Serializable restoreState(final lotus.domino.Document doc, final String itemName) throws Exception {
+		lotus.domino.Session session = ExtLibUtil.getCurrentSession();
 		boolean convertMime = session.isConvertMime();
 		session.setConvertMime(false);
 
 		Serializable result = null;
-		Stream mimeStream = session.createStream();
-		MIMEEntity entity = doc.getMIMEEntity(itemName);
+		lotus.domino.Stream mimeStream = session.createStream();
+		lotus.domino.MIMEEntity entity = doc.getMIMEEntity(itemName);
 		entity.getContentAsBytes(mimeStream);
 
 		ByteArrayOutputStream streamOut = new ByteArrayOutputStream();
@@ -538,9 +570,9 @@ public enum JSFUtil {
 		return result;
 	}
 
-	public static void saveState(final Serializable object, final Document doc, final String itemName) throws NotesException {
+	public static void saveState(final Serializable object, final lotus.domino.Document doc, final String itemName) throws NotesException {
 		try {
-			Session session = ExtLibUtil.getCurrentSession();
+			lotus.domino.Session session = ExtLibUtil.getCurrentSession();
 			boolean convertMime = session.isConvertMime();
 			session.setConvertMime(false);
 
@@ -550,13 +582,13 @@ public enum JSFUtil {
 			objectStream.flush();
 			objectStream.close();
 
-			Stream mimeStream = session.createStream();
-			MIMEEntity previousState = doc.getMIMEEntity(itemName);
-			MIMEEntity entity = previousState == null ? doc.createMIMEEntity(itemName) : previousState;
+			lotus.domino.Stream mimeStream = session.createStream();
+			lotus.domino.MIMEEntity previousState = doc.getMIMEEntity(itemName);
+			lotus.domino.MIMEEntity entity = previousState == null ? doc.createMIMEEntity(itemName) : previousState;
 			ByteArrayInputStream byteIn = new ByteArrayInputStream(byteStream.toByteArray());
 			mimeStream.setContents(byteIn);
 			entity.setContentFromBytes(mimeStream, "application/x-java-serialized-object", MIMEEntity.ENC_NONE);
-			MIMEHeader header = entity.getNthHeader("Content-Encoding");
+			lotus.domino.MIMEHeader header = entity.getNthHeader("Content-Encoding");
 			if (header == null) {
 				header = entity.createHeader("Content-Encoding");
 			}
