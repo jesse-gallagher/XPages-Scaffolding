@@ -214,7 +214,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		if((props == null || !props.exhaustive()) && !category()) {
 			result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			result.addAll(parent);
-			result.addAll(docHolder_.getItemNames());
+			result.addAll(docHolder_.getItemNames(false));
 		} else {
 			result = parent;
 		}
@@ -238,6 +238,26 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			return doc.getLastModifiedDate();
 		}
 		return null;
+	}
+
+	@Override
+	public Date created() {
+		Document doc = document();
+		if(doc != null) {
+			return doc.getCreatedDate();
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> modifiedBy() {
+		List<String> result = new ArrayList<String>();
+		Document doc = document();
+		if(doc != null) {
+			result.addAll(doc.getItemValue("$UpdatedBy"));
+		}
+		return result;
 	}
 
 	/* **********************************************************************
@@ -548,6 +568,9 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		private final String documentId_;
 		private final Map<String, Object> changes_;
 
+		private transient Document storedDoc_;
+		private transient boolean storedChanges_ = false;
+
 		public DocumentHolder(final DominoDocument dominoDocument) {
 			dominoDocument_ = dominoDocument;
 			databasePath_ = null;
@@ -576,19 +599,21 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 					throw new RuntimeException(ne);
 				}
 			} else {
-				Database database = FrameworkUtils.getSession().getDatabase(databasePath_);
-				Document doc;
-				if(StringUtil.isEmpty(documentId_)) {
-					doc = database.createDocument();
-				} else {
-					doc = database.getDocumentByUNID(documentId_);
-				}
-				if(applyChanges) {
-					for(Map.Entry<String, Object> change : changes_.entrySet()) {
-						doc.put(change.getKey(), change.getValue());
+				if(storedDoc_ == null) {
+					Database database = FrameworkUtils.getSession().getDatabase(databasePath_);
+					if(StringUtil.isEmpty(documentId_)) {
+						storedDoc_ = database.createDocument();
+					} else {
+						storedDoc_ = database.getDocumentByUNID(documentId_);
 					}
 				}
-				return doc;
+				if(applyChanges && !storedChanges_) {
+					for(Map.Entry<String, Object> change : changes_.entrySet()) {
+						storedDoc_.put(change.getKey(), change.getValue());
+					}
+					storedChanges_ = true;
+				}
+				return storedDoc_;
 			}
 		}
 		public Document getDocument() { return getDocument(false); }
@@ -618,8 +643,6 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				} else {
 					String itemName = String.valueOf(key);
 					Document doc = getDocument();
-					boolean convertMime = doc.getAncestorSession().isConvertMime();
-					doc.getAncestorSession().setConvertMime(false);
 					if(doc.hasItem(itemName)) {
 						Item item = doc.getFirstItem(itemName);
 						switch(item.getType()) {
@@ -627,28 +650,22 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 							try {
 								DominoUtils.HtmlConverterWrapper converter = new DominoUtils.HtmlConverterWrapper();
 								converter.convertItem(Factory.toLotus(doc), itemName);
-								doc.getAncestorSession().setConvertMime(convertMime);
 								return converter;
 							} catch(NotesException ne) {
-								doc.getAncestorSession().setConvertMime(convertMime);
 								throw new RuntimeException(ne);
 							}
 						case Item.MIME_PART:
 							// TODO this would be better converted elsewhere, but eh...
 							MIMEEntity entity = item.getMIMEEntity();
 							if(entity.getNthHeader("X-Java-Class") == null) {
-								doc.getAncestorSession().setConvertMime(convertMime);
 								return item;
 							} else {
-								doc.getAncestorSession().setConvertMime(convertMime);
 								return doc.get(key);
 							}
 						default:
-							doc.getAncestorSession().setConvertMime(convertMime);
 							return doc.get(key);
 						}
 					} else {
-						doc.getAncestorSession().setConvertMime(convertMime);
 						return doc.get(key);
 					}
 				}
@@ -667,13 +684,17 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				getDominoDocument().setValue(key, value);
 			} else {
 				changes_.put((String)key, value);
+				storedChanges_ = false;
 			}
 		}
 
-		public Set<String> getItemNames() {
+		public Set<String> getItemNames(final boolean includeSystem) {
 			Set<String> result = new HashSet<String>();
 			for(Item item : getDocument().getItems()) {
-				result.add(item.getName());
+				String itemName = item.getName();
+				if(includeSystem || !itemName.startsWith("$")) {
+					result.add(itemName);
+				}
 			}
 			return result;
 		}

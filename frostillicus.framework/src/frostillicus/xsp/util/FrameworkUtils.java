@@ -48,6 +48,7 @@ public enum FrameworkUtils {
 			// This indicates a non-XSP context
 			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
 			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+			session.setConvertMime(false);
 			return session;
 		}
 	}

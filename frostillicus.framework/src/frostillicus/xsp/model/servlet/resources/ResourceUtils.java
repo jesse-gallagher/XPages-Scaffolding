@@ -29,29 +29,12 @@ import com.ibm.commons.util.io.json.JsonGenerator;
 import com.ibm.commons.util.io.json.JsonJavaFactory;
 import com.ibm.domino.commons.json.JsonMimeEntityAdapter;
 import com.ibm.domino.commons.mime.MimeEntityHelper;
-import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.services.util.JsonWriter;
 import com.ibm.xsp.model.domino.DominoUtils;
 
 
 public enum ResourceUtils {
 	;
-
-	public static Session getSession() {
-		lotus.domino.Session lotusSession = ContextInfo.getUserSession();
-		Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
-		return session;
-	}
-
-	public static Database getDatabase() {
-		lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
-		if(lotusDatabase != null) {
-			Session session = getSession();
-			Database database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
-			return database;
-		}
-		return null;
-	}
 
 	/**
 	 * 
@@ -143,18 +126,21 @@ public enum ResourceUtils {
 		}
 	}
 
-	protected static void writeSystemProperties(final ModelObject model, final JsonWriter writer) throws IOException {
+	protected static void writeSystemProperties(final ModelObject model, final JsonWriter writer) throws NotesException, IOException, JsonException {
 		writer.startProperty("@modelClass");
 		writer.outStringLiteral(model.getClass().getName());
 		writer.endProperty();
 
-		writer.startProperty("@category");
-		writer.outBooleanLiteral(model.category());
-		writer.endProperty();
+		String position = model.viewRowPosition();
+		if(StringUtil.isNotEmpty(position)) {
+			writer.startProperty("@category");
+			writer.outBooleanLiteral(model.category());
+			writer.endProperty();
 
-		writer.startProperty("@position");
-		writer.outStringLiteral(model.viewRowPosition());
-		writer.endProperty();
+			writer.startProperty("@position");
+			writer.outStringLiteral(position);
+			writer.endProperty();
+		}
 
 		if(!model.category()) {
 			writer.startProperty("@unid");
@@ -163,6 +149,18 @@ public enum ResourceUtils {
 
 			writer.startProperty("@relativeUri");
 			writer.outStringLiteral("/" + URLEncoder.encode(model.getClass().getName(), "UTF-8") + "/" + URLEncoder.encode(model.getId(), "UTF-8"));
+			writer.endProperty();
+
+			writer.startProperty("@authors");
+			writeProperty(model.modifiedBy(), false, writer);
+			writer.endProperty();
+
+			writer.startProperty("@created");
+			writeProperty(model.created(), false, writer);
+			writer.endProperty();
+
+			writer.startProperty("@modified");
+			writeProperty(model.lastModified(), false, writer);
 			writer.endProperty();
 		}
 	}
@@ -236,17 +234,15 @@ public enum ResourceUtils {
 			writer.endProperty();
 			writer.startProperty("content");
 
-			Session session = itemValue.getAncestorSession();
-			boolean isConvertMime = session.isConvertMime();
 			String itemName = itemValue.getName();
 
 			List<JsonMimeEntityAdapter> adapters = new ArrayList<JsonMimeEntityAdapter>();
-			lotus.domino.Document rawDoc = Factory.toLotus(itemValue.getAncestorDocument());
-			MimeEntityHelper helper = new MimeEntityHelper(rawDoc, itemName);
-			lotus.domino.MIMEEntity entity = helper.getFirstMimeEntity(true);
+			//			lotus.domino.Document rawDoc = Factory.toLotus(itemValue.getAncestorDocument());
+			MimeEntityHelper helper = new MimeEntityHelper(itemValue.getAncestorDocument(), itemName);
+			MIMEEntity entity = (MIMEEntity)helper.getFirstMimeEntity(true);
 			if (entity != null) {
 				JsonMimeEntityAdapter.addEntityAdapter(adapters, entity);
-				entity.recycle();
+				//				entity.recycle();
 			}
 			writer.outLiteral(adapters);
 
@@ -255,14 +251,12 @@ public enum ResourceUtils {
 			writer.endProperty();
 
 			writer.endObject();
-
-			session.setConvertMime(isConvertMime);
 		} else if(input instanceof DateTime) {
 			writer.startObject();
 			writer.startProperty("type");
 			writer.outStringLiteral("datetime");
 			writer.endProperty();
-			writer.startProperty("value");
+			writer.startProperty("data");
 			if (((DateTime) input).getDateOnly().length() == 0) {
 				// Time Only
 				writer.outStringLiteral(timeOnlyToString(((DateTime)input).toJavaDate()));
@@ -279,7 +273,7 @@ public enum ResourceUtils {
 			writer.startProperty("type");
 			writer.outStringLiteral("datetime");
 			writer.endProperty();
-			writer.startProperty("value");
+			writer.startProperty("data");
 			writer.outStringLiteral(dateToString((Date)input, true));
 			writer.endProperty();
 			writer.endObject();

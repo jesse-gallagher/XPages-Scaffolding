@@ -39,4 +39,8 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public Set<String> columnPropertyNames();
 
 	public Date lastModified();
+
+	public Date created();
+
+	public List<String> modifiedBy();
 }

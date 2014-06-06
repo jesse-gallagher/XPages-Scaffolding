@@ -23,6 +23,7 @@ import com.ibm.commons.util.io.json.JsonJavaFactory;
 import com.ibm.domino.das.utils.ErrorHelper;
 
 import frostillicus.xsp.model.ModelManager;
+import frostillicus.xsp.util.FrameworkUtils;
 
 @SuppressWarnings("unused")
 @Path("{managerName}")
@@ -32,7 +33,7 @@ public class ManagerResource {
 	public Response getManager(@Context final UriInfo uriInfo, @PathParam("managerName") final String managerName) {
 		try {
 			Map<String, Object> result = new HashMap<String, Object>();
-			Database database = ResourceUtils.getDatabase();
+			Database database = FrameworkUtils.getDatabase();
 			if(database == null) {
 				result.put("status", "error");
 				result.put("message", "Must be run in the context of a database.");

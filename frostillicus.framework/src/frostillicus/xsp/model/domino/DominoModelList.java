@@ -8,7 +8,6 @@ import java.util.*;
 import com.ibm.xsp.model.TabularDataModel;
 
 import frostillicus.xsp.model.AbstractModelList;
-import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.util.FrameworkUtils;
 
 import org.openntf.domino.*;

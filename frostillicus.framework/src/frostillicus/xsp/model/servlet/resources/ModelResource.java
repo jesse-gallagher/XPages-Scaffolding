@@ -36,11 +36,13 @@ import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonJavaFactory;
 import com.ibm.commons.util.io.json.JsonJavaObject;
 import com.ibm.commons.util.io.json.JsonParser;
+import com.ibm.domino.services.util.ContentUtil;
 import com.ibm.domino.services.util.JsonWriter;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
 import frostillicus.xsp.model.Properties;
+import frostillicus.xsp.util.FrameworkUtils;
 
 @Path("{managerName}/{key}")
 public class ModelResource {
@@ -49,7 +51,9 @@ public class ModelResource {
 	public Response getResource(@Context final UriInfo uriInfo,
 			@PathParam("managerName") final String managerName, @PathParam("key") final String key,
 			@HeaderParam("If-Modified-Since") final String ifModifiedSince,
-			@QueryParam("compact") final boolean compact) {
+			@QueryParam("compact") final boolean compact,
+			@QueryParam("start") final String startParam, @QueryParam("count") final String countParam,
+			@HeaderParam("Range") final String range) {
 
 		ResponseBuilder builder = Response.ok();
 
@@ -80,15 +84,48 @@ public class ModelResource {
 
 						ResourceUtils.writeModelObject(model, managerName, writer);
 					} else if(resultObject instanceof List) {
+						List<? extends ModelObject> modelList = (List<? extends ModelObject>)resultObject;
 
 						writer.startProperty("@type");
 						writer.outStringLiteral("collection");
 						writer.endProperty();
 
+						// Figure out our looping limits
+						int start = 1;
+						int count = 20;
+						if(StringUtil.isNotEmpty(range) && range.startsWith("items=")) {
+							// Then use the header range
+							int pos = "items=".length();
+							int sep = range.indexOf(pos);
+							start = Integer.valueOf(range.substring(pos, sep));
+							int last = Integer.valueOf(range.substring(sep+1));
+							count = last - start+1;
+						} else {
+							// Then check the URL
+							try {
+								start = Integer.parseInt(startParam);
+							} catch(NumberFormatException nfe) {
+								// Then ignore the params
+							}
+							try {
+								count = Integer.parseInt(countParam);
+							} catch(NumberFormatException nfe) {
+								// Then ignore the params
+							}
+						}
+						int end = start + count - 1;
+						if(end > modelList.size()) { end = modelList.size(); }
+						if(end < 1) { end = 1; }
+						if(start > modelList.size()) { start = modelList.size(); }
+						if(start < 1) { start = 1; }
+
+						String rangeHeader = ContentUtil.getContentRangeHeaderString(start, end, modelList.size());
+						response_.getMetadata().add("Content-Range", rangeHeader);
+
 						writer.startProperty("@entries");
 						writer.startArray();
-						List<? extends ModelObject> modelList = (List<? extends ModelObject>)resultObject;
-						for(ModelObject model : modelList) {
+						for(int i = start-1; i < end; i++) {
+							ModelObject model = modelList.get(i);
 							writer.startArrayItem();
 							writer.startObject();
 
@@ -201,7 +238,7 @@ public class ModelResource {
 
 	public Object findContextObject(final UriInfo uriInfo, final String managerName, final String key) {
 		try {
-			Database database = ResourceUtils.getDatabase();
+			Database database = FrameworkUtils.getDatabase();
 			if(database == null) {
 				throw new IllegalStateException("Must be run in the context of a database.");
 			} else {
@@ -238,7 +275,7 @@ public class ModelResource {
 		public Response call() {
 			try {
 				Map<String, Object> result = new LinkedHashMap<String, Object>();
-				Database database = ResourceUtils.getDatabase();
+				Database database = FrameworkUtils.getDatabase();
 				if(database == null) {
 					result.put("@status", "error");
 					result.put("message", "Must be run in the context of a database.");
