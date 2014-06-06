@@ -19,16 +19,6 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	private transient Map<String, Method> getterCache_ = new HashMap<String, Method>();
 	private transient Map<String, List<Method>> setterCache_ = new HashMap<String, List<Method>>();
 
-	@Override
-	public Set<String> propertyNames() {
-		Set<String> result = new TreeSet<String>();
-		Properties props = getClass().getAnnotation(Properties.class);
-		if(props != null) {
-			result.addAll(Arrays.asList(props.value()));
-		}
-		return result;
-	}
-
 	/* **********************************************************************
 	 * Hooks and utility methods for concrete classes
 	 * These are named without "get" to avoid steeping on doc fields' toes
@@ -45,6 +35,25 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	}
 
 	protected void postDelete() {
+	}
+
+	@Override
+	public Set<String> propertyNames() {
+		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		Properties props = getClass().getAnnotation(Properties.class);
+		if(props != null) {
+			result.addAll(Arrays.asList(props.value()));
+		}
+		return result;
+	}
+	@Override
+	public Set<String> columnPropertyNames() {
+		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		Properties props = getClass().getAnnotation(Properties.class);
+		if(props != null && props.includeWithView()) {
+			result.addAll(Arrays.asList(props.value()));
+		}
+		return result;
 	}
 
 	/* **********************************************************************

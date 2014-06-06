@@ -49,18 +49,39 @@ public class ModelResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getResource(@Context final UriInfo uriInfo, @PathParam("managerName") final String managerName, @PathParam("key") final String key) {
 		return new ModelObjectRunner(uriInfo, managerName, key) {
+			@SuppressWarnings("unchecked")
 			@Override
 			protected void handle(final UriInfo uriInfo, final ModelManager<?> manager, final Object resultObject, final Map<String, Object> result) throws Exception {
 				result.put("@status", "success");
 				if(resultObject instanceof ModelObject) {
 					ModelObject model = (ModelObject)resultObject;
 					result.put("@type", "object");
+
+					writeSystemProperties(model, result);
+
 					for(String property : model.propertyNames()) {
 						Object val = model.getValue(property);
-						result.put(property, ResourceUtils.toJSONFriendly(val));
+						result.put(property, ResourceUtils.toJSONFriendly(val, true));
 					}
-				} else {
+				} else if(resultObject instanceof List) {
 					result.put("@type", "collection");
+
+					List<? extends ModelObject> modelList = (List<? extends ModelObject>)resultObject;
+					List<Map<String, Object>> entries = new ArrayList<Map<String, Object>>();
+					for(ModelObject model : modelList) {
+						Map<String, Object> vals = new LinkedHashMap<String, Object>();
+
+						writeSystemProperties(model, vals);
+
+						for(String property : model.columnPropertyNames()) {
+							Object val = model.getValue(property);
+							vals.put(property, ResourceUtils.toJSONFriendly(val, true));
+						}
+						entries.add(vals);
+					}
+					result.put("@entries", entries);
+				} else {
+					result.put("@type", "unknown");
 				}
 			}
 
@@ -107,8 +128,10 @@ public class ModelResource {
 		}.call();
 	}
 
-
-
+	protected void writeSystemProperties(final ModelObject model, final Map<String, Object> result) {
+		result.put("@unid", model.getId());
+		result.put("@modelClass", model.getClass().getName());
+	}
 
 	private static abstract class ModelObjectRunner implements Callable<Response> {
 		private final UriInfo uriInfo_;

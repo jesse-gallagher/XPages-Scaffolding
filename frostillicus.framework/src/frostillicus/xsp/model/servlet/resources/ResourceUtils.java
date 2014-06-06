@@ -1,9 +1,13 @@
 package frostillicus.xsp.model.servlet.resources;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -83,28 +87,92 @@ public enum ResourceUtils {
 		return response;
 	}
 
-	public static Object toJSONFriendly(final Object input) {
+	public static Object toJSONFriendly(final Object input, final boolean topLevel) {
+		String type = null;
+		Object result = null;
 		if(input instanceof Iterable) {
-			List<Object> result = new ArrayList<Object>();
+			List<Object> listResult = new ArrayList<Object>();
 			for(Object obj : (Iterable<?>)input) {
-				result.add(toJSONFriendly(obj));
+				listResult.add(toJSONFriendly(obj, false));
 			}
-			return result;
+			result = listResult;
 		} else if(input instanceof Map) {
-			Map<String, Object> result = new HashMap<String, Object>();
+			type = "map";
+			Map<String, Object> mapResult = new HashMap<String, Object>();
 			for(Map.Entry<?, ?> entry : ((Map<?, ?>)input).entrySet()) {
-				result.put(String.valueOf(entry.getKey()), toJSONFriendly(entry.getValue()));
+				mapResult.put(String.valueOf(entry.getKey()), toJSONFriendly(entry.getValue(), false));
 			}
-			return result;
+			result = mapResult;
 		} else {
 			if(input instanceof DateTime) {
-				return ((DateTime)input).toJavaDate().toString();
+				if (((DateTime) input).getDateOnly().length() == 0) {
+					// Time Only
+					type = "timeonly";
+					result = timeOnlyToString(((DateTime)input).toJavaDate());
+				} else if (((DateTime) input).getTimeOnly().length() == 0) {
+					// Date Only
+					type = "dateonly";
+					result = dateOnlyToString(((DateTime)input).toJavaDate());
+				} else {
+					type = "datetime";
+					result = dateToString(((DateTime)input).toJavaDate(), true);
+				}
+			} else if(input instanceof Date) {
+				type = "datetime";
+				result = dateToString((Date)input, true);
 			} else if(input instanceof Number) {
-				return input;
+				result = input;
 			} else if(input instanceof Boolean) {
-				return input;
+				result = input;
+			} else {
+				result = String.valueOf(input);
 			}
-			return String.valueOf(input);
 		}
+		if(topLevel && type != null) {
+			Map<String, Object> wrappedResult = new HashMap<String, Object>();
+			wrappedResult.put("@type", type);
+			wrappedResult.put("@value", result);
+			return wrappedResult;
+		} else {
+			return result;
+		}
+	}
+
+	// From ExtLib's com.ibm.domino.services.util.JsonWriter
+
+	private static SimpleDateFormat ISO8601_UTC = null;
+	private static SimpleDateFormat ISO8601_DT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	private static SimpleDateFormat ISO8601_DO = new SimpleDateFormat("yyyy-MM-dd");
+	private static SimpleDateFormat ISO8601_TO = new SimpleDateFormat("HH:mm:ss");
+
+	private static String dateToString(final Date value, final boolean utc) {
+		String result = null;
+
+		if ( utc ) {
+			if ( ISO8601_UTC == null ) {
+				// Initialize the UTC formatter once
+				TimeZone tz = TimeZone.getTimeZone("UTC");
+				ISO8601_UTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+				ISO8601_UTC.setTimeZone(tz);
+			}
+
+			result = ISO8601_UTC.format(value);
+		}
+		else {
+			result = ISO8601_DT.format(value);
+		}
+
+		return result;
+	}
+	private static String dateOnlyToString(final Date javaDate) {
+		return ISO8601_DO.format(javaDate);
+	}
+
+	private static String timeOnlyToString(final Date javaDate) {
+		return ISO8601_TO.format(javaDate);
+	}
+
+	private static String dateToString(final DateTime value, final boolean utc) throws IOException {
+		return dateToString(value.toJavaDate(), utc);
 	}
 }

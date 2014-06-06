@@ -7,4 +7,5 @@ import java.lang.annotation.*;
 public @interface Properties {
 	String[] value();
 	boolean exhaustive() default false;
+	boolean includeWithView() default false;
 }

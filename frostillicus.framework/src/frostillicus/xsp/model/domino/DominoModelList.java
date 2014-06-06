@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.ibm.xsp.extlib.util.ExtLibUtil;
 import com.ibm.xsp.model.TabularDataModel;
 
 import frostillicus.xsp.model.AbstractModelList;
@@ -66,18 +65,20 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	/* **********************************************************************
 	 * List methods
 	 ************************************************************************/
+	@Override
 	@SuppressWarnings("deprecation")
 	public E get(final int index) {
 		if(invalid_) { return null; }
 
-		if (!getCache().containsKey(index)) {
+		Map<Integer, E> cache = getCache();
+		if (!cache.containsKey(index)) {
 			try {
 				if (searchQuery_ == null || searchQuery_.isEmpty()) {
 					ViewNavigator nav = getNavigator();
 
 					// getNth is top-level only, so let's skip to what we need
 					int lastFetchedIndex = 0;
-					Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
+					Map<String, Object> requestScope = ModelUtils.getRequestScope();
 					String key = "lastFetchedIndex-" + toString();
 					if (requestScope.containsKey(key)) {
 						lastFetchedIndex = (Integer) requestScope.get(key);
@@ -89,7 +90,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 					// If we're in a collapsed category, we have to skip further
 					// TODO make this work with multi-level categories
 					try {
-						getCache().put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
+						cache.put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
 					} catch(NullPointerException npe) {
 						// Then we've probably hit an "Object has been removed or recycled" on the nav
 
@@ -102,21 +103,22 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 						System.out.println("=============================== NPE in DominoModelList");
 						System.out.println("=============================== Current class: " + getClass().getName());
 						System.out.println("=============================== Desired index: " + index);
-						System.out.println("=============================== Current cache: " + getCache());
+						System.out.println("=============================== Current cache: " + cache);
 						System.out.println("=============================== Current reported size: " + size());
 						throw npe;
 					}
 				} else {
 					ViewEntryCollection vec = getEntries();
-					getCache().put(index, createFromViewEntry(vec.getNthEntry(index + 1), columnInfo_));
+					cache.put(index, createFromViewEntry(vec.getNthEntry(index + 1), columnInfo_));
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return getCache().get(index);
+		return cache.get(index);
 	}
 
+	@Override
 	public int size() {
 		if(invalid_) { return 0; }
 		try {
@@ -167,7 +169,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@Override
 	public void setResortOrder(final String columnName, final String sortOrder) {
-		if(invalid_) return;
+		if(invalid_) {
+			return;
+		}
 
 		if (category_ != null) {
 			return;
@@ -252,7 +256,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	 ************************************************************************/
 	@Override
 	public void search(final String searchQuery) {
-		if(invalid_) return;
+		if(invalid_) {
+			return;
+		}
 
 		if (category_ != null) {
 			throw new UnsupportedOperationException("Cannot search a category-filtered view");
@@ -286,7 +292,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected ViewNavigator getNavigator() {
-		final Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
+		final Map<String, Object> requestScope = ModelUtils.getRequestScope();
 		final String key = "viewnav-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			requestScope.put(key, getNewNavigator());
@@ -318,7 +324,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected ViewEntryCollection getEntries() {
-		final Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
+		final Map<String, Object> requestScope = ModelUtils.getRequestScope();
 		final String key = "viewentries-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			View view = getView();
@@ -352,7 +358,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		getCache().clear();
 		getView().refresh();
 
-		final Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
+		final Map<String, Object> requestScope = ModelUtils.getRequestScope();
 		String thisToString = this.toString();
 		requestScope.remove("viewnav-" + thisToString);
 		requestScope.remove("viewentries-" + thisToString);
@@ -361,7 +367,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@SuppressWarnings("unchecked")
 	private Map<Integer, E> getCache() {
-		Map<String, Object> cacheScope = ExtLibUtil.getRequestScope();
+		Map<String, Object> cacheScope = ModelUtils.getRequestScope();
 		String key = toString() + "_entrycache";
 		if (!cacheScope.containsKey(key)) {
 			cacheScope.put(key, new HashMap<Integer, E>());

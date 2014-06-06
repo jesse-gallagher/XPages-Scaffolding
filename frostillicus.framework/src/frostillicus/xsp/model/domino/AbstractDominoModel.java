@@ -216,6 +216,16 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		return result;
 	}
 
+	@Override
+	public Set<String> columnPropertyNames() {
+		Set<String> parent = super.columnPropertyNames();
+		Set<String> result = new TreeSet<String>(parent);
+		for(String name : columnValues_.keySet()) {
+			result.add(name);
+		}
+		return result;
+	}
+
 	/* **********************************************************************
 	 * DataObject methods
 	 ************************************************************************/

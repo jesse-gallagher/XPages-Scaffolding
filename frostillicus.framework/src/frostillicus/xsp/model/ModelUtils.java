@@ -64,14 +64,16 @@ public enum ModelUtils {
 
 	public static Map<String, Object> getCacheScope() {
 		try {
-			return ExtLibUtil.getViewScope();
+			Map<String, Object> scope = ExtLibUtil.getViewScope();
+			return scope == null ? new HashMap<String, Object>() : scope;
 		} catch(Exception e) {
 			return new HashMap<String, Object>();
 		}
 	}
 	public static Map<String, Object> getRequestScope() {
 		try {
-			return ExtLibUtil.getRequestScope();
+			Map<String, Object> scope = ExtLibUtil.getRequestScope();
+			return scope == null ? new HashMap<String, Object>() : scope;
 		} catch(Exception e) {
 			return new HashMap<String, Object>();
 		}

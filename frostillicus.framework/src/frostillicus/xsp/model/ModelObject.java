@@ -34,4 +34,6 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public List<FileRowData> getEmbeddedImageList(final String fieldName);
 
 	public Set<String> propertyNames();
+
+	public Set<String> columnPropertyNames();
 }
