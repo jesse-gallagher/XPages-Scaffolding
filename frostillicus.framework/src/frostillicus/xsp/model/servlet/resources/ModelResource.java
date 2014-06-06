@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -36,23 +33,15 @@ import org.openntf.domino.Database;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonGenerator;
 import com.ibm.commons.util.io.json.JsonJavaFactory;
 import com.ibm.commons.util.io.json.JsonJavaObject;
 import com.ibm.commons.util.io.json.JsonParser;
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpSession;
-import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.services.util.JsonWriter;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
 import frostillicus.xsp.model.Properties;
-import frostillicus.xsp.model.servlet.ModelServlet;
 
-@SuppressWarnings("unused")
 @Path("{managerName}/{key}")
 public class ModelResource {
 	@GET
@@ -62,7 +51,6 @@ public class ModelResource {
 			@HeaderParam("If-Modified-Since") final String ifModifiedSince,
 			@QueryParam("compact") final boolean compact) {
 
-		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		ResponseBuilder builder = Response.ok();
 
 		StreamingOutputImpl streamingJsonEntity = new StreamingOutputImpl() {
@@ -90,36 +78,27 @@ public class ModelResource {
 							response_.getMetadata().add("Last-Modified", lastModifiedHeader);
 						}
 
-						writeSystemProperties(model, writer);
-
-						for(String property : model.propertyNames()) {
-							writer.startProperty(property);
-							ResourceUtils.writeProperty(model.getValue(property), true, writer);
-							writer.endProperty();
-						}
+						ResourceUtils.writeModelObject(model, managerName, writer);
 					} else if(resultObject instanceof List) {
 
 						writer.startProperty("@type");
 						writer.outStringLiteral("collection");
 						writer.endProperty();
 
-						List<? extends ModelObject> modelList = (List<? extends ModelObject>)resultObject;
-						List<Map<String, Object>> entries = new ArrayList<Map<String, Object>>();
-						for(ModelObject model : modelList) {
-							Map<String, Object> vals = new LinkedHashMap<String, Object>();
-
-							writeSystemProperties(model, writer);
-
-							for(String property : model.columnPropertyNames()) {
-								writer.startProperty(property);
-								ResourceUtils.writeProperty(model.getValue(property), compact, writer);
-								writer.endProperty();
-							}
-							entries.add(vals);
-						}
 						writer.startProperty("@entries");
-						writer.outArrayLiteral(entries);
-						writer.endProperty();
+						writer.startArray();
+						List<? extends ModelObject> modelList = (List<? extends ModelObject>)resultObject;
+						for(ModelObject model : modelList) {
+							writer.startArrayItem();
+							writer.startObject();
+
+							ResourceUtils.writeModelObject(model, managerName, writer);
+
+							writer.endObject();
+							writer.endArrayItem();
+						}
+						writer.endArray();
+						writer.endProperty();	// @entries
 					} else {
 						writer.startProperty("@type");
 						writer.outStringLiteral("unknown");
@@ -132,9 +111,14 @@ public class ModelResource {
 
 					streamWriter.close();
 				} catch(JsonException je) {
+					je.printStackTrace();
 					throw new WebApplicationException(je);
 				} catch(NotesException ne) {
+					ne.printStackTrace();
 					throw new WebApplicationException(ne);
+				} catch(Throwable t) {
+					t.printStackTrace();
+					throw new WebApplicationException(t);
 				}
 			}
 		};
@@ -185,16 +169,6 @@ public class ModelResource {
 		}.call();
 	}
 
-	protected void writeSystemProperties(final ModelObject model, final JsonWriter writer) throws IOException {
-		writer.startProperty("@unid");
-		writer.outStringLiteral(model.getId());
-		writer.endProperty();
-
-		writer.startProperty("@modelClass");
-		writer.outStringLiteral(model.getClass().getName());
-		writer.endProperty();
-	}
-
 
 
 	/* **********************************************************************
@@ -227,7 +201,6 @@ public class ModelResource {
 
 	public Object findContextObject(final UriInfo uriInfo, final String managerName, final String key) {
 		try {
-			Map<String, Object> result = new LinkedHashMap<String, Object>();
 			Database database = ResourceUtils.getDatabase();
 			if(database == null) {
 				throw new IllegalStateException("Must be run in the context of a database.");

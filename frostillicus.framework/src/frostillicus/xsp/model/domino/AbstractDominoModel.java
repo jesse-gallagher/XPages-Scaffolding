@@ -211,7 +211,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		Set<String> parent = super.propertyNames();
 		Set<String> result;
 		Properties props = getClass().getAnnotation(Properties.class);
-		if(props == null || !props.exhaustive()) {
+		if((props == null || !props.exhaustive()) && !category()) {
 			result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			result.addAll(parent);
 			result.addAll(docHolder_.getItemNames());
@@ -618,6 +618,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				} else {
 					String itemName = String.valueOf(key);
 					Document doc = getDocument();
+					boolean convertMime = doc.getAncestorSession().isConvertMime();
+					doc.getAncestorSession().setConvertMime(false);
 					if(doc.hasItem(itemName)) {
 						Item item = doc.getFirstItem(itemName);
 						switch(item.getType()) {
@@ -625,22 +627,28 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 							try {
 								DominoUtils.HtmlConverterWrapper converter = new DominoUtils.HtmlConverterWrapper();
 								converter.convertItem(Factory.toLotus(doc), itemName);
+								doc.getAncestorSession().setConvertMime(convertMime);
 								return converter;
 							} catch(NotesException ne) {
+								doc.getAncestorSession().setConvertMime(convertMime);
 								throw new RuntimeException(ne);
 							}
 						case Item.MIME_PART:
 							// TODO this would be better converted elsewhere, but eh...
 							MIMEEntity entity = item.getMIMEEntity();
 							if(entity.getNthHeader("X-Java-Class") == null) {
+								doc.getAncestorSession().setConvertMime(convertMime);
 								return item;
 							} else {
+								doc.getAncestorSession().setConvertMime(convertMime);
 								return doc.get(key);
 							}
 						default:
+							doc.getAncestorSession().setConvertMime(convertMime);
 							return doc.get(key);
 						}
 					} else {
+						doc.getAncestorSession().setConvertMime(convertMime);
 						return doc.get(key);
 					}
 				}

@@ -115,8 +115,13 @@ public enum FrameworkUtils {
 	}
 
 	public static Object resolveVariable(final String varName) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		return context.getApplication().getVariableResolver().resolveVariable(context, varName);
+		try {
+			FacesContext context = FacesContext.getCurrentInstance();
+			return context.getApplication().getVariableResolver().resolveVariable(context, varName);
+		} catch(NullPointerException npe) {
+			// Then we're in a non-XSP context
+			return null;
+		}
 	}
 
 	public static String getUserName() {

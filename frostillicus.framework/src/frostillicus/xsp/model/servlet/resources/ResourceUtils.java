@@ -1,6 +1,7 @@
 package frostillicus.xsp.model.servlet.resources;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,7 +15,9 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import lotus.domino.NotesException;
 import frostillicus.xsp.bean.ManagedBean;
+import frostillicus.xsp.model.ManagerFor;
 import frostillicus.xsp.model.ModelManager;
+import frostillicus.xsp.model.ModelObject;
 
 import org.openntf.domino.*;
 import org.openntf.domino.utils.Factory;
@@ -50,15 +53,44 @@ public enum ResourceUtils {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param database
+	 * 		The database to search for the model objects
+	 * @param managerName
+	 * 		Either the name of a Manager by class or managed bean name or the name of a Model class
+	 * @return
+	 * 		A Class object representing a Manager for the given name, or null if not found
+	 */
 	@SuppressWarnings("unchecked")
 	public static Class<? extends ModelManager<?>> findManager(final Database database, final String managerName) {
 		if(StringUtil.isEmpty(managerName)) { return null; }
 
 		DatabaseDesign design = database.getDesign();
 		ClassLoader loader = design.getDatabaseClassLoader(Thread.currentThread().getContextClassLoader());
+
+		// First, see if we're dealing with a class name or bean name
+		Class<?> referencedClass = null;
+		if(managerName.contains(".")) {
+			try {
+				referencedClass = loader.loadClass(managerName);
+				if(ModelManager.class.isAssignableFrom(referencedClass)) {
+					// Then we're done immediately
+					return (Class<? extends ModelManager<?>>)referencedClass;
+				}
+				// Otherwise, keep the referenced class around in case it's a model object
+			} catch(ClassNotFoundException cnfe) {
+				// Though we're likely doomed at this point, soldier on to the later tests
+			}
+		}
+
 		for(String className : design.getJavaResourceClassNames()) {
 			try {
 				Class<?> loadedClass = loader.loadClass(className);
+
+				// There are two ways to identify the manager: by bean name or by an @ManagerFor annotation for a model class name
+
+				// Check the bean name first
 				ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
 				if(beanAnnotation != null) {
 					if(managerName.equals(beanAnnotation.name())) {
@@ -69,9 +101,18 @@ public enum ResourceUtils {
 						}
 					}
 				}
+
+				// Now check for a @ManagerFor annotation with the referenced class or bean name
+				ManagerFor manFor = loadedClass.getAnnotation(ManagerFor.class);
+				if(manFor != null) {
+					if(referencedClass != null && referencedClass.equals(manFor.value())) {
+						return (Class<? extends ModelManager<?>>)loadedClass;
+					} else if(managerName.equals(manFor.name())) {
+						return (Class<? extends ModelManager<?>>)loadedClass;
+					}
+				}
 			} catch(ClassNotFoundException cnfe) {
-				// This likely shouldn't happen
-				throw new RuntimeException(cnfe);
+				// This happens when the note in the NSF contains an old class name - ignore
 			}
 		}
 		return null;
@@ -90,6 +131,40 @@ public enum ResourceUtils {
 		Response response = builder.build();
 
 		return response;
+	}
+
+	public static void writeModelObject(final ModelObject model, final String managerName, final JsonWriter writer) throws NotesException, IOException, JsonException {
+		writeSystemProperties(model, writer);
+
+		for(String property : model.propertyNames()) {
+			writer.startProperty(property);
+			writeProperty(model.getValue(property), true, writer);
+			writer.endProperty();
+		}
+	}
+
+	protected static void writeSystemProperties(final ModelObject model, final JsonWriter writer) throws IOException {
+		writer.startProperty("@modelClass");
+		writer.outStringLiteral(model.getClass().getName());
+		writer.endProperty();
+
+		writer.startProperty("@category");
+		writer.outBooleanLiteral(model.category());
+		writer.endProperty();
+
+		writer.startProperty("@position");
+		writer.outStringLiteral(model.viewRowPosition());
+		writer.endProperty();
+
+		if(!model.category()) {
+			writer.startProperty("@unid");
+			writer.outStringLiteral(model.getId());
+			writer.endProperty();
+
+			writer.startProperty("@relativeUri");
+			writer.outStringLiteral("/" + URLEncoder.encode(model.getClass().getName(), "UTF-8") + "/" + URLEncoder.encode(model.getId(), "UTF-8"));
+			writer.endProperty();
+		}
 	}
 
 	public static void writeProperty(final Object input, final boolean topLevel, final JsonWriter writer) throws NotesException, IOException, JsonException {
@@ -214,6 +289,17 @@ public enum ResourceUtils {
 			writer.outBooleanLiteral((Boolean)input);
 		} else if(input == null) {
 			writer.outNull();
+		} else if(input instanceof ModelObject) {
+			writer.startObject();
+			writer.startProperty("type");
+			writer.outStringLiteral("object");
+			writer.endProperty();
+			writer.startProperty("value");
+			writer.startObject();
+			writeModelObject((ModelObject)input, input.getClass().getName(), writer);
+			writer.endObject();
+			writer.endProperty();
+			writer.endObject();
 		} else {
 			writer.outStringLiteral(String.valueOf(input));
 		}
