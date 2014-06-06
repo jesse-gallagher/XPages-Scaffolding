@@ -53,7 +53,8 @@ public class ModelResource {
 			@HeaderParam("If-Modified-Since") final String ifModifiedSince,
 			@QueryParam("compact") final boolean compact,
 			@QueryParam("start") final String startParam, @QueryParam("count") final String countParam,
-			@HeaderParam("Range") final String range) {
+			@HeaderParam("Range") final String range,
+			@QueryParam("hidden") final boolean hidden) {
 
 		ResponseBuilder builder = Response.ok();
 
@@ -82,7 +83,7 @@ public class ModelResource {
 							response_.getMetadata().add("Last-Modified", lastModifiedHeader);
 						}
 
-						ResourceUtils.writeModelObject(model, managerName, writer);
+						ResourceUtils.writeModelObject(model, managerName, hidden, writer);
 					} else if(resultObject instanceof List) {
 						List<? extends ModelObject> modelList = (List<? extends ModelObject>)resultObject;
 
@@ -129,7 +130,7 @@ public class ModelResource {
 							writer.startArrayItem();
 							writer.startObject();
 
-							ResourceUtils.writeModelObject(model, managerName, writer);
+							ResourceUtils.writeModelObject(model, managerName, hidden, writer);
 
 							writer.endObject();
 							writer.endArrayItem();
@@ -187,7 +188,7 @@ public class ModelResource {
 
 					Properties props = model.getClass().getAnnotation(Properties.class);
 					boolean exhaustive = props != null && props.exhaustive();
-					Set<String> propertyNames = exhaustive ? model.propertyNames() : null;
+					Set<String> propertyNames = exhaustive ? model.propertyNames(false) : null;
 
 					List<String> updatedProperties = new ArrayList<String>();
 					for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {

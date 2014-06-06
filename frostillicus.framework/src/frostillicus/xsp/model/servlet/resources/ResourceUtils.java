@@ -20,7 +20,6 @@ import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
 
 import org.openntf.domino.*;
-import org.openntf.domino.utils.Factory;
 import org.openntf.domino.design.*;
 
 import com.ibm.commons.util.StringUtil;
@@ -116,10 +115,10 @@ public enum ResourceUtils {
 		return response;
 	}
 
-	public static void writeModelObject(final ModelObject model, final String managerName, final JsonWriter writer) throws NotesException, IOException, JsonException {
+	public static void writeModelObject(final ModelObject model, final String managerName, final boolean includeSystem, final JsonWriter writer) throws NotesException, IOException, JsonException {
 		writeSystemProperties(model, writer);
 
-		for(String property : model.propertyNames()) {
+		for(String property : model.propertyNames(includeSystem)) {
 			writer.startProperty(property);
 			writeProperty(model.getValue(property), true, writer);
 			writer.endProperty();
@@ -165,16 +164,44 @@ public enum ResourceUtils {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void writeProperty(final Object input, final boolean topLevel, final JsonWriter writer) throws NotesException, IOException, JsonException {
 
 		if(input instanceof Iterable) {
-			writer.startArray();
-			for(Object obj : (Iterable<?>)input) {
-				writer.startArrayItem();
-				writeProperty(obj, false, writer);
-				writer.endArrayItem();
+			Object first = ((Iterable<?>)input).iterator().next();
+			if(first instanceof DateTime) {
+				// Then it's a DateTime item
+				writer.startObject();
+				writer.startProperty("type");
+				writer.outStringLiteral("datetime");
+				writer.endProperty();
+				writer.startProperty("data");
+				writer.startArray();
+				for(DateTime dt : (Iterable<DateTime>)input) {
+					writer.startArrayItem();
+					if (dt.getDateOnly().length() == 0) {
+						// Time Only
+						writer.outStringLiteral(timeOnlyToString(dt.toJavaDate()));
+					} else if (dt.getTimeOnly().length() == 0) {
+						// Date Only
+						writer.outStringLiteral(dateOnlyToString(dt.toJavaDate()));
+					} else {
+						writer.outStringLiteral(dateToString(dt.toJavaDate(), true));
+					}
+					writer.endArrayItem();
+				}
+				writer.endArray();
+				writer.endProperty();
+				writer.endObject();
+			} else {
+				writer.startArray();
+				for(Object obj : (Iterable<?>)input) {
+					writer.startArrayItem();
+					writeProperty(obj, false, writer);
+					writer.endArrayItem();
+				}
+				writer.endArray();
 			}
-			writer.endArray();
 		} else if(input instanceof Map) {
 			writer.startObject();
 			if(topLevel) {
@@ -237,12 +264,10 @@ public enum ResourceUtils {
 			String itemName = itemValue.getName();
 
 			List<JsonMimeEntityAdapter> adapters = new ArrayList<JsonMimeEntityAdapter>();
-			//			lotus.domino.Document rawDoc = Factory.toLotus(itemValue.getAncestorDocument());
 			MimeEntityHelper helper = new MimeEntityHelper(itemValue.getAncestorDocument(), itemName);
 			MIMEEntity entity = (MIMEEntity)helper.getFirstMimeEntity(true);
 			if (entity != null) {
 				JsonMimeEntityAdapter.addEntityAdapter(adapters, entity);
-				//				entity.recycle();
 			}
 			writer.outLiteral(adapters);
 
@@ -290,7 +315,7 @@ public enum ResourceUtils {
 			writer.endProperty();
 			writer.startProperty("value");
 			writer.startObject();
-			writeModelObject((ModelObject)input, input.getClass().getName(), writer);
+			writeModelObject((ModelObject)input, input.getClass().getName(), false, writer);
 			writer.endObject();
 			writer.endProperty();
 			writer.endObject();

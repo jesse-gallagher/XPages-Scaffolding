@@ -102,6 +102,10 @@ public enum FrameworkUtils {
 		return param == null ? new HashMap<String, String>() : param;
 	}
 
+	public static boolean isXSP() {
+		return getViewRoot() != null;
+	}
+
 	public static Object getBindingValue(final String ref) {
 		FacesContext context = FacesContext.getCurrentInstance();
 		Application application = context.getApplication();

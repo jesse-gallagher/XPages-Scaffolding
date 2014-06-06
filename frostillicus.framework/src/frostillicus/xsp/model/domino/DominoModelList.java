@@ -15,8 +15,7 @@ import org.openntf.domino.*;
 @SuppressWarnings("serial")
 public class DominoModelList<E extends AbstractDominoModel> extends AbstractModelList<E> {
 
-	@SuppressWarnings("unused")
-	private transient Map<Integer, E> cache_ = new HashMap<Integer, E>();
+	private transient Map<String, Object> internalCacheScope_ = new HashMap<String, Object>();;
 
 	private final String server_;
 	private final String filePath_;
@@ -78,7 +77,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 					// getNth is top-level only, so let's skip to what we need
 					int lastFetchedIndex = 0;
-					Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
+					Map<String, Object> requestScope = getRequestScope();
 					String key = "lastFetchedIndex-" + toString();
 					if (requestScope.containsKey(key)) {
 						lastFetchedIndex = (Integer) requestScope.get(key);
@@ -292,7 +291,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected ViewNavigator getNavigator() {
-		final Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
+		final Map<String, Object> requestScope = getRequestScope();
 		final String key = "viewnav-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			requestScope.put(key, getNewNavigator());
@@ -324,7 +323,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	protected ViewEntryCollection getEntries() {
-		final Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
+		final Map<String, Object> requestScope = getRequestScope();
 		final String key = "viewentries-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			View view = getView();
@@ -358,16 +357,20 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		getCache().clear();
 		getView().refresh();
 
-		final Map<String, Object> requestScope = FrameworkUtils.getRequestScope();
+		final Map<String, Object> requestScope = getRequestScope();
 		String thisToString = this.toString();
 		requestScope.remove("viewnav-" + thisToString);
 		requestScope.remove("viewentries-" + thisToString);
 		requestScope.remove("lastFetchedIndex-" + thisToString);
 	}
 
+	private Map<String, Object> getRequestScope() {
+		return FrameworkUtils.isXSP() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
+	}
+
 	@SuppressWarnings("unchecked")
 	private Map<Integer, E> getCache() {
-		Map<String, Object> cacheScope = FrameworkUtils.getRequestScope();
+		Map<String, Object> cacheScope = FrameworkUtils.isXSP() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
 		String key = toString() + "_entrycache";
 		if (!cacheScope.containsKey(key)) {
 			cacheScope.put(key, new HashMap<Integer, E>());

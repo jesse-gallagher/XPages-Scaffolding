@@ -207,14 +207,14 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public Set<String> propertyNames() {
-		Set<String> parent = super.propertyNames();
+	public Set<String> propertyNames(final boolean includeSystem) {
+		Set<String> parent = super.propertyNames(includeSystem);
 		Set<String> result;
 		Properties props = getClass().getAnnotation(Properties.class);
 		if((props == null || !props.exhaustive()) && !category()) {
 			result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			result.addAll(parent);
-			result.addAll(docHolder_.getItemNames(false));
+			result.addAll(docHolder_.getItemNames(includeSystem));
 		} else {
 			result = parent;
 		}

@@ -38,7 +38,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	}
 
 	@Override
-	public Set<String> propertyNames() {
+	public Set<String> propertyNames(final boolean includeSystem) {
 		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		Properties props = getClass().getAnnotation(Properties.class);
 		if(props != null) {

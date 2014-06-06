@@ -14,9 +14,9 @@ import com.ibm.xsp.model.ViewRowData;
 public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public boolean delete();
 
-	public void deleteAttachment(final String fieldName, final String attachmentName);
+	public void deleteAttachment(String fieldName, String attachmentName);
 
-	public List<FileRowData> getAttachmentList(final String fieldName);
+	public List<FileRowData> getAttachmentList(String fieldName);
 
 	public String getId();
 
@@ -30,11 +30,11 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 
 	public boolean save();
 
-	public DataModel getAttachmentData(final String key);
+	public DataModel getAttachmentData(String key);
 
-	public List<FileRowData> getEmbeddedImageList(final String fieldName);
+	public List<FileRowData> getEmbeddedImageList(String fieldName);
 
-	public Set<String> propertyNames();
+	public Set<String> propertyNames(boolean includeSystem);
 
 	public Set<String> columnPropertyNames();
 
