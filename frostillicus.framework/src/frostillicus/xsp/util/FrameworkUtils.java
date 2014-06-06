@@ -71,6 +71,15 @@ public enum FrameworkUtils {
 		}
 	}
 
+	public static Map<String, Object> getViewScope() {
+		try {
+			Map<String, Object> scope = ExtLibUtil.getViewScope();
+			return scope == null ? new HashMap<String, Object>() : scope;
+		} catch(Exception e) {
+			return new HashMap<String, Object>();
+		}
+	}
+
 	public static Map<String, Object> getRequestScope() {
 		try {
 			Map<String, Object> scope = ExtLibUtil.getRequestScope();
@@ -78,6 +87,18 @@ public enum FrameworkUtils {
 		} catch(Exception e) {
 			return new HashMap<String, Object>();
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<Object, Object> getFlashScope() {
+		Map<Object, Object> flashScope = (Map<Object, Object>) resolveVariable("flashScope");
+		return flashScope == null ? new HashMap<Object, Object>() : flashScope;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, String> getParam() {
+		Map<String, String> param = (Map<String, String>)resolveVariable("param");
+		return param == null ? new HashMap<String, String>() : param;
 	}
 
 	public static Object getBindingValue(final String ref) {
@@ -99,7 +120,7 @@ public enum FrameworkUtils {
 	}
 
 	public static String getUserName() {
-		return (String) getBindingValue("#{context.user.name}");
+		return getSession().getEffectiveUserName();
 	}
 
 	public static UIViewRootEx2 getViewRoot() {
@@ -500,11 +521,6 @@ public enum FrameworkUtils {
 		}
 
 		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<Object, Object> getFlashScope() {
-		return (Map<Object, Object>) resolveVariable("flashScope");
 	}
 
 	@SuppressWarnings("unchecked")

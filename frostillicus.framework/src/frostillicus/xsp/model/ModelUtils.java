@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -12,18 +11,13 @@ import java.util.TreeSet;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import com.ibm.xsp.extlib.util.ExtLibUtil;
+import frostillicus.xsp.util.FrameworkUtils;
 
 public enum ModelUtils {
 	;
 
 	public static Map<String, Object> getCacheScope() {
-		try {
-			Map<String, Object> scope = ExtLibUtil.getViewScope();
-			return scope == null ? new HashMap<String, Object>() : scope;
-		} catch(Exception e) {
-			return new HashMap<String, Object>();
-		}
+		return FrameworkUtils.getViewScope();
 	}
 
 	public static boolean isUnid(final String value) {
