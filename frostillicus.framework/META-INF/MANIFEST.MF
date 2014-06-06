@@ -7,6 +7,7 @@ Bundle-Activator: frostillicus.framework.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.ibm.designer.runtime.domino.bootstrap.adapter,
  javax.faces,
+ lotus.domino,
  org.eclipse.core.runtime,
  org.openntf.domino,
  org.openntf.domino.design,
@@ -20,7 +21,9 @@ Require-Bundle: com.ibm.xsp.extsn,
  com.ibm.wink;resolution:=optional,
  com.ibm.domino.osgi.core,
  com.ibm.xsp.designer,
- com.ibm.domino.xsp.adapter.osgi;resolution:=optional
+ com.ibm.domino.xsp.adapter.osgi;resolution:=optional,
+ com.ibm.domino.das;resolution:=optional,
+ com.ibm.domino.commons;resolution:=optional
 Export-Package: frostillicus.xsp,
  frostillicus.xsp.bean,
  frostillicus.xsp.controller,

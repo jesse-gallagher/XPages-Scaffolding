@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -13,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import lotus.domino.NotesException;
 import frostillicus.xsp.bean.ManagedBean;
 import frostillicus.xsp.model.ModelManager;
 
@@ -21,9 +21,14 @@ import org.openntf.domino.utils.Factory;
 import org.openntf.domino.design.*;
 
 import com.ibm.commons.util.StringUtil;
+import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonGenerator;
 import com.ibm.commons.util.io.json.JsonJavaFactory;
+import com.ibm.domino.commons.json.JsonMimeEntityAdapter;
+import com.ibm.domino.commons.mime.MimeEntityHelper;
 import com.ibm.domino.osgi.core.context.ContextInfo;
+import com.ibm.domino.services.util.JsonWriter;
+import com.ibm.xsp.model.domino.DominoUtils;
 
 
 public enum ResourceUtils {
@@ -72,10 +77,10 @@ public enum ResourceUtils {
 		return null;
 	}
 
-	public static Response buildJSONResponse(final Object result) {
+	public static Response buildJSONResponse(final Object result, final boolean compact) {
 		String resultJson;
 		try {
-			resultJson = JsonGenerator.toJson(JsonJavaFactory.instance, result, false);
+			resultJson = JsonGenerator.toJson(JsonJavaFactory.instance, result, compact);
 		} catch(Exception e) {
 			resultJson = "\"" + e.toString().replace("\"", "\\\"") + "\"";
 		}
@@ -87,54 +92,132 @@ public enum ResourceUtils {
 		return response;
 	}
 
-	public static Object toJSONFriendly(final Object input, final boolean topLevel) {
-		String type = null;
-		Object result = null;
+	public static void writeProperty(final Object input, final boolean topLevel, final JsonWriter writer) throws NotesException, IOException, JsonException {
+
 		if(input instanceof Iterable) {
-			List<Object> listResult = new ArrayList<Object>();
+			writer.startArray();
 			for(Object obj : (Iterable<?>)input) {
-				listResult.add(toJSONFriendly(obj, false));
+				writer.startArrayItem();
+				writeProperty(obj, false, writer);
+				writer.endArrayItem();
 			}
-			result = listResult;
+			writer.endArray();
 		} else if(input instanceof Map) {
-			type = "map";
-			Map<String, Object> mapResult = new HashMap<String, Object>();
-			for(Map.Entry<?, ?> entry : ((Map<?, ?>)input).entrySet()) {
-				mapResult.put(String.valueOf(entry.getKey()), toJSONFriendly(entry.getValue(), false));
+			writer.startObject();
+			if(topLevel) {
+				writer.startProperty("type");
+				writer.outStringLiteral("map");
+				writer.endProperty();
+				writer.startProperty("value");
+				writer.startObject();
 			}
-			result = mapResult;
+			for(Map.Entry<?, ?> entry : ((Map<?, ?>)input).entrySet()) {
+				writer.startProperty(String.valueOf(entry.getKey()));
+				writeProperty(entry.getValue(), false, writer);
+				writer.endProperty();
+			}
+			if(topLevel) {
+				writer.endObject();
+			}
+			writer.endObject();
+		} else if(input instanceof DominoUtils.HtmlConverterWrapper) {
+			DominoUtils.HtmlConverterWrapper converter = (DominoUtils.HtmlConverterWrapper)input;
+			writer.startObject();
+			writer.startProperty("type");
+			writer.outStringLiteral("richtext");
+			writer.endProperty();
+			writer.startProperty("contentType");
+			writer.outStringLiteral("text/html");
+			writer.endProperty();
+
+			writer.startProperty("value");
+			writer.outStringLiteral(converter.getConverterText());
+			writer.endProperty();
+			List<String> attachments = converter.getReferneceUrls();
+			if(!attachments.isEmpty()) {
+				writer.startProperty("attachments");
+				writer.startArray();
+				for (String attachment : converter.getReferneceUrls()) {
+					writer.startArrayItem();
+					writer.startObject();
+					writer.startProperty("href");
+					writer.outStringLiteral(attachment);
+					writer.endProperty();
+					writer.endObject();
+					writer.endArrayItem();
+				}
+				writer.endArray();
+				writer.endProperty();
+			}
+			writer.endObject();
+		} else if(input instanceof Item && ((Item)input).getType() == Item.MIME_PART) {
+			// TODO clean up this mess and make sure it doesn't crash the server
+
+			Item itemValue = (Item)input;
+
+			writer.startObject();
+			writer.startProperty("type");
+			writer.outStringLiteral("multipart");
+			writer.endProperty();
+			writer.startProperty("content");
+
+			Session session = itemValue.getAncestorSession();
+			boolean isConvertMime = session.isConvertMime();
+			String itemName = itemValue.getName();
+
+			List<JsonMimeEntityAdapter> adapters = new ArrayList<JsonMimeEntityAdapter>();
+			lotus.domino.Document rawDoc = Factory.toLotus(itemValue.getAncestorDocument());
+			MimeEntityHelper helper = new MimeEntityHelper(rawDoc, itemName);
+			lotus.domino.MIMEEntity entity = helper.getFirstMimeEntity(true);
+			if (entity != null) {
+				JsonMimeEntityAdapter.addEntityAdapter(adapters, entity);
+				entity.recycle();
+			}
+			writer.outLiteral(adapters);
+
+			itemValue.getAncestorDocument().closeMIMEEntities();
+
+			writer.endProperty();
+
+			writer.endObject();
+
+			session.setConvertMime(isConvertMime);
 		} else {
 			if(input instanceof DateTime) {
+				writer.startObject();
+				writer.startProperty("type");
+				writer.outStringLiteral("datetime");
+				writer.endProperty();
+				writer.startProperty("value");
 				if (((DateTime) input).getDateOnly().length() == 0) {
 					// Time Only
-					type = "timeonly";
-					result = timeOnlyToString(((DateTime)input).toJavaDate());
+					writer.outStringLiteral(timeOnlyToString(((DateTime)input).toJavaDate()));
 				} else if (((DateTime) input).getTimeOnly().length() == 0) {
 					// Date Only
-					type = "dateonly";
-					result = dateOnlyToString(((DateTime)input).toJavaDate());
+					writer.outStringLiteral(dateOnlyToString(((DateTime)input).toJavaDate()));
 				} else {
-					type = "datetime";
-					result = dateToString(((DateTime)input).toJavaDate(), true);
+					writer.outStringLiteral(dateToString(((DateTime)input).toJavaDate(), true));
 				}
+				writer.endProperty();
+				writer.endObject();
 			} else if(input instanceof Date) {
-				type = "datetime";
-				result = dateToString((Date)input, true);
+				writer.startObject();
+				writer.startProperty("type");
+				writer.outStringLiteral("datetime");
+				writer.endProperty();
+				writer.startProperty("value");
+				writer.outStringLiteral(dateToString((Date)input, true));
+				writer.endProperty();
+				writer.endObject();
 			} else if(input instanceof Number) {
-				result = input;
+				writer.outNumberLiteral(((Number)input).doubleValue());
 			} else if(input instanceof Boolean) {
-				result = input;
+				writer.outBooleanLiteral((Boolean)input);
+			} else if(input == null) {
+				writer.outNull();
 			} else {
-				result = String.valueOf(input);
+				writer.outStringLiteral(String.valueOf(input));
 			}
-		}
-		if(topLevel && type != null) {
-			Map<String, Object> wrappedResult = new HashMap<String, Object>();
-			wrappedResult.put("@type", type);
-			wrappedResult.put("@value", result);
-			return wrappedResult;
-		} else {
-			return result;
 		}
 	}
 
@@ -172,6 +255,7 @@ public enum ResourceUtils {
 		return ISO8601_TO.format(javaDate);
 	}
 
+	@SuppressWarnings("unused")
 	private static String dateToString(final DateTime value, final boolean utc) throws IOException {
 		return dateToString(value.toJavaDate(), utc);
 	}

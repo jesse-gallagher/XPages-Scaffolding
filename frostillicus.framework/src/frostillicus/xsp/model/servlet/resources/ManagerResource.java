@@ -20,6 +20,7 @@ import org.openntf.domino.Database;
 import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonGenerator;
 import com.ibm.commons.util.io.json.JsonJavaFactory;
+import com.ibm.domino.das.utils.ErrorHelper;
 
 import frostillicus.xsp.model.ModelManager;
 
@@ -46,10 +47,10 @@ public class ManagerResource {
 				}
 			}
 
-			return ResourceUtils.buildJSONResponse(result);
+			return ResourceUtils.buildJSONResponse(result, false);
 		} catch (Throwable e) {
-			e.printStackTrace();
-			return ResourceUtils.buildJSONResponse(e.toString());
+			throw new WebApplicationException(ErrorHelper.createErrorResponse(e));
+			//return ResourceUtils.buildJSONResponse(e.toString(), false);
 		}
 	}
 }

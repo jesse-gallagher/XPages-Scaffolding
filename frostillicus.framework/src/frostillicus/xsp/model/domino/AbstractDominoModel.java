@@ -14,6 +14,7 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.FileRowData;
 import com.ibm.xsp.model.domino.DominoAttachmentDataModel;
+import com.ibm.xsp.model.domino.DominoUtils;
 import com.ibm.xsp.model.domino.wrapped.DominoDocument;
 
 import frostillicus.xsp.model.AbstractModelObject;
@@ -21,6 +22,7 @@ import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.model.Properties;
 
 import org.openntf.domino.*;
+import org.openntf.domino.utils.Factory;
 
 import static frostillicus.xsp.model.ModelUtils.stringSet;
 
@@ -224,6 +226,15 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			result.add(name);
 		}
 		return result;
+	}
+
+	@Override
+	public Date lastModified() {
+		Document doc = document();
+		if(doc != null) {
+			return doc.getLastModifiedDate();
+		}
+		return null;
 	}
 
 	/* **********************************************************************
@@ -602,7 +613,33 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				if(changes_.containsKey(key)) {
 					return changes_.get(key);
 				} else {
-					return getDocument().get(key);
+					String itemName = String.valueOf(key);
+					Document doc = getDocument();
+					if(doc.hasItem(itemName)) {
+						Item item = doc.getFirstItem(itemName);
+						switch(item.getType()) {
+						case Item.RICHTEXT:
+							try {
+								DominoUtils.HtmlConverterWrapper converter = new DominoUtils.HtmlConverterWrapper();
+								converter.convertItem(Factory.toLotus(doc), itemName);
+								return converter;
+							} catch(NotesException ne) {
+								throw new RuntimeException(ne);
+							}
+						case Item.MIME_PART:
+							// TODO this would be better converted elsewhere, but eh...
+							MIMEEntity entity = item.getMIMEEntity();
+							if(entity.getNthHeader("X-Java-Class") == null) {
+								return item;
+							} else {
+								return doc.get(key);
+							}
+						default:
+							return doc.get(key);
+						}
+					} else {
+						return doc.get(key);
+					}
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 package frostillicus.xsp.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -36,4 +37,6 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public Set<String> propertyNames();
 
 	public Set<String> columnPropertyNames();
+
+	public Date lastModified();
 }
