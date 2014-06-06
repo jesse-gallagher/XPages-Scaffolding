@@ -106,7 +106,7 @@ public enum ResourceUtils {
 			writer.startObject();
 			if(topLevel) {
 				writer.startProperty("type");
-				writer.outStringLiteral("map");
+				writer.outStringLiteral("object");
 				writer.endProperty();
 				writer.startProperty("value");
 				writer.startObject();
@@ -182,42 +182,40 @@ public enum ResourceUtils {
 			writer.endObject();
 
 			session.setConvertMime(isConvertMime);
-		} else {
-			if(input instanceof DateTime) {
-				writer.startObject();
-				writer.startProperty("type");
-				writer.outStringLiteral("datetime");
-				writer.endProperty();
-				writer.startProperty("value");
-				if (((DateTime) input).getDateOnly().length() == 0) {
-					// Time Only
-					writer.outStringLiteral(timeOnlyToString(((DateTime)input).toJavaDate()));
-				} else if (((DateTime) input).getTimeOnly().length() == 0) {
-					// Date Only
-					writer.outStringLiteral(dateOnlyToString(((DateTime)input).toJavaDate()));
-				} else {
-					writer.outStringLiteral(dateToString(((DateTime)input).toJavaDate(), true));
-				}
-				writer.endProperty();
-				writer.endObject();
-			} else if(input instanceof Date) {
-				writer.startObject();
-				writer.startProperty("type");
-				writer.outStringLiteral("datetime");
-				writer.endProperty();
-				writer.startProperty("value");
-				writer.outStringLiteral(dateToString((Date)input, true));
-				writer.endProperty();
-				writer.endObject();
-			} else if(input instanceof Number) {
-				writer.outNumberLiteral(((Number)input).doubleValue());
-			} else if(input instanceof Boolean) {
-				writer.outBooleanLiteral((Boolean)input);
-			} else if(input == null) {
-				writer.outNull();
+		} else if(input instanceof DateTime) {
+			writer.startObject();
+			writer.startProperty("type");
+			writer.outStringLiteral("datetime");
+			writer.endProperty();
+			writer.startProperty("value");
+			if (((DateTime) input).getDateOnly().length() == 0) {
+				// Time Only
+				writer.outStringLiteral(timeOnlyToString(((DateTime)input).toJavaDate()));
+			} else if (((DateTime) input).getTimeOnly().length() == 0) {
+				// Date Only
+				writer.outStringLiteral(dateOnlyToString(((DateTime)input).toJavaDate()));
 			} else {
-				writer.outStringLiteral(String.valueOf(input));
+				writer.outStringLiteral(dateToString(((DateTime)input).toJavaDate(), true));
 			}
+			writer.endProperty();
+			writer.endObject();
+		} else if(input instanceof Date) {
+			writer.startObject();
+			writer.startProperty("type");
+			writer.outStringLiteral("datetime");
+			writer.endProperty();
+			writer.startProperty("value");
+			writer.outStringLiteral(dateToString((Date)input, true));
+			writer.endProperty();
+			writer.endObject();
+		} else if(input instanceof Number) {
+			writer.outNumberLiteral(((Number)input).doubleValue());
+		} else if(input instanceof Boolean) {
+			writer.outBooleanLiteral((Boolean)input);
+		} else if(input == null) {
+			writer.outNull();
+		} else {
+			writer.outStringLiteral(String.valueOf(input));
 		}
 	}
 

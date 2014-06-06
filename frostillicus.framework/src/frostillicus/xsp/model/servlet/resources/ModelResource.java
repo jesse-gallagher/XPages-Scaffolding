@@ -94,7 +94,7 @@ public class ModelResource {
 
 						for(String property : model.propertyNames()) {
 							writer.startProperty(property);
-							ResourceUtils.writeProperty(model.getValue(property), compact, writer);
+							ResourceUtils.writeProperty(model.getValue(property), true, writer);
 							writer.endProperty();
 						}
 					} else if(resultObject instanceof List) {
