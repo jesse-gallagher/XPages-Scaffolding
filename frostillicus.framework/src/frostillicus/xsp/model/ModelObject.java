@@ -2,6 +2,7 @@ package frostillicus.xsp.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.model.DataModel;
 
@@ -31,4 +32,6 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public DataModel getAttachmentData(final String key);
 
 	public List<FileRowData> getEmbeddedImageList(final String fieldName);
+
+	public Set<String> propertyNames();
 }

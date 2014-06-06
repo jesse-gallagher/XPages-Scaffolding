@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -12,26 +13,74 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.openntf.domino.*;
+import org.openntf.domino.utils.Factory;
 
+import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public enum ModelUtils {
 	;
 
 	public static Database getDatabase(final String server, final String filePath) {
-		Map<String, Object> requestScope = ExtLibUtil.getRequestScope();
+		Map<String, Object> requestScope = getRequestScope();
 		String key = "database-" + server + "!!" + filePath;
 		if (!requestScope.containsKey(key)) {
-			Session session = (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
+			Session session = getSession();
 			requestScope.put(key, session.getDatabase(server, filePath));
 		}
 
 		return (Database) requestScope.get(key);
 	}
 
+	public static Session getSession() {
+		try {
+			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
+		} catch(Exception e) {
+			// This indicates a non-XSP context
+			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
+			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+			return session;
+		}
+	}
+	public static Session getSessionAsSigner() {
+		try {
+			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "sessionAsSigner");
+		} catch(Exception e) {
+			return getSession();
+		}
+	}
+
+	public static Database getDatabase() {
+		try {
+			return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
+		} catch(Exception e) {
+			// This indicates a non-XSP context
+			Session session = getSession();
+			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
+			Database database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+			return database;
+		}
+	}
+
+	public static Map<String, Object> getCacheScope() {
+		try {
+			return ExtLibUtil.getViewScope();
+		} catch(Exception e) {
+			return new HashMap<String, Object>();
+		}
+	}
+	public static Map<String, Object> getRequestScope() {
+		try {
+			return ExtLibUtil.getRequestScope();
+		} catch(Exception e) {
+			return new HashMap<String, Object>();
+		}
+	}
+
 	public static boolean isUnid(final String value) {
-		if (value.length() != 32)
+		if (value.length() != 32) {
 			return false;
+		}
 		return isHex(value);
 	}
 
@@ -71,7 +120,9 @@ public enum ModelUtils {
 
 	@SuppressWarnings("unchecked")
 	public static ModelManager<?> findModelManager(final FacesContext context, final String managerName) throws IOException {
-		if(managerName == null) return null;
+		if(managerName == null) {
+			return null;
+		}
 
 		Object managerObject = context.getApplication().getVariableResolver().resolveVariable(context, managerName);
 		if(managerObject != null && !(managerObject instanceof ModelManager)) {
@@ -103,7 +154,9 @@ public enum ModelUtils {
 
 	public static SortedSet<String> stringSet(final Collection<String> input) {
 		SortedSet<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		if(input != null) result.addAll(input);
+		if(input != null) {
+			result.addAll(input);
+		}
 		return result;
 	}
 }

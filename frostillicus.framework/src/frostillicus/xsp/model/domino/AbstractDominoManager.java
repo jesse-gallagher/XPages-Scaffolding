@@ -2,11 +2,7 @@ package frostillicus.xsp.model.domino;
 
 import java.util.*;
 
-import javax.faces.context.FacesContext;
-
 import org.openntf.domino.*;
-
-import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelUtils;
@@ -38,13 +34,15 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 	}
 
 	protected Database getDatabase() {
-		return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
+		return ModelUtils.getDatabase();
 	}
 
+	@Override
 	public Class<?> getType(final Object key) {
 		return Object.class;
 	}
 
+	@Override
 	public Object getValue(final Object keyObject) {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
@@ -58,9 +56,13 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 			} else if (ModelUtils.isUnid(key)) {
 				Database database = getDatabase();
 				Document doc = database.getDocumentByUNID(key);
-				result = createFromDocument(doc);
+				if(doc == null) {
+					result = null;
+				} else {
+					result = createFromDocument(doc);
+				}
 			} else {
-				Map<String, Object> cacheScope = ExtLibUtil.getViewScope();
+				Map<String, Object> cacheScope = ModelUtils.getCacheScope();
 				String cacheKey = getClass().getName() + key;
 				if (!cacheScope.containsKey(cacheKey)) {
 					if (key.contains("^^")) {
@@ -69,7 +71,6 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 					} else {
 						cacheScope.put(cacheKey, getNamedCollection(key, null));
 					}
-
 				}
 				result = cacheScope.get(cacheKey);
 			}
@@ -80,10 +81,12 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 		}
 	}
 
+	@Override
 	public boolean isReadOnly(final Object key) {
 		return true;
 	}
 
+	@Override
 	public void setValue(final Object key, final Object value) {
 		throw new UnsupportedOperationException();
 	}

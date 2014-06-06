@@ -5,15 +5,22 @@ Bundle-SymbolicName: frostillicus.framework;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: frostillicus.framework.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: javax.faces,
+Import-Package: com.ibm.designer.runtime.domino.bootstrap.adapter,
+ com.ibm.domino.xsp.adapter.osgi,
+ javax.faces,
  org.eclipse.core.runtime,
  org.openntf.domino,
  org.openntf.domino.design,
+ org.openntf.domino.types,
+ org.openntf.domino.utils,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.xsp.extsn,
  com.ibm.xsp.extlib,
- com.ibm.xsp.domino
+ com.ibm.xsp.domino,
+ com.ibm.wink,
+ com.ibm.domino.osgi.core,
+ com.ibm.xsp.designer
 Export-Package: frostillicus.xsp,
  frostillicus.xsp.bean,
  frostillicus.xsp.controller,
@@ -23,3 +30,4 @@ Export-Package: frostillicus.xsp,
  frostillicus.xsp.model.domino,
  frostillicus.xsp.servlet,
  frostillicus.xsp.util
+Bundle-ClassPath: .

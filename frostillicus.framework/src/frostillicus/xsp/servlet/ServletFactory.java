@@ -20,7 +20,7 @@ public class ServletFactory implements IServletFactory {
 				Class<?> clazz = module_.getModuleClassLoader().loadClass("servlet." + servletName);
 				return new ServletMatch(module_.createServlet(clazz.getName(), servletName, null), "", path);
 			} catch(ClassNotFoundException e) {
-				System.out.println("servlet not found: " + servletName);
+				//System.out.println("servlet not found: " + servletName);
 			}
 
 		}

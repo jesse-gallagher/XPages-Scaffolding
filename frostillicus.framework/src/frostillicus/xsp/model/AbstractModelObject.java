@@ -2,9 +2,12 @@ package frostillicus.xsp.model;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.model.DataModel;
 
@@ -15,6 +18,16 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	private transient Map<String, Method> getterCache_ = new HashMap<String, Method>();
 	private transient Map<String, List<Method>> setterCache_ = new HashMap<String, List<Method>>();
+
+	@Override
+	public Set<String> propertyNames() {
+		Set<String> result = new TreeSet<String>();
+		Properties props = getClass().getAnnotation(Properties.class);
+		if(props != null) {
+			result.addAll(Arrays.asList(props.value()));
+		}
+		return result;
+	}
 
 	/* **********************************************************************
 	 * Hooks and utility methods for concrete classes
@@ -75,22 +88,27 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	/* **********************************************************************
 	 * ViewRowData methods
 	 ************************************************************************/
+	@Override
 	public final Object getColumnValue(final String key) {
 		return getValue(key);
 	}
 
+	@Override
 	public final void setColumnValue(final String key, final Object value) {
 		setValue(key, value);
 	}
 
+	@Override
 	public final ViewRowData.ColumnInfo getColumnInfo(final String key) {
 		return null;
 	}
 
+	@Override
 	public final boolean isReadOnly(final String key) {
 		return isReadOnly((Object) key);
 	}
 
+	@Override
 	public final Object getValue(final String key) {
 		return getValue((Object) key);
 	}
