@@ -151,7 +151,9 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 * These are named without "get" to avoid steeping on doc fields' toes
 	 ************************************************************************/
 
-	protected abstract Collection<String> nonSummaryFields();
+	protected Collection<String> nonSummaryFields() {
+		return Arrays.asList(new String[] { });
+	}
 
 	protected Collection<String> richTextFields() {
 		return Arrays.asList(new String[] {});
