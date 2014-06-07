@@ -8,8 +8,6 @@ import org.openntf.domino.*;
 import org.openntf.domino.utils.Factory;
 import org.openntf.domino.utils.XSPUtil;
 
-import sun.misc.BASE64Decoder;
-
 import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.component.UIViewRootEx2;
 
@@ -173,14 +171,6 @@ public enum FrameworkUtils {
 
 		return resultWriter.toString().replace("<HTTP-EQUIV", "<meta http-equiv");
 
-	}
-
-	public static byte[] getFileResourceData(final Document fileResource) throws NotesException, IOException {
-		String dxl = fileResource.generateXML();
-		int fileDataPos = dxl.indexOf("<filedata>");
-		int fileDataEnd = dxl.indexOf("</filedata>");
-		String fileDataB64 = dxl.substring(fileDataPos + 10, fileDataEnd - 1);
-		return new BASE64Decoder().decodeBuffer(fileDataB64);
 	}
 
 	public static String xor(final String input, final Vector<?> key) {
