@@ -11,6 +11,7 @@ import javax.faces.model.DataModel;
 import lotus.domino.NotesException;
 
 import com.ibm.commons.util.StringUtil;
+import com.ibm.xsp.http.MimeMultipart;
 import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.FileRowData;
 import com.ibm.xsp.model.domino.DominoAttachmentDataModel;
@@ -690,7 +691,12 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				throw new IllegalArgumentException("key must be a String");
 			}
 			if(isDominoDocument()) {
-				getDominoDocument().setValue(key, value);
+				// for Rich Text items, do a manual conversion to a MimeMultipart
+				if(stringSet(richTextFields()).contains(key) && value instanceof String) {
+					getDominoDocument().setValue(key, MimeMultipart.fromHTML(value));
+				} else {
+					getDominoDocument().setValue(key, value);
+				}
 			} else {
 				changes_.put((String)key, value);
 				storedChanges_ = false;
