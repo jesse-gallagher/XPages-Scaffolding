@@ -2,7 +2,7 @@
  * Much of this code is "inspired by" com.ibm.xsp.extlib.model.ObjectDataSource in the XPages Extension Library
  */
 
-package frostillicus.xsp.model;
+package frostillicus.xsp.model.component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +28,11 @@ import com.ibm.xsp.model.DataModelFactory;
 import com.ibm.xsp.model.DocumentDataContainer;
 import com.ibm.xsp.model.FileDownloadValue;
 import com.ibm.xsp.model.FileRowData;
+
+import frostillicus.xsp.model.AbstractModelObject;
+import frostillicus.xsp.model.ModelManager;
+import frostillicus.xsp.model.ModelObject;
+import frostillicus.xsp.model.ModelUtils;
 
 public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.model.ModelDataSource {
 

@@ -31,6 +31,10 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	private transient boolean reset_ = false;
 
+	// This is intended to store an extra reference to the Navigator, in case it's being recycled unnecessarily
+	// It's not meant for actual use
+	private transient ViewNavigator nav_ = null;
+
 	public DominoModelList(final Database database, final String viewName, final String category, final Class<E> clazz) {
 		super(clazz);
 
@@ -86,8 +90,6 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 					requestScope.put(key, index);
 
-					// If we're in a collapsed category, we have to skip further
-					// TODO make this work with multi-level categories
 					try {
 						cache.put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
 					} catch(NullPointerException npe) {
@@ -296,7 +298,8 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		if (!requestScope.containsKey(key)) {
 			requestScope.put(key, getNewNavigator());
 		}
-		return (ViewNavigator) requestScope.get(key);
+		nav_ = (ViewNavigator)requestScope.get(key);
+		return nav_;
 	}
 
 	protected ViewNavigator getNewNavigator() {

@@ -1,4 +1,4 @@
-package frostillicus.xsp.model;
+package frostillicus.xsp.model.component;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -16,6 +16,10 @@ import com.ibm.xsp.model.DataContainer;
 import com.ibm.xsp.model.ViewDataContainer;
 import com.ibm.xsp.model.ViewDataSource;
 import com.ibm.xsp.util.FacesUtil;
+
+import frostillicus.xsp.model.AbstractModelList;
+import frostillicus.xsp.model.ModelManager;
+import frostillicus.xsp.model.ModelUtils;
 
 public class ModelListDataSource extends AbstractDataSource implements ViewDataSource {
 

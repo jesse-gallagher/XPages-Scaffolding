@@ -31,8 +31,8 @@
 		<display-name>frostillic.us Model Data Source</display-name>
 		
 		<description>A model object data source</description>
-		<complex-id>frostillicus.xsp.model.ModelDataSource</complex-id>
-		<complex-class>frostillicus.xsp.model.ModelDataSource</complex-class>
+		<complex-id>frostillicus.xsp.model.component.ModelDataSource</complex-id>
+		<complex-class>frostillicus.xsp.model.component.ModelDataSource</complex-class>
 		
 		<group-type-ref>com.ibm.xsp.model.group.DataSource</group-type-ref>
 		<group-type-ref>frostillicus.xsp.model.data_source</group-type-ref>
@@ -48,8 +48,8 @@
 		<display-name>frostillic.us Model List Data Source</display-name>
 		
 		<description>A model list data source</description>
-		<complex-id>frostillicus.xsp.model.ModelListDataSource</complex-id>
-		<complex-class>frostillicus.xsp.model.ModelListDataSource</complex-class>
+		<complex-id>frostillicus.xsp.model.component.ModelListDataSource</complex-id>
+		<complex-class>frostillicus.xsp.model.component.ModelListDataSource</complex-class>
 		
 		<group-type-ref>com.ibm.xsp.model.group.DataSource</group-type-ref>
 		<group-type-ref>frostillicus.xsp.model.data_source</group-type-ref>
