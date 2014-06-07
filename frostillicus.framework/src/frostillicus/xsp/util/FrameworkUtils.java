@@ -19,10 +19,6 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public enum FrameworkUtils {
 	;
@@ -543,72 +539,5 @@ public enum FrameworkUtils {
 		}
 
 		return true;
-	}
-
-	public static Serializable restoreState(final lotus.domino.Document doc, final String itemName) throws Exception {
-		lotus.domino.Session session = ExtLibUtil.getCurrentSession();
-		boolean convertMime = session.isConvertMime();
-		session.setConvertMime(false);
-
-		Serializable result = null;
-		lotus.domino.Stream mimeStream = session.createStream();
-		lotus.domino.MIMEEntity entity = doc.getMIMEEntity(itemName);
-		entity.getContentAsBytes(mimeStream);
-
-		ByteArrayOutputStream streamOut = new ByteArrayOutputStream();
-		mimeStream.getContents(streamOut);
-		mimeStream.recycle();
-
-		byte[] stateBytes = streamOut.toByteArray();
-		ByteArrayInputStream byteStream = new ByteArrayInputStream(stateBytes);
-		ObjectInputStream objectStream;
-		if (entity.getHeaders().toLowerCase().contains("content-encoding: gzip")) {
-			GZIPInputStream zipStream = new GZIPInputStream(byteStream);
-			objectStream = new ObjectInputStream(zipStream);
-		} else {
-			objectStream = new ObjectInputStream(byteStream);
-		}
-		Serializable restored = (Serializable) objectStream.readObject();
-		result = restored;
-
-		entity.recycle();
-
-		session.setConvertMime(convertMime);
-
-		return result;
-	}
-
-	public static void saveState(final Serializable object, final lotus.domino.Document doc, final String itemName) throws NotesException {
-		try {
-			lotus.domino.Session session = ExtLibUtil.getCurrentSession();
-			boolean convertMime = session.isConvertMime();
-			session.setConvertMime(false);
-
-			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-			ObjectOutputStream objectStream = new ObjectOutputStream(new GZIPOutputStream(byteStream));
-			objectStream.writeObject(object);
-			objectStream.flush();
-			objectStream.close();
-
-			lotus.domino.Stream mimeStream = session.createStream();
-			lotus.domino.MIMEEntity previousState = doc.getMIMEEntity(itemName);
-			lotus.domino.MIMEEntity entity = previousState == null ? doc.createMIMEEntity(itemName) : previousState;
-			ByteArrayInputStream byteIn = new ByteArrayInputStream(byteStream.toByteArray());
-			mimeStream.setContents(byteIn);
-			entity.setContentFromBytes(mimeStream, "application/x-java-serialized-object", MIMEEntity.ENC_NONE);
-			lotus.domino.MIMEHeader header = entity.getNthHeader("Content-Encoding");
-			if (header == null) {
-				header = entity.createHeader("Content-Encoding");
-			}
-			header.setHeaderVal("gzip");
-
-			header.recycle();
-			entity.recycle();
-			mimeStream.recycle();
-
-			session.setConvertMime(convertMime);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
