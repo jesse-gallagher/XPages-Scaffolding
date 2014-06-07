@@ -42,8 +42,8 @@ public enum FrameworkUtils {
 	}
 
 	public static Session getSession() {
-		if(isXSP()) {
-			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
+		if(isFaces()) {
+			return (Session)resolveVariable("session");
 		} else {
 			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
 			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
@@ -52,7 +52,7 @@ public enum FrameworkUtils {
 		}
 	}
 	public static Session getSessionAsSigner() {
-		if(isXSP()) {
+		if(isFaces()) {
 			return XSPUtil.getCurrentSessionAsSigner();
 		} else {
 			return getSession();
@@ -60,8 +60,8 @@ public enum FrameworkUtils {
 	}
 
 	public static Database getDatabase() {
-		if(isXSP()) {
-			return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
+		if(isFaces()) {
+			return (Database)resolveVariable("database");
 		} else {
 			Session session = getSession();
 			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
@@ -71,58 +71,57 @@ public enum FrameworkUtils {
 	}
 
 	public static Map<String, Object> getViewScope() {
-		if(isXSP()) {
-			Map<String, Object> scope = ExtLibUtil.getViewScope();
-			return scope == null ? new HashMap<String, Object>() : scope;
-		} else {
-			return new HashMap<String, Object>();
-		}
+		@SuppressWarnings("unchecked")
+		Map<String, Object> scope = (Map<String, Object>)resolveVariable("viewScope");
+		return scope == null ? new HashMap<String, Object>() : scope;
 	}
 
 	public static Map<String, Object> getRequestScope() {
-		if(isXSP()) {
-			Map<String, Object> scope = ExtLibUtil.getRequestScope();
-			return scope == null ? new HashMap<String, Object>() : scope;
-		} else {
-			return new HashMap<String, Object>();
-		}
+		@SuppressWarnings("unchecked")
+		Map<String, Object> scope = (Map<String, Object>)resolveVariable("requestScope");
+		return scope == null ? new HashMap<String, Object>() : scope;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Map<Object, Object> getFlashScope() {
-		Map<Object, Object> flashScope = (Map<Object, Object>) resolveVariable("flashScope");
-		return flashScope == null ? new HashMap<Object, Object>() : flashScope;
+		@SuppressWarnings("unchecked")
+		Map<Object, Object> scope = (Map<Object, Object>)resolveVariable("flashScope");
+		return scope == null ? new HashMap<Object, Object>() : scope;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Map<String, String> getParam() {
+		@SuppressWarnings("unchecked")
 		Map<String, String> param = (Map<String, String>)resolveVariable("param");
 		return param == null ? new HashMap<String, String>() : param;
 	}
 
-	public static boolean isXSP() {
-		return getViewRoot() != null;
+	public static boolean isFaces() {
+		return FacesContext.getCurrentInstance() != null;
 	}
 
 	public static Object getBindingValue(final String ref) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		Application application = context.getApplication();
-		return application.createValueBinding(ref).getValue(context);
+		if(isFaces()) {
+			FacesContext context = FacesContext.getCurrentInstance();
+			Application application = context.getApplication();
+			return application.createValueBinding(ref).getValue(context);
+		} else {
+			return null;
+		}
 	}
 
 	public static void setBindingValue(final String ref, final Object newObject) {
-		FacesContext context = FacesContext.getCurrentInstance();
-		Application application = context.getApplication();
-		ValueBinding binding = application.createValueBinding(ref);
-		binding.setValue(context, newObject);
+		if(isFaces()) {
+			FacesContext context = FacesContext.getCurrentInstance();
+			Application application = context.getApplication();
+			ValueBinding binding = application.createValueBinding(ref);
+			binding.setValue(context, newObject);
+		}
 	}
 
 	public static Object resolveVariable(final String varName) {
-		try {
+		if(isFaces()) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			return context.getApplication().getVariableResolver().resolveVariable(context, varName);
-		} catch(NullPointerException npe) {
-			// Then we're in a non-XSP context
+		} else {
 			return null;
 		}
 	}

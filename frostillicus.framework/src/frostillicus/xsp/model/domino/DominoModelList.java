@@ -365,12 +365,12 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	private Map<String, Object> getRequestScope() {
-		return FrameworkUtils.isXSP() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
+		return FrameworkUtils.isFaces() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
 	}
 
 	@SuppressWarnings("unchecked")
 	private Map<Integer, E> getCache() {
-		Map<String, Object> cacheScope = FrameworkUtils.isXSP() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
+		Map<String, Object> cacheScope = FrameworkUtils.isFaces() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
 		String key = toString() + "_entrycache";
 		if (!cacheScope.containsKey(key)) {
 			cacheScope.put(key, new HashMap<Integer, E>());
