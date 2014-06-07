@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.ibm.xsp.extlib.beans.PeopleBean;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public enum FrameworkUtils {
@@ -130,10 +129,6 @@ public enum FrameworkUtils {
 
 	public static UIViewRootEx2 getViewRoot() {
 		return (UIViewRootEx2) resolveVariable("view");
-	}
-
-	public static PeopleBean getPeopleBean() {
-		return (PeopleBean) resolveVariable("peopleBean");
 	}
 
 	public static String pluralize(final String input) {
