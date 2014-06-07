@@ -42,10 +42,9 @@ public enum FrameworkUtils {
 	}
 
 	public static Session getSession() {
-		try {
+		if(isXSP()) {
 			return (Session)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "session");
-		} catch(Exception e) {
-			// This indicates a non-XSP context
+		} else {
 			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
 			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
 			session.setConvertMime(false);
@@ -53,18 +52,17 @@ public enum FrameworkUtils {
 		}
 	}
 	public static Session getSessionAsSigner() {
-		try {
+		if(isXSP()) {
 			return XSPUtil.getCurrentSessionAsSigner();
-		} catch(Exception e) {
+		} else {
 			return getSession();
 		}
 	}
 
 	public static Database getDatabase() {
-		try {
+		if(isXSP()) {
 			return (Database)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "database");
-		} catch(Exception e) {
-			// This indicates a non-XSP context
+		} else {
 			Session session = getSession();
 			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
 			Database database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
@@ -73,19 +71,19 @@ public enum FrameworkUtils {
 	}
 
 	public static Map<String, Object> getViewScope() {
-		try {
+		if(isXSP()) {
 			Map<String, Object> scope = ExtLibUtil.getViewScope();
 			return scope == null ? new HashMap<String, Object>() : scope;
-		} catch(Exception e) {
+		} else {
 			return new HashMap<String, Object>();
 		}
 	}
 
 	public static Map<String, Object> getRequestScope() {
-		try {
+		if(isXSP()) {
 			Map<String, Object> scope = ExtLibUtil.getRequestScope();
 			return scope == null ? new HashMap<String, Object>() : scope;
-		} catch(Exception e) {
+		} else {
 			return new HashMap<String, Object>();
 		}
 	}

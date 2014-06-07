@@ -586,7 +586,16 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		public boolean isNewNote() {
 			try {
-				return dominoDocument_.isNewNote();
+				if(isDominoDocument()) {
+					return dominoDocument_.isNewNote();
+				} else {
+					if(StringUtil.isEmpty(documentId_)) {
+						return true;
+					} else {
+						Document doc = getDocument(false);
+						return doc.isNewNote();
+					}
+				}
 			} catch(NotesException ne) {
 				throw new RuntimeException(ne);
 			}

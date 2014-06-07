@@ -1,14 +1,17 @@
 package frostillicus.xsp.model.servlet.resources;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -18,6 +21,7 @@ import frostillicus.xsp.bean.ManagedBean;
 import frostillicus.xsp.model.ManagerFor;
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
+import frostillicus.xsp.model.Properties;
 
 import org.openntf.domino.*;
 import org.openntf.domino.design.*;
@@ -26,8 +30,11 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonGenerator;
 import com.ibm.commons.util.io.json.JsonJavaFactory;
+import com.ibm.commons.util.io.json.JsonJavaObject;
+import com.ibm.commons.util.io.json.JsonParser;
 import com.ibm.domino.commons.json.JsonMimeEntityAdapter;
 import com.ibm.domino.commons.mime.MimeEntityHelper;
+import com.ibm.domino.das.utils.ErrorHelper;
 import com.ibm.domino.services.util.JsonWriter;
 import com.ibm.xsp.model.domino.DominoUtils;
 
@@ -322,6 +329,42 @@ public enum ResourceUtils {
 		} else {
 			writer.outStringLiteral(String.valueOf(input));
 		}
+	}
+
+	// TODO make replace actually work
+	protected static Response updateModelObject(final String requestEntity, final ModelObject model, final boolean replace) {
+
+		try {
+			JsonJavaObject jsonItems = null;
+			StringReader reader = new StringReader(requestEntity);
+			try {
+				jsonItems = (JsonJavaObject)JsonParser.fromJson(JsonJavaFactory.instanceEx, reader);
+			} finally {
+				reader.close();
+			}
+
+			Properties props = model.getClass().getAnnotation(Properties.class);
+			boolean exhaustive = props != null && props.exhaustive();
+			Set<String> propertyNames = exhaustive ? model.propertyNames(false) : null;
+
+			List<String> updatedProperties = new ArrayList<String>();
+			for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {
+				if((!exhaustive || propertyNames.contains(entry.getKey()) ) && !model.isReadOnly(entry.getKey())) {
+					model.setValue(entry.getKey(), entry.getValue());
+					updatedProperties.add(entry.getKey());
+				}
+			}
+			model.save();
+		} catch (JsonException e) {
+			throw new WebApplicationException(ErrorHelper.createErrorResponse(e, Response.Status.BAD_REQUEST));
+		}
+
+		ResponseBuilder builder = Response.ok();
+		builder.type(MediaType.APPLICATION_JSON_TYPE).entity(null);
+
+		Response response = builder.build();
+
+		return response;
 	}
 
 	// From ExtLib's com.ibm.domino.services.util.JsonWriter

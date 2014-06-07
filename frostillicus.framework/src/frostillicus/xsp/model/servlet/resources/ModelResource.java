@@ -3,18 +3,14 @@ package frostillicus.xsp.model.servlet.resources;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.util.Date;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.concurrent.Callable;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,15 +29,12 @@ import org.openntf.domino.Database;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonJavaObject;
-import com.ibm.commons.util.io.json.JsonParser;
+import com.ibm.domino.das.utils.ErrorHelper;
 import com.ibm.domino.services.util.ContentUtil;
 import com.ibm.domino.services.util.JsonWriter;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
-import frostillicus.xsp.model.Properties;
 import frostillicus.xsp.util.FrameworkUtils;
 
 @Path("{managerName}/{key}")
@@ -170,50 +163,71 @@ public class ModelResource {
 	@PATCH
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response patchResource(final String requestEntity, @Context final UriInfo uriInfo, @PathParam("managerName") final String managerName, @PathParam("key") final String key) {
-		return new ModelObjectRunner(uriInfo, managerName, key, false) {
-			@Override
-			protected void handle(final UriInfo uriInfo, final ModelManager<?> manager, final Object resultObject, final Map<String, Object> result) throws Exception {
-				result.put("@status", "success");
-				if(resultObject instanceof ModelObject) {
-					ModelObject model = (ModelObject)resultObject;
+	public Response patchResource(final String requestEntity, @Context final UriInfo uriInfo,
+			@PathParam("managerName") final String managerName, @PathParam("key") final String key,
+			@HeaderParam("If-Unmodified-Since") final String ifUnmodifiedSince) {
 
-					JsonJavaObject jsonItems = null;
-					StringReader reader = new StringReader(requestEntity);
-					try {
-						jsonItems = (JsonJavaObject)JsonParser.fromJson(JsonJavaFactory.instanceEx, reader);
-					} finally {
-						reader.close();
-					}
+		Object resultObject = findContextObject(uriInfo, managerName, key);
+		if(!(resultObject instanceof ModelObject)) {
+			throw new IllegalArgumentException("PATCH only applies to individual model objects");
+		}
 
-					Properties props = model.getClass().getAnnotation(Properties.class);
-					boolean exhaustive = props != null && props.exhaustive();
-					Set<String> propertyNames = exhaustive ? model.propertyNames(false) : null;
+		ModelObject model = (ModelObject)resultObject;
 
-					List<String> updatedProperties = new ArrayList<String>();
-					for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {
-						if((!exhaustive || propertyNames.contains(entry.getKey()) ) && !model.isReadOnly(entry.getKey())) {
-							model.setValue(entry.getKey(), entry.getValue());
-							updatedProperties.add(entry.getKey());
-						}
-					}
-					model.save();
-					result.put("@updatedProperties", updatedProperties);
-				} else {
-					throw new IllegalArgumentException("PATCH only applies to individual model objects");
-				}
-			}
+		ifUnmodifiedSince(model, ifUnmodifiedSince);
 
-		}.call();
+		return ResourceUtils.updateModelObject(requestEntity, model, false);
 	}
 
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response putResource(final String requestEntity, @Context final UriInfo uriInfo,
+			@PathParam("managerName") final String managerName, @PathParam("key") final String key,
+			@HeaderParam("If-Unmodified-Since") final String ifUnmodifiedSince) {
+
+		Object resultObject = findContextObject(uriInfo, managerName, key);
+		if(!(resultObject instanceof ModelObject)) {
+			throw new IllegalArgumentException("PUT only applies to individual model objects");
+		}
+
+		ModelObject model = (ModelObject)resultObject;
+
+		ifUnmodifiedSince(model, ifUnmodifiedSince);
+
+		return ResourceUtils.updateModelObject(requestEntity, model, true);
+	}
+
+	@DELETE
+	public Response deleteResource(@Context final UriInfo uriInfo,
+			@PathParam("managerName") final String managerName, @PathParam("key") final String key,
+			@HeaderParam("If-Unmodified-Since") final String ifUnmodifiedSince) {
+
+		Object resultObject = findContextObject(uriInfo, managerName, key);
+		if(!(resultObject instanceof ModelObject)) {
+			throw new IllegalArgumentException("DELETE only applies to individual model objects");
+		}
+
+		ModelObject model = (ModelObject)resultObject;
+
+		ifUnmodifiedSince(model, ifUnmodifiedSince);
+
+		if(!model.delete()) {
+			throw new WebApplicationException(ErrorHelper.createErrorResponse("Object not deleted.", Response.Status.INTERNAL_SERVER_ERROR));
+		}
+
+		ResponseBuilder builder = Response.ok();
+		Response response = builder.build();
+		return response;
+	}
 
 
 	/* **********************************************************************
 	 * Internal utility methods
 	 ************************************************************************/
+
 	// Based on ExtLib's DocumentResource#ifModifiedSince
-	protected static String ifModifiedSince(final ModelObject model, final String ifModifiedSince) {
+	private static String ifModifiedSince(final ModelObject model, final String ifModifiedSince) {
 		String lastModifiedHeader = null;
 		if(StringUtil.isNotEmpty(ifModifiedSince)) {
 			Date lastModified = model.lastModified();
@@ -236,6 +250,29 @@ public class ModelResource {
 		}
 		return lastModifiedHeader;
 	}
+	// Based on ExtLib's DocumentResource#ifUnmodifiedSince
+	private static void ifUnmodifiedSince(final ModelObject model, final String ifUnmodifiedSince) {
+		if(ifUnmodifiedSince == null) {
+			return;
+		}
+
+		Date modified = model.lastModified();
+		if(modified != null) {
+			String lastModifiedHeader = org.apache.http.impl.cookie.DateUtils.formatDate(modified);
+			if(lastModifiedHeader != null) {
+				if(!ifUnmodifiedSince.equalsIgnoreCase(lastModifiedHeader)) {
+					try {
+						Date ifUnmodifiedSinceDate = org.apache.http.impl.cookie.DateUtils.parseDate(ifUnmodifiedSince);
+						if(modified.after(ifUnmodifiedSinceDate)) {
+							throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
+						}
+					} catch(DateParseException e) {
+						throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
+					}
+				}
+			}
+		}
+	}
 
 	public Object findContextObject(final UriInfo uriInfo, final String managerName, final String key) {
 		try {
@@ -254,52 +291,5 @@ public class ModelResource {
 		} catch (Throwable e) {
 			throw new WebApplicationException(e);
 		}
-	}
-
-	/* **********************************************************************
-	 * Internal utility class to save on code
-	 ************************************************************************/
-	private static abstract class ModelObjectRunner implements Callable<Response> {
-		private final UriInfo uriInfo_;
-		private final String managerName_;
-		private final String key_;
-		private final boolean compact_;
-
-		public ModelObjectRunner(final UriInfo uriInfo, final String managerName, final String key, final boolean compact) {
-			uriInfo_ = uriInfo;
-			managerName_ = managerName;
-			key_ = key;
-			compact_ = compact;
-		}
-
-		@Override
-		public Response call() {
-			try {
-				Map<String, Object> result = new LinkedHashMap<String, Object>();
-				Database database = FrameworkUtils.getDatabase();
-				if(database == null) {
-					result.put("@status", "error");
-					result.put("message", "Must be run in the context of a database.");
-				} else {
-					Class<? extends ModelManager<?>> managerClass = ResourceUtils.findManager(database, managerName_);
-					if(managerClass == null) {
-						result.put("@status", "failure");
-						result.put("message", "No manager found for name '" + managerName_ + "'");
-					} else {
-						ModelManager<?> managerInstance = managerClass.newInstance();
-						Object resultObject = managerInstance.getValue(key_);
-						handle(uriInfo_, managerInstance, resultObject, result);
-					}
-				}
-				return ResourceUtils.buildJSONResponse(result, compact_);
-			} catch(WebApplicationException e) {
-				throw e;
-			} catch (Throwable e) {
-				e.printStackTrace();
-				return ResourceUtils.buildJSONResponse(e.toString(), compact_);
-			}
-		}
-
-		protected abstract void handle(UriInfo uriInfo, ModelManager<?> manager, Object resultObject, Map<String, Object> result) throws Exception;
 	}
 }

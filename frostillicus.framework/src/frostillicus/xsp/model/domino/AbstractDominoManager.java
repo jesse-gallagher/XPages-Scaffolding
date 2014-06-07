@@ -14,6 +14,7 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 	abstract protected Class<E> getModelClass();
 	abstract protected String getViewPrefix();
 
+	@Override
 	public DominoModelList<E> getNamedCollection(final String name, final String category) {
 		return new DominoModelList<E>(getDatabase(), getViewPrefix() + name, category, getModelClass());
 	}
@@ -26,7 +27,8 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 		}
 	}
 
-	protected E create() {
+	@Override
+	public E create() {
 		try {
 			return getModelClass().getConstructor(Database.class).newInstance(getDatabase());
 		} catch (Exception e) {

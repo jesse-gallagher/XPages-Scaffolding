@@ -42,15 +42,19 @@ public enum ModelUtils {
 	}
 
 	public static void publishException(final Exception e) {
-		StringWriter out = new StringWriter();
-		PrintWriter outWriter = new PrintWriter(out);
-		e.printStackTrace(outWriter);
-		outWriter.flush();
-
 		FacesContext facesContext = FacesContext.getCurrentInstance();
-		FacesMessage message = new FacesMessage(out.toString());
-		message.setSeverity(FacesMessage.SEVERITY_ERROR);
-		facesContext.addMessage("", message);
+		if(facesContext != null) {
+			StringWriter out = new StringWriter();
+			PrintWriter outWriter = new PrintWriter(out);
+			e.printStackTrace(outWriter);
+			outWriter.flush();
+
+			FacesMessage message = new FacesMessage(out.toString());
+			message.setSeverity(FacesMessage.SEVERITY_ERROR);
+			facesContext.addMessage("", message);
+		} else {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
