@@ -65,7 +65,7 @@ public class ModelDocumentAdapter implements DocumentAdapter {
 
 	@Override
 	public boolean isEditable(final FacesContext context, final Object document) {
-		return true;
+		return !((ModelObject)document).readonly();
 	}
 
 	@Override
@@ -86,7 +86,12 @@ public class ModelDocumentAdapter implements DocumentAdapter {
 	@Override
 	public void setUserReadOnly(final FacesContext context, final Object document, final boolean readOnly) {
 		// TODO Implement when read-only support exists at the model level
-		// NOP
+		ModelObject model = (ModelObject)document;
+		if(readOnly) {
+			model.freeze();
+		} else {
+			model.unfreeze();
+		}
 	}
 
 }

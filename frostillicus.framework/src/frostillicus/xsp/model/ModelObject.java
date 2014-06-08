@@ -43,4 +43,10 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public Date created();
 
 	public List<String> modifiedBy();
+
+	public boolean readonly();
+
+	public void freeze();
+
+	public void unfreeze();
 }

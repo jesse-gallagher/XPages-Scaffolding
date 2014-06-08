@@ -55,7 +55,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 
 	@Override
 	public boolean isReadonly() {
-		return false;
+		return getDataObject().readonly();
 	}
 
 	@Override

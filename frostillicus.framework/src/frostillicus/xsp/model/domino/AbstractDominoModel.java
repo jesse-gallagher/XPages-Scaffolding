@@ -419,6 +419,10 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		try {
 			if (querySave()) {
+				if(!super.save()) {
+					return false;
+				}
+
 				Document doc = document(true);
 
 				for(String fieldName : stringSet(namesFields())) {

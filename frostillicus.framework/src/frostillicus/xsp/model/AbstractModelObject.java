@@ -9,15 +9,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.model.ViewRowData;
+
+import frostillicus.xsp.util.FrameworkUtils;
 
 public abstract class AbstractModelObject extends DataModel implements ModelObject {
 	private static final long serialVersionUID = 1L;
 
 	private transient Map<String, Method> getterCache_ = new HashMap<String, Method>();
 	private transient Map<String, List<Method>> setterCache_ = new HashMap<String, List<Method>>();
+	private boolean frozen_;
 
 	/* **********************************************************************
 	 * Hooks and utility methods for concrete classes
@@ -54,6 +60,41 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 			result.addAll(Arrays.asList(props.value()));
 		}
 		return result;
+	}
+
+	@Override
+	public boolean save() {
+		if(frozen_) { return false; }
+
+		RequiredFields reqAnnotation = getClass().getAnnotation(RequiredFields.class);
+		if(reqAnnotation != null) {
+			for(String field : reqAnnotation.value()) {
+				Object val = getValue(field);
+				if(val == null || (val instanceof String && StringUtil.isEmpty((String)val))) {
+					if(FrameworkUtils.isFaces()) {
+						FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field + "' is required", null);
+						FacesContext.getCurrentInstance().addMessage(null, message);
+					}
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean readonly() {
+		return frozen_ == true;
+	}
+
+	@Override
+	public void freeze() {
+		frozen_ = true;
+	}
+	@Override
+	public void unfreeze() {
+		frozen_ = false;
 	}
 
 	/* **********************************************************************
