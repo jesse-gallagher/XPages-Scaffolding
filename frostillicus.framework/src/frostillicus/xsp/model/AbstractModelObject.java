@@ -1,5 +1,6 @@
 package frostillicus.xsp.model;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +71,31 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		if(reqAnnotation != null) {
 			for(String field : reqAnnotation.value()) {
 				Object val = getValue(field);
-				if(val == null || (val instanceof String && StringUtil.isEmpty((String)val))) {
+
+				boolean empty = false;
+				if(val == null) {
+					empty = true;
+				} else if(val instanceof String && StringUtil.isEmpty((String)val)) {
+					empty = true;
+				} else {
+					try {
+						Method isEmpty = val.getClass().getMethod("isEmpty");
+						if(isEmpty.getReturnType().equals(Boolean.TYPE) || isEmpty.getReturnType().equals(Boolean.class)) {
+							empty = (Boolean)isEmpty.invoke(val);
+						}
+					} catch(NoSuchMethodException e) {
+						System.out.println(e);
+						// Ignore
+					} catch(InvocationTargetException e) {
+						System.out.println(e);
+						// Ignore
+					} catch(IllegalAccessException e) {
+						System.out.println(e);
+						// Ignore
+					}
+				}
+
+				if(empty) {
 					if(FrameworkUtils.isFaces()) {
 						FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field + "' is required", null);
 						FacesContext.getCurrentInstance().addMessage(null, message);
