@@ -8,6 +8,14 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.library.Contributor" class="frostillicus.framework.FrostillicusContributor" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.RequestParameters" class="frostillicus.xsp.model.component.ModelRequestCustomizerFactory" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
 		<service
 			type="com.ibm.xsp.adapter.servletFactory"
 			class="frostillicus.xsp.servlet.ServletFactory" />

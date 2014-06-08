@@ -5,10 +5,6 @@
 package frostillicus.xsp.model.component;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -16,18 +12,9 @@ import javax.faces.model.DataModel;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.FacesExceptionEx;
-import com.ibm.xsp.actions.document.DocumentAdapter;
-import com.ibm.xsp.actions.document.DocumentAdapterFactory;
-import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.binding.ActionOutcomeUrl;
 import com.ibm.xsp.factory.FactoryLookup;
-import com.ibm.xsp.model.AbstractDataContainer;
 import com.ibm.xsp.model.AbstractDataSource;
 import com.ibm.xsp.model.DataContainer;
-import com.ibm.xsp.model.DataModelFactory;
-import com.ibm.xsp.model.DocumentDataContainer;
-import com.ibm.xsp.model.FileDownloadValue;
-import com.ibm.xsp.model.FileRowData;
 
 import frostillicus.xsp.model.AbstractModelObject;
 import frostillicus.xsp.model.ModelManager;
@@ -73,8 +60,6 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 
 	@Override
 	public DataContainer load(final FacesContext context) throws IOException {
-		initFactories(context);
-
 		// Now actually init the container
 		ModelManager<?> manager = ModelUtils.findModelManager(context, managerName_);
 		if(manager == null) {
@@ -90,49 +75,6 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 		}
 
 		return new Container(getBeanId(), getUniqueId(), (AbstractModelObject)modelObject);
-	}
-
-	@SuppressWarnings("deprecation")
-	private void initFactories(final FacesContext context) throws IOException {
-		// DataModelFactory is used by file-download controls as part of retrieving
-		// attachment lists. Unfortunately, the default one will intercept calls
-		// for our object, so we have to find and wrap it with a delegating variant
-		ApplicationEx app = (ApplicationEx)FacesContext.getCurrentInstance().getApplication();
-		FactoryLookup lookup = app.getFactoryLookup();
-
-		String dataModelFactoryKey = "com.ibm.xsp.DOMINO_DATAMODEL_FACTORY";
-		DataModelFactory existingDMF = (DataModelFactory)lookup.getFactory(dataModelFactoryKey);
-		if(existingDMF != null) {
-			if(!(existingDMF instanceof ModelObjectFactory)) {
-				lookup.setFactory(dataModelFactoryKey, new ModelObjectFactory(existingDMF));
-			}
-		} else {
-			try {
-				lookup.setFactory("frostillicus.model.MODEL_OBJECT_FACTORY", ModelObjectFactory.class);
-			} catch (InstantiationException e) {
-				throw new IOException(e);
-			} catch (IllegalAccessException e) {
-				throw new IOException(e);
-			}
-		}
-
-		// The same goes for the DocumentAdapterFactory, which is used as part of
-		// sending "delete attachment" messages
-		String documentAdapterFactoryKey = "com.ibm.xsp.DESIGNER_DOMINO_ADAPTER_FACTORY";
-		DocumentAdapterFactory existingDAF = (DocumentAdapterFactory)lookup.getFactory(documentAdapterFactoryKey);
-		if(existingDAF != null) {
-			if(!(existingDAF instanceof ModelDocumentAdapterFactory)) {
-				lookup.setFactory(documentAdapterFactoryKey, new ModelDocumentAdapterFactory(existingDAF));
-			}
-		} else {
-			try {
-				lookup.setFactory("frostillicus.model.MODEL_DOCUMENT_ADAPTER_FACTORY", ModelDocumentAdapterFactory.class);
-			} catch (InstantiationException e) {
-				throw new IOException(e);
-			} catch (IllegalAccessException e) {
-				throw new IOException(e);
-			}
-		}
 	}
 
 	@SuppressWarnings("unused")
@@ -159,185 +101,5 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 	public boolean save(final FacesContext context, final DataContainer data) throws FacesExceptionEx {
 		ModelObject modelObject = ((Container)data).getModelObject();
 		return modelObject.save();
-	}
-
-
-	/* ******************************************************************************************
-	 * Container class to encapsulate the actual object. Since models are Serializable,
-	 * this is pretty simple
-	 ********************************************************************************************/
-	protected static class Container extends AbstractDataContainer implements DocumentDataContainer {
-		private AbstractModelObject modelObject_;
-
-		public Container() { }
-		public Container(final String beanId, final String id, final AbstractModelObject modelObject) {
-			super(beanId, id);
-			modelObject_ = modelObject;
-		}
-
-		public AbstractModelObject getModelObject() {
-			return modelObject_;
-		}
-		@Override
-		public Object getDocument() {
-			return getModelObject();
-		}
-
-		@Override
-		public void deserialize(final ObjectInput in) throws IOException {
-			try {
-				modelObject_ = (AbstractModelObject)in.readObject();
-			} catch(ClassNotFoundException cnfe) {
-				IOException ioe = new IOException("Error while deserializing object");
-				ioe.initCause(cnfe);
-				throw ioe;
-			}
-		}
-
-		@Override
-		public void serialize(final ObjectOutput out) throws IOException {
-			out.writeObject(modelObject_);
-		}
-
-	}
-
-	/* ******************************************************************************************
-	 * Delegating factories to work around the horrors of the xp:fileDownload control
-	 ********************************************************************************************/
-	protected static class ModelObjectFactory implements DataModelFactory {
-		private final DataModelFactory delegate_;
-
-		public ModelObjectFactory() {
-			delegate_ = null;
-		}
-		public ModelObjectFactory(final DataModelFactory delegate) {
-			delegate_ = delegate;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public DataModel createDataModel(final Object obj) {
-			if(obj instanceof FileDownloadValue) {
-				// Then it will be a HashMap with one entry, representing a model object -> field name pair
-				FileDownloadValue download = (FileDownloadValue)obj;
-				for(Map.Entry<Object, String> downloadEntry : ((Map<Object, String>)download.getValue()).entrySet()) {
-					if(downloadEntry.getKey() instanceof ModelObject) {
-						return ((ModelObject)downloadEntry.getKey()).getAttachmentData(downloadEntry.getValue());
-					}
-				}
-
-				return delegate_.createDataModel(obj);
-			} else if(delegate_ != null) {
-				return delegate_.createDataModel(obj);
-			}
-			return null;
-		}
-
-	}
-
-	protected static class ModelDocumentAdapterFactory implements DocumentAdapterFactory {
-		private final DocumentAdapterFactory delegate_;
-
-		public ModelDocumentAdapterFactory() {
-			delegate_ = null;
-		}
-		public ModelDocumentAdapterFactory(final DocumentAdapterFactory delegate) {
-			delegate_ = delegate;
-		}
-
-		@Override
-		public DocumentAdapter createDocumentAdapter(final FacesContext context, final Object obj) {
-			// A valid document adapter will come along as a Map "tuple" of model object -> field name
-			if(obj instanceof Map) {
-				for(Map.Entry<?, ?> entry : ((Map<?, ?>)obj).entrySet()) {
-					if(entry.getKey() instanceof ModelObject) {
-						return new ModelDocumentAdapter((ModelObject)entry.getKey());
-					}
-				}
-			}
-			return delegate_.createDocumentAdapter(context, obj);
-		}
-
-	}
-
-	protected static class ModelDocumentAdapter implements DocumentAdapter {
-		private final String id_;
-
-		public ModelDocumentAdapter(final ModelObject modelObject) {
-			id_ = modelObject.getId();
-		}
-
-		@Override
-		public void addAttachment(final FacesContext context, final Object document, final String name, final InputStream istream, final int length, final String description, final String type) {
-			System.out.println("called addAttachment");
-			// NOP
-		}
-
-		@Override
-		public void addOpenPageParameters(final FacesContext context, final String var, final ActionOutcomeUrl outcomeUrl) {
-			// NOP
-		}
-
-		@Override
-		public void delete(final FacesContext context, final Object document) {
-			((ModelObject)document).delete();
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public void deleteAttachments(final FacesContext context, final Object document, final String name, final boolean deleteAll) {
-			// In this case, "document" is a HashMap tuple
-			Map.Entry<ModelObject, String> tuple = ((Map<ModelObject, String>)document).entrySet().iterator().next();
-			tuple.getKey().deleteAttachment(tuple.getValue(), name);
-		}
-
-		@Override
-		public String getDocumentId(final FacesContext context, final String var) {
-			return id_;
-		}
-
-		@Override
-		public String getDocumentPage(final FacesContext context, final String documentId) {
-			// TODO Do this, maybe?
-			return null;
-		}
-
-		@Override
-		public List<FileRowData> getEmbeddedImageList(final Object document, final String fieldName) {
-			System.out.println("requesting embedded image list for a " + document.getClass().getName());
-			return ((ModelObject)document).getAttachmentList(fieldName);
-		}
-
-		@Override
-		public String getParentId(final FacesContext context, final Object document) {
-			return "";
-		}
-
-		@Override
-		public boolean isEditable(final FacesContext context, final Object document) {
-			return true;
-		}
-
-		@Override
-		public void modifyField(final FacesContext context, final Object document, final String name, final Object value) {
-			((ModelObject)document).setValue(name, value);
-		}
-
-		@Override
-		public void save(final FacesContext context, final Object document) {
-			((ModelObject)document).save();
-		}
-
-		@Override
-		public void setDocument(final FacesContext context, final Object document, final Object value) {
-			// NOP
-		}
-
-		@Override
-		public void setUserReadOnly(final FacesContext context, final Object document, final boolean readOnly) {
-			// TODO Implement when read-only support exists at the model level
-			// NOP
-		}
-
 	}
 }
