@@ -63,28 +63,40 @@ public enum FrameworkUtils {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getViewScope() {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> scope = (Map<String, Object>)resolveVariable("viewScope");
-		return scope == null ? new HashMap<String, Object>() : scope;
+		if(isFaces()) {
+			return (Map<String, Object>)resolveVariable("viewScope");
+		} else {
+			return new HashMap<String, Object>();
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getRequestScope() {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> scope = (Map<String, Object>)resolveVariable("requestScope");
-		return scope == null ? new HashMap<String, Object>() : scope;
+		if(isFaces()) {
+			return (Map<String, Object>)resolveVariable("requestScope");
+		} else {
+			return new HashMap<String, Object>();
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Map<Object, Object> getFlashScope() {
-		@SuppressWarnings("unchecked")
-		Map<Object, Object> scope = (Map<Object, Object>)resolveVariable("flashScope");
-		return scope == null ? new HashMap<Object, Object>() : scope;
+		if(isFaces()) {
+			return (Map<Object, Object>)resolveVariable("flashScope");
+		} else {
+			return new HashMap<Object, Object>();
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Map<String, String> getParam() {
-		@SuppressWarnings("unchecked")
-		Map<String, String> param = (Map<String, String>)resolveVariable("param");
-		return param == null ? new HashMap<String, String>() : param;
+		if(isFaces()) {
+			return (Map<String, String>)resolveVariable("param");
+		} else {
+			return new HashMap<String, String>();
+		}
 	}
 
 	public static boolean isFaces() {

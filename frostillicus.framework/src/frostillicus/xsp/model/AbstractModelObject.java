@@ -1,11 +1,13 @@
 package frostillicus.xsp.model;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,8 +15,17 @@ import java.util.TreeSet;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
+import javax.validation.ConstraintViolation;
+import javax.validation.MessageInterpolator;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.metadata.BeanDescriptor;
+import javax.validation.metadata.PropertyDescriptor;
+
+import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 
 import com.ibm.commons.util.StringUtil;
+import com.ibm.xsp.designer.context.XSPContext;
 import com.ibm.xsp.model.ViewRowData;
 
 import frostillicus.xsp.util.FrameworkUtils;
@@ -66,6 +77,52 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	@Override
 	public boolean save() {
 		if(frozen_) { return false; }
+
+		// Time for validation!
+
+		// First, build a validator for the class
+		Validator validator = Validation.byDefaultProvider().configure()
+				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
+				.buildValidatorFactory().getValidator();
+
+		// Run through the constrained fields to populate their values from the model object
+		BeanDescriptor desc = validator.getConstraintsForClass(this.getClass());
+		for(PropertyDescriptor prop : desc.getConstrainedProperties()) {
+			try {
+				Field field = getClass().getDeclaredField(prop.getPropertyName());
+
+				Class<?> fieldClass = field.getType();
+				Object val = getValue(field.getName());
+				if(val != null && !fieldClass.isAssignableFrom(val.getClass())) {
+					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+				}
+
+				field.setAccessible(true);
+				field.set(this, val);
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (SecurityException e) {
+				throw new RuntimeException(e);
+			} catch (NoSuchFieldException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// Now run the constraint tests and publish any failures
+		Set<ConstraintViolation<AbstractModelObject>> constraintValidations = validator.validate(this);
+		if(!constraintValidations.isEmpty()) {
+			if(FrameworkUtils.isFaces()) {
+				for(ConstraintViolation<AbstractModelObject> violation : constraintValidations) {
+					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, violation.getPropertyPath() + ": " + violation.getMessage(), null);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+				}
+			}
+			return false;
+		}
+
 
 		RequiredFields reqAnnotation = getClass().getAnnotation(RequiredFields.class);
 		if(reqAnnotation != null) {
@@ -225,5 +282,22 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 			setterCache_.put(lkey, result);
 		}
 		return setterCache_.get(lkey);
+	}
+
+
+	/* **********************************************************************
+	 * Validation support
+	 ************************************************************************/
+	private static class XSPLocaleResourceBundleMessageInterpolator extends ResourceBundleMessageInterpolator {
+		@Override
+		public String interpolate(final String message, final MessageInterpolator.Context context) {
+			Locale locale;
+			if(FrameworkUtils.isFaces()) {
+				locale = XSPContext.getXSPContext(FacesContext.getCurrentInstance()).getLocale();
+			} else {
+				locale = Locale.getDefault();
+			}
+			return interpolate(message, context, locale);
+		}
 	}
 }

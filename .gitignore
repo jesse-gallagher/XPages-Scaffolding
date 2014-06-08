@@ -5,4 +5,7 @@ Thumbs.db
 ._*
 *.swp
 
-*.jar
+#*.jar
+*.class
+features
+plugins
