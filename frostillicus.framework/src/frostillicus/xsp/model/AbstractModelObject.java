@@ -16,6 +16,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -112,15 +113,20 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		}
 
 		// Now run the constraint tests and publish any failures
-		Set<ConstraintViolation<AbstractModelObject>> constraintValidations = validator.validate(this);
-		if(!constraintValidations.isEmpty()) {
+		Set<ConstraintViolation<AbstractModelObject>> constraintViolations = validator.validate(this);
+		if(!constraintViolations.isEmpty()) {
 			if(FrameworkUtils.isFaces()) {
-				for(ConstraintViolation<AbstractModelObject> violation : constraintValidations) {
+				// In a Faces environment, report the problems to the UI
+				// TODO decide if this is a good idea
+				for(ConstraintViolation<AbstractModelObject> violation : constraintViolations) {
 					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, violation.getPropertyPath() + ": " + violation.getMessage(), null);
 					FacesContext.getCurrentInstance().addMessage(null, message);
 				}
+				return false;
+			} else {
+				// Otherwise, throw an outright exception
+				throw new ConstraintViolationException(constraintViolations);
 			}
-			return false;
 		}
 
 

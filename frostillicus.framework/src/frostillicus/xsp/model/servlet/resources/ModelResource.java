@@ -35,6 +35,7 @@ import com.ibm.domino.services.util.JsonWriter;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
+import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.util.FrameworkUtils;
 
 @Path("{managerName}/{key}")
@@ -143,21 +144,25 @@ public class ModelResource {
 					streamWriter.close();
 				} catch(JsonException je) {
 					je.printStackTrace();
-					throw new WebApplicationException(je);
+					throw new WebApplicationException(ErrorHelper.createErrorResponse(je));
 				} catch(NotesException ne) {
 					ne.printStackTrace();
-					throw new WebApplicationException(ne);
+					throw new WebApplicationException(ErrorHelper.createErrorResponse(ne));
 				} catch(Throwable t) {
 					t.printStackTrace();
-					throw new WebApplicationException(t);
+					throw new WebApplicationException(ErrorHelper.createErrorResponse(t));
 				}
 			}
 		};
 
-		builder.type(MediaType.APPLICATION_JSON_TYPE).entity(streamingJsonEntity);
-		Response response = builder.build();
-		streamingJsonEntity.setResponse(response);
-		return response;
+		try {
+			builder.type(MediaType.APPLICATION_JSON_TYPE).entity(streamingJsonEntity);
+			Response response = builder.build();
+			streamingJsonEntity.setResponse(response);
+			return response;
+		} catch(Throwable e) {
+			return ResourceUtils.createErrorResponse(e);
+		}
 	}
 
 	@PATCH
@@ -169,14 +174,25 @@ public class ModelResource {
 
 		Object resultObject = findContextObject(uriInfo, managerName, key);
 		if(!(resultObject instanceof ModelObject)) {
-			throw new IllegalArgumentException("PATCH only applies to individual model objects");
+			return ResourceUtils.createErrorResponse(new IllegalArgumentException("PATCH only applies to individual model objects"));
 		}
 
 		ModelObject model = (ModelObject)resultObject;
 
 		ifUnmodifiedSince(model, ifUnmodifiedSince);
 
-		return ResourceUtils.updateModelObject(requestEntity, model, false);
+		try {
+			ResourceUtils.updateModelObject(requestEntity, model, false);
+		} catch(Exception e) {
+			return ResourceUtils.createErrorResponse(e);
+		}
+
+		ResponseBuilder builder = Response.ok();
+		builder.type(MediaType.APPLICATION_JSON_TYPE).entity(null);
+
+		Response response = builder.build();
+
+		return response;
 	}
 
 	@PUT
@@ -195,7 +211,18 @@ public class ModelResource {
 
 		ifUnmodifiedSince(model, ifUnmodifiedSince);
 
-		return ResourceUtils.updateModelObject(requestEntity, model, true);
+		try {
+			ResourceUtils.updateModelObject(requestEntity, model, true);
+		} catch(Exception e) {
+			return ResourceUtils.createErrorResponse(e);
+		}
+
+		ResponseBuilder builder = Response.ok();
+		builder.type(MediaType.APPLICATION_JSON_TYPE).entity(null);
+
+		Response response = builder.build();
+
+		return response;
 	}
 
 	@DELETE
@@ -205,7 +232,7 @@ public class ModelResource {
 
 		Object resultObject = findContextObject(uriInfo, managerName, key);
 		if(!(resultObject instanceof ModelObject)) {
-			throw new IllegalArgumentException("DELETE only applies to individual model objects");
+			return ResourceUtils.createErrorResponse(new IllegalArgumentException("DELETE only applies to individual model objects"), Response.Status.BAD_REQUEST);
 		}
 
 		ModelObject model = (ModelObject)resultObject;
@@ -213,7 +240,7 @@ public class ModelResource {
 		ifUnmodifiedSince(model, ifUnmodifiedSince);
 
 		if(!model.delete()) {
-			throw new WebApplicationException(ErrorHelper.createErrorResponse("Object not deleted.", Response.Status.INTERNAL_SERVER_ERROR));
+			return ResourceUtils.createErrorResponse(new Exception("Object not deleted."));
 		}
 
 		ResponseBuilder builder = Response.ok();
@@ -280,7 +307,7 @@ public class ModelResource {
 			if(database == null) {
 				throw new IllegalStateException("Must be run in the context of a database.");
 			} else {
-				Class<? extends ModelManager<?>> managerClass = ResourceUtils.findManager(database, managerName);
+				Class<? extends ModelManager<?>> managerClass = ModelUtils.findModelManager(database, managerName);
 				if(managerClass == null) {
 					throw new NullPointerException("No manager found for name '" + managerName + "'");
 				} else {

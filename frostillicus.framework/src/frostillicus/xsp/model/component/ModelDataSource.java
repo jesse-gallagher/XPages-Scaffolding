@@ -61,7 +61,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 	@Override
 	public DataContainer load(final FacesContext context) throws IOException {
 		// Now actually init the container
-		ModelManager<?> manager = ModelUtils.findModelManager(context, managerName_);
+		ModelManager<?> manager = ModelUtils.findManagerInstance(context, managerName_);
 		if(manager == null) {
 			throw new IOException("Unable to locate frostillic.us manager for name '" + managerName_ + "'");
 		}

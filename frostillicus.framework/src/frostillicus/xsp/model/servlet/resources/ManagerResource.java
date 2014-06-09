@@ -28,6 +28,7 @@ import com.ibm.domino.das.utils.ErrorHelper;
 
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
+import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.util.FrameworkUtils;
 
 @SuppressWarnings("unused")
@@ -44,7 +45,7 @@ public class ManagerResource {
 				result.put("status", "error");
 				result.put("message", "Must be run in the context of a database.");
 			} else {
-				Class<? extends ModelManager<?>> managerClass = ResourceUtils.findManager(database, managerName);
+				Class<? extends ModelManager<?>> managerClass = ModelUtils.findModelManager(database, managerName);
 				if(managerClass == null) {
 					result.put("status", "failure");
 					result.put("message", "No manager found for name '" + managerName + "'");
@@ -54,10 +55,9 @@ public class ManagerResource {
 				}
 			}
 
-			return ResourceUtils.buildJSONResponse(result, false);
+			return ResourceUtils.createJSONResponse(result, false);
 		} catch (Throwable e) {
-			throw new WebApplicationException(ErrorHelper.createErrorResponse(e));
-			//return ResourceUtils.buildJSONResponse(e.toString(), false);
+			return ResourceUtils.createErrorResponse(e);
 		}
 	}
 
@@ -66,9 +66,9 @@ public class ManagerResource {
 	public Response createModel(final String requestEntity, @Context final UriInfo uriInfo, @PathParam("managerName") final String managerName) {
 
 		Database database = FrameworkUtils.getDatabase();
-		Class<? extends ModelManager<?>> managerClass = ResourceUtils.findManager(database, managerName);
+		Class<? extends ModelManager<?>> managerClass = ModelUtils.findModelManager(database, managerName);
 		if(managerClass == null) {
-			throw new WebApplicationException(ErrorHelper.createErrorResponse("Manager '" + managerName + "' not found.", Response.Status.NOT_FOUND));
+			return ErrorHelper.createErrorResponse("Manager '" + managerName + "' not found.", Response.Status.NOT_FOUND);
 		}
 
 		URI location;
@@ -79,7 +79,7 @@ public class ManagerResource {
 
 			location = UriHelper.appendPathSegment(uriInfo.getAbsolutePath(), model.getId());
 		} catch(Throwable t) {
-			throw new WebApplicationException(t);
+			return ResourceUtils.createErrorResponse(t);
 		}
 
 		ResponseBuilder builder = Response.created(location);

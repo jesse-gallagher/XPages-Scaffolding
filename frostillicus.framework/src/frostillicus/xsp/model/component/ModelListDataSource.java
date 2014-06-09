@@ -68,24 +68,30 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 		return false;
 	}
 
+	@Override
 	public void setQueryOpenView(final MethodBinding binding) { queryOpenView_ = binding; }
+	@Override
 	public MethodBinding getQueryOpenView() { return queryOpenView_; }
 
+	@Override
 	public void setPostOpenView(final MethodBinding binding) { postOpenView_ = binding; }
+	@Override
 	public MethodBinding getPostOpenView() { return postOpenView_; }
 
 
+	@Override
 	public boolean isView(final Object view) {
 		return view == getDataObject();
 	}
 
+	@Override
 	public Container openView(final FacesContext context) throws IOException {
 		MethodBinding queryOpenView = getQueryOpenView();
 		if (queryOpenView != null && FacesUtil.isCancelled(queryOpenView.invoke(context, null))) {
 			return null;
 		}
 
-		ModelManager<?> manager = ModelUtils.findModelManager(context, managerName_);
+		ModelManager<?> manager = ModelUtils.findManagerInstance(context, managerName_);
 		Object listObject = manager.getValue(key_);
 		if(listObject == null) {
 			throw new IOException("Received null value when retrieving list object from manager using key '" + key_ + "'");
@@ -104,6 +110,7 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 		return container;
 	}
 
+	@Override
 	public DataModel getDataModel() {
 		return getDataObject();
 	}
@@ -117,10 +124,12 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 			modelList_ = modelList;
 		}
 
+		@Override
 		public AbstractModelList<?> getView() {
 			return modelList_;
 		}
 
+		@Override
 		public void deserialize(final ObjectInput in) throws IOException {
 			try {
 				modelList_ = (AbstractModelList<?>)in.readObject();
@@ -131,6 +140,7 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 			}
 		}
 
+		@Override
 		public void serialize(final ObjectOutput out) throws IOException {
 			out.writeObject(modelList_);
 		}

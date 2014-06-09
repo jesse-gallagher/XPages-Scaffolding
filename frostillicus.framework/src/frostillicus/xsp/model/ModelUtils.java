@@ -11,6 +11,13 @@ import java.util.TreeSet;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import org.openntf.domino.Database;
+import org.openntf.domino.design.DatabaseDesign;
+import org.openntf.domino.design.FacesConfig;
+
+import com.ibm.commons.util.StringUtil;
+
+import frostillicus.xsp.bean.ManagedBean;
 import frostillicus.xsp.util.FrameworkUtils;
 
 public enum ModelUtils {
@@ -53,12 +60,113 @@ public enum ModelUtils {
 			message.setSeverity(FacesMessage.SEVERITY_ERROR);
 			facesContext.addMessage("", message);
 		} else {
-			throw new RuntimeException(e);
+			if(e instanceof RuntimeException) {
+				throw (RuntimeException)e;
+			} else {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
+	/**
+	 * 
+	 * @param database
+	 * 		The database to search for the model objects
+	 * @param managerName
+	 * 		Either the name of a Manager by class or managed bean name or the name of a Model class
+	 * @return
+	 * 		A Class object representing a Manager for the given name, or null if not found
+	 */
 	@SuppressWarnings("unchecked")
-	public static ModelManager<?> findModelManager(final FacesContext context, final String managerName) throws IOException {
+	public static Class<? extends ModelManager<?>> findModelManager(final Database database, final String managerName) {
+		if(StringUtil.isEmpty(managerName)) { return null; }
+
+		DatabaseDesign design = database.getDesign();
+		ClassLoader loader;
+		if(FrameworkUtils.isFaces()) {
+			loader = FacesContext.getCurrentInstance().getContextClassLoader();
+		} else {
+			loader = design.getDatabaseClassLoader(Thread.currentThread().getContextClassLoader());
+		}
+
+		// First, see if we're dealing with a class name or bean name
+		Class<?> referencedClass = null;
+		if(managerName.contains(".")) {
+			try {
+				referencedClass = loader.loadClass(managerName);
+				if(ModelManager.class.isAssignableFrom(referencedClass)) {
+					// Then we're done immediately
+					return (Class<? extends ModelManager<?>>)referencedClass;
+				}
+				// Otherwise, keep the referenced class around in case it's a model object
+			} catch(ClassNotFoundException cnfe) {
+				// Though we're likely doomed at this point, soldier on to the later tests
+			}
+		}
+
+		// Now, search through the classes in the DB for any @ManagedBean-annotated classes that match
+		for(String className : design.getJavaResourceClassNames()) {
+			try {
+				Class<?> loadedClass = loader.loadClass(className);
+				if(isManager(loadedClass, managerName, referencedClass)) {
+					return (Class<? extends ModelManager<?>>)loadedClass;
+				}
+
+			} catch(ClassNotFoundException cnfe) {
+				// This happens when the note in the NSF contains an old class name - ignore
+			}
+		}
+
+		// Now, look through faces-config-declared managed beans
+		FacesConfig facesConfig = design.getFacesConfig();
+		if(facesConfig != null) {
+			for(FacesConfig.ManagedBean bean : facesConfig.getManagedBeans()) {
+				if(StringUtil.isNotEmpty(bean.getClassName())) {
+					try {
+						Class<?> loadedClass = loader.loadClass(bean.getClassName());
+						if(isManager(loadedClass, managerName, referencedClass)) {
+							return (Class<? extends ModelManager<?>>)loadedClass;
+						}
+					} catch(ClassNotFoundException cnfe) {
+						// This would be a config problem for the app, but we don't care here
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private static boolean isManager(final Class<?> loadedClass, final String managerName, final Class<?> referencedClass) {
+		// There are two ways to identify the manager: by bean name or by an @ManagerFor annotation for a model class name
+
+		// Check the bean name first
+		ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
+		if(beanAnnotation != null) {
+			if(managerName.equals(beanAnnotation.name())) {
+				if(ModelManager.class.isAssignableFrom(loadedClass)) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		// Now check for a @ManagerFor annotation with the referenced class or bean name
+		ManagerFor manFor = loadedClass.getAnnotation(ManagerFor.class);
+		if(manFor != null) {
+			if(referencedClass != null && referencedClass.equals(manFor.value())) {
+				return true;
+			} else if(managerName.equals(manFor.name())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// TODO integrate this with findModelManager
+	@SuppressWarnings("unchecked")
+	public static ModelManager<?> findManagerInstance(final FacesContext context, final String managerName) throws IOException {
 		if(managerName == null) {
 			return null;
 		}

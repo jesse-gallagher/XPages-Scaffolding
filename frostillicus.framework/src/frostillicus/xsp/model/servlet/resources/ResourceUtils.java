@@ -2,6 +2,7 @@ package frostillicus.xsp.model.servlet.resources;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,20 +12,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import lotus.domino.NotesException;
-import frostillicus.xsp.bean.ManagedBean;
-import frostillicus.xsp.model.ManagerFor;
-import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
 import frostillicus.xsp.model.Properties;
 
 import org.openntf.domino.*;
-import org.openntf.domino.design.*;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.json.JsonException;
@@ -42,103 +41,73 @@ import com.ibm.xsp.model.domino.DominoUtils;
 public enum ResourceUtils {
 	;
 
-	/**
-	 * 
-	 * @param database
-	 * 		The database to search for the model objects
-	 * @param managerName
-	 * 		Either the name of a Manager by class or managed bean name or the name of a Model class
-	 * @return
-	 * 		A Class object representing a Manager for the given name, or null if not found
-	 */
-	@SuppressWarnings("unchecked")
-	public static Class<? extends ModelManager<?>> findManager(final Database database, final String managerName) {
-		if(StringUtil.isEmpty(managerName)) { return null; }
+	public static Response createErrorResponse(final Throwable t) {
+		return createErrorResponse(t, null);
+	}
+	public static Response createErrorResponse(final Throwable t, final Response.Status status) {
+		Response.Status useStatus = status == null ? Response.Status.INTERNAL_SERVER_ERROR : status;
 
-		DatabaseDesign design = database.getDesign();
-		ClassLoader loader = design.getDatabaseClassLoader(Thread.currentThread().getContextClassLoader());
-
-		// First, see if we're dealing with a class name or bean name
-		Class<?> referencedClass = null;
-		if(managerName.contains(".")) {
-			try {
-				referencedClass = loader.loadClass(managerName);
-				if(ModelManager.class.isAssignableFrom(referencedClass)) {
-					// Then we're done immediately
-					return (Class<? extends ModelManager<?>>)referencedClass;
-				}
-				// Otherwise, keep the referenced class around in case it's a model object
-			} catch(ClassNotFoundException cnfe) {
-				// Though we're likely doomed at this point, soldier on to the later tests
+		if(t instanceof WebApplicationException) {
+			WebApplicationException e = (WebApplicationException)t;
+			if(e.getResponse() != null) {
+				return e.getResponse();
+			} else {
+				return ErrorHelper.createErrorResponse(e, useStatus);
 			}
-		}
+		} else if(t instanceof ConstraintViolationException) {
+			ConstraintViolationException e = (ConstraintViolationException)t;
+			useStatus = Response.Status.BAD_REQUEST;
 
-		// Now, search through the classes in the DB for any @ManagedBean-annotated classes that match
-		for(String className : design.getJavaResourceClassNames()) {
 			try {
-				Class<?> loadedClass = loader.loadClass(className);
-				if(isManager(loadedClass, managerName, referencedClass)) {
-					return (Class<? extends ModelManager<?>>)loadedClass;
-				}
+				// Build a response similar in format to IBM's ErrorHelper, but including the constraint violations
+				ResponseBuilder builder = Response.status(useStatus);
+				StringWriter writer = new StringWriter();
+				JsonWriter w = new JsonWriter(writer, false);
 
-			} catch(ClassNotFoundException cnfe) {
-				// This happens when the note in the NSF contains an old class name - ignore
-			}
-		}
+				try {
+					w.startObject();
 
-		// Now, look through faces-config-declared managed beans
-		FacesConfig facesConfig = design.getFacesConfig();
-		if(facesConfig != null) {
-			for(FacesConfig.ManagedBean bean : facesConfig.getManagedBeans()) {
-				if(StringUtil.isNotEmpty(bean.getClassName())) {
-					try {
-						Class<?> loadedClass = loader.loadClass(bean.getClassName());
-						if(isManager(loadedClass, managerName, referencedClass)) {
-							return (Class<? extends ModelManager<?>>)loadedClass;
-						}
-					} catch(ClassNotFoundException cnfe) {
-						// This would be a config problem for the app, but we don't care here
+					ErrorHelper.writeProperty(w, "code", useStatus.getStatusCode());
+					ErrorHelper.writeProperty(w, "text", useStatus.getReasonPhrase());
+
+					ErrorHelper.writeProperty(w, "message", "Constraint violation");
+
+					w.startProperty("violations");
+					w.startArray();
+					for(ConstraintViolation<?> v : e.getConstraintViolations()) {
+						w.startArrayItem();
+						w.startObject();
+
+						ErrorHelper.writeProperty(w, "property", v.getPropertyPath().toString());
+						ErrorHelper.writeProperty(w, "message", v.getMessage());
+
+						w.endObject();
+						w.endArrayItem();
 					}
+					w.endArray();
+					w.endProperty();
+				} finally {
+					w.endObject();
 				}
-			}
-		}
 
-		return null;
+				builder.type(MediaType.APPLICATION_JSON_TYPE).entity(writer.getBuffer().toString());
+				return builder.build();
+			} catch(Throwable t2) {
+				return createErrorResponse(t2);
+			}
+		} else if(t instanceof Exception) {
+			return ErrorHelper.createErrorResponse((Exception)t, useStatus);
+		} else {
+			return ErrorHelper.createErrorResponse(t);
+		}
 	}
 
-	private static boolean isManager(final Class<?> loadedClass, final String managerName, final Class<?> referencedClass) {
-		// There are two ways to identify the manager: by bean name or by an @ManagerFor annotation for a model class name
-
-		// Check the bean name first
-		ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
-		if(beanAnnotation != null) {
-			if(managerName.equals(beanAnnotation.name())) {
-				if(ModelManager.class.isAssignableFrom(loadedClass)) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
-
-		// Now check for a @ManagerFor annotation with the referenced class or bean name
-		ManagerFor manFor = loadedClass.getAnnotation(ManagerFor.class);
-		if(manFor != null) {
-			if(referencedClass != null && referencedClass.equals(manFor.value())) {
-				return true;
-			} else if(managerName.equals(manFor.name())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static Response buildJSONResponse(final Object result, final boolean compact) {
+	public static Response createJSONResponse(final Object result, final boolean compact) {
 		String resultJson;
 		try {
 			resultJson = JsonGenerator.toJson(JsonJavaFactory.instance, result, compact);
 		} catch(Exception e) {
-			resultJson = "\"" + e.toString().replace("\"", "\\\"") + "\"";
+			return createErrorResponse(e);
 		}
 
 		ResponseBuilder builder = Response.ok();
@@ -358,39 +327,30 @@ public enum ResourceUtils {
 	}
 
 	// TODO make replace actually work
-	protected static Response updateModelObject(final String requestEntity, final ModelObject model, final boolean replace) {
+	protected static void updateModelObject(final String requestEntity, final ModelObject model, final boolean replace) throws Exception {
 
+		JsonJavaObject jsonItems = null;
+		StringReader reader = new StringReader(requestEntity);
 		try {
-			JsonJavaObject jsonItems = null;
-			StringReader reader = new StringReader(requestEntity);
-			try {
-				jsonItems = (JsonJavaObject)JsonParser.fromJson(JsonJavaFactory.instanceEx, reader);
-			} finally {
-				reader.close();
-			}
-
-			Properties props = model.getClass().getAnnotation(Properties.class);
-			boolean exhaustive = props != null && props.exhaustive();
-			Set<String> propertyNames = exhaustive ? model.propertyNames(false) : null;
-
-			List<String> updatedProperties = new ArrayList<String>();
-			for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {
-				if((!exhaustive || propertyNames.contains(entry.getKey()) ) && !model.isReadOnly(entry.getKey())) {
-					model.setValue(entry.getKey(), entry.getValue());
-					updatedProperties.add(entry.getKey());
-				}
-			}
-			model.save();
-		} catch (JsonException e) {
-			throw new WebApplicationException(ErrorHelper.createErrorResponse(e, Response.Status.BAD_REQUEST));
+			jsonItems = (JsonJavaObject)JsonParser.fromJson(JsonJavaFactory.instanceEx, reader);
+		} finally {
+			reader.close();
 		}
 
-		ResponseBuilder builder = Response.ok();
-		builder.type(MediaType.APPLICATION_JSON_TYPE).entity(null);
+		Properties props = model.getClass().getAnnotation(Properties.class);
+		boolean exhaustive = props != null && props.exhaustive();
+		Set<String> propertyNames = exhaustive ? model.propertyNames(false) : null;
 
-		Response response = builder.build();
-
-		return response;
+		List<String> updatedProperties = new ArrayList<String>();
+		for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {
+			if((!exhaustive || propertyNames.contains(entry.getKey()) ) && !model.isReadOnly(entry.getKey())) {
+				model.setValue(entry.getKey(), entry.getValue());
+				updatedProperties.add(entry.getKey());
+			}
+		}
+		if(!model.save()) {
+			throw new WebApplicationException(ErrorHelper.createErrorResponse("Model not saved.", Response.Status.BAD_REQUEST));
+		}
 	}
 
 	// From ExtLib's com.ibm.domino.services.util.JsonWriter
