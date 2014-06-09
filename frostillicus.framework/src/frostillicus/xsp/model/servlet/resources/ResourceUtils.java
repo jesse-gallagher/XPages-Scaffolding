@@ -73,38 +73,64 @@ public enum ResourceUtils {
 			}
 		}
 
+		// Now, search through the classes in the DB for any @ManagedBean-annotated classes that match
 		for(String className : design.getJavaResourceClassNames()) {
 			try {
 				Class<?> loadedClass = loader.loadClass(className);
-
-				// There are two ways to identify the manager: by bean name or by an @ManagerFor annotation for a model class name
-
-				// Check the bean name first
-				ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
-				if(beanAnnotation != null) {
-					if(managerName.equals(beanAnnotation.name())) {
-						if(ModelManager.class.isAssignableFrom(loadedClass)) {
-							return (Class<? extends ModelManager<?>>)loadedClass;
-						} else {
-							return null;
-						}
-					}
+				if(isManager(loadedClass, managerName, referencedClass)) {
+					return (Class<? extends ModelManager<?>>)loadedClass;
 				}
 
-				// Now check for a @ManagerFor annotation with the referenced class or bean name
-				ManagerFor manFor = loadedClass.getAnnotation(ManagerFor.class);
-				if(manFor != null) {
-					if(referencedClass != null && referencedClass.equals(manFor.value())) {
-						return (Class<? extends ModelManager<?>>)loadedClass;
-					} else if(managerName.equals(manFor.name())) {
-						return (Class<? extends ModelManager<?>>)loadedClass;
-					}
-				}
 			} catch(ClassNotFoundException cnfe) {
 				// This happens when the note in the NSF contains an old class name - ignore
 			}
 		}
+
+		// Now, look through faces-config-declared managed beans
+		FacesConfig facesConfig = design.getFacesConfig();
+		if(facesConfig != null) {
+			for(FacesConfig.ManagedBean bean : facesConfig.getManagedBeans()) {
+				if(StringUtil.isNotEmpty(bean.getClassName())) {
+					try {
+						Class<?> loadedClass = loader.loadClass(bean.getClassName());
+						if(isManager(loadedClass, managerName, referencedClass)) {
+							return (Class<? extends ModelManager<?>>)loadedClass;
+						}
+					} catch(ClassNotFoundException cnfe) {
+						// This would be a config problem for the app, but we don't care here
+					}
+				}
+			}
+		}
+
 		return null;
+	}
+
+	private static boolean isManager(final Class<?> loadedClass, final String managerName, final Class<?> referencedClass) {
+		// There are two ways to identify the manager: by bean name or by an @ManagerFor annotation for a model class name
+
+		// Check the bean name first
+		ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
+		if(beanAnnotation != null) {
+			if(managerName.equals(beanAnnotation.name())) {
+				if(ModelManager.class.isAssignableFrom(loadedClass)) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+
+		// Now check for a @ManagerFor annotation with the referenced class or bean name
+		ManagerFor manFor = loadedClass.getAnnotation(ManagerFor.class);
+		if(manFor != null) {
+			if(referencedClass != null && referencedClass.equals(manFor.value())) {
+				return true;
+			} else if(managerName.equals(manFor.name())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static Response buildJSONResponse(final Object result, final boolean compact) {

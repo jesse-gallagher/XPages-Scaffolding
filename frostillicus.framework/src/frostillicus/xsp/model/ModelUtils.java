@@ -63,7 +63,7 @@ public enum ModelUtils {
 			return null;
 		}
 
-		Object managerObject = context.getApplication().getVariableResolver().resolveVariable(context, managerName);
+		Object managerObject = FrameworkUtils.resolveVariable(managerName);
 		if(managerObject != null && !(managerObject instanceof ModelManager)) {
 			throw new IllegalArgumentException("managerObject must be an instance of " + ModelManager.class.getName());
 		}
