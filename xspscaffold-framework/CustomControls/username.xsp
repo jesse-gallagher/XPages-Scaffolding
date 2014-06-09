@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex">
+<!--	<xp:text styleClass="username" value="#{compositeData.value}" escape="true">-->
+<!--		<xp:this.converter>-->
+<!--			<xp:customConverter getAsObject="#{javascript:value}">-->
+<!--				<xp:this.getAsString><![CDATA[#{javascript:-->
+<!--					var val = typeof value == "Array" ? value : [value]-->
+<!--					var result = []-->
+<!--					for(var i = 0; i < val.length; i++) { -->
+<!--						result.push(@Name("[Abbreviate]", val[i]))-->
+<!--					}-->
+<!--					result.join(", ")-->
+<!--				}]]></xp:this.getAsString>-->
+<!--			</xp:customConverter>-->
+<!--		</xp:this.converter>-->
+<!--	</xp:text>-->
+	<xe:djextNameTextBox id="UsernameBubbles" value="#{compositeData.value}" multipleSeparator="," readOnly="true" styleClass="username">
+		<xe:this.converter>
+			<xp:customConverter getAsObject="#{javascript:value}"><xp:this.getAsString><![CDATA[#{javascript:
+				var displayName = session.evaluate(" @NameLookup([ForceUpdate]:[Exhaustive]; \"" + value.replace("\"", "\\\"") + "\"; 'DisplayName') ").get(0)
+				displayName == null || displayName == "" ? value : displayName 
+			}]]></xp:this.getAsString></xp:customConverter>
+		</xe:this.converter>
+	</xe:djextNameTextBox>
+</xp:view>

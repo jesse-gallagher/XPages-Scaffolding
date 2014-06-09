@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>viewIcon</component-type>
+    <composite-name>viewIcon</composite-name>
+    <composite-file>/viewIcon.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>value</property-name>
+      <property-class>object</property-class>
+    </property>
+    <property>
+      <property-name>pathPrefix</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <required>false</required>
+        <designer-extension>
+          <default-value>#{javascript:""}</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+  </composite-component>
+</faces-config>

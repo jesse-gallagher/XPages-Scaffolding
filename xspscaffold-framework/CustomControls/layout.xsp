@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex" xmlns:xc="http://www.ibm.com/xsp/custom">
+
+	<xp:this.resources>
+		<xp:linkResource rel="base" href="${facesContext.externalContext.requestContextPath}/" />
+	</xp:this.resources>
+
+	<xe:keepSessionAlive id="keepSessionAlive1" />
+	<xc:navigationRules />
+	
+	<xe:applicationLayout id="applicationLayout1">
+		<xe:this.configuration>
+			<xe:oneuiApplication legal="false" footer="false" titleBar="#{not empty compositeData.pageTitle}" titleBarName="#{compositeData.pageTitle}" productLogo="/$Icon"
+				productLogoAlt="${appConfig.appName}" productLogoHeight="24" productLogoWidth="24" placeBar="true">
+				<xe:this.bannerUtilityLinks>
+					<xe:userTreeNode/>
+					<xe:loginTreeNode/>
+				</xe:this.bannerUtilityLinks>
+			</xe:oneuiApplication>
+		</xe:this.configuration>
+		
+		<xe:this.facets>
+			<xp:callback xp:key="LeftColumn" facetName="LeftColumn"/>
+			<xp:callback xp:key="RightColumn" facetName="RightColumn"/>
+			<xp:callback xp:key="BreadCrumbs" facetName="BreadCrumbs"/>
+		</xe:this.facets>
+		
+		<xc:messages/>
+						
+		<p><xp:callback facetName="ActionBar"/></p>
+	
+		<xp:callback/>
+		
+	</xe:applicationLayout>
+</xp:view>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:text tagName="#{compositeData.tagName}" styleClass="#{compositeData.styleClass}"
+		disableTheme="${compositeData.disableTheme}" rendered="#{compositeData.value != null}">
+		<xp:this.value><![CDATA[#{javascript:
+			if(compositeData.value instanceof lotus.domino.DateTime || compositeData.value instanceof lotus.domino.local.DateTime) {
+				return compositeData.value.toJavaDate()
+			} 
+			return compositeData.value
+		}]]></xp:this.value>
+		<xp:this.converter>
+			<xp:convertDateTime timeStyle="short" type="time"/>
+		</xp:this.converter>
+	</xp:text>
+</xp:view>

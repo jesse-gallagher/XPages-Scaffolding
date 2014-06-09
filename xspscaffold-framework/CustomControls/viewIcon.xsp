@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:this.dataContexts>
+		<xp:dataContext var="icons"><xp:this.value><![CDATA[#{javascript:
+			if(compositeData.value instanceof java.util.Vector) { return compositeData.value; }
+			return [compositeData.value];
+		}]]></xp:this.value></xp:dataContext>
+	</xp:this.dataContexts>
+	
+	<xp:repeat value="#{icons}" var="icon">
+		<xp:image>
+			<xp:this.url><![CDATA[#{javascript:
+				if(icon == 0) { return "/.ibmxspres/domino/icons/ecblank.gif" }
+				if(typeof icon == "number") {
+					var num = (icon < 10 ? "00" : icon < 100 ? "0" : "") + icon.toFixed()
+					return "/.ibmxspres/domino/icons/vwicn" + num + ".gif"
+				} else {
+					return (compositeData.pathPrefix != null ? compositeData.pathPrefix : "") + icon.replace("\\", "/")
+				}
+			}]]></xp:this.url>
+			<xp:this.styleClass><![CDATA[#{javascript:
+				return "viewIcon " + (typeof icon == "number" ? "standardViewIcon" : "customViewIcon")
+			}]]></xp:this.styleClass>
+		</xp:image>
+	</xp:repeat>
+</xp:view>

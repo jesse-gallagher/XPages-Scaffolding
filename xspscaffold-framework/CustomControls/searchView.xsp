@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:div styleClass="lotusSearch searchView #{compositeData.styleClass}" style="#{compositeData.style}" id="searchBox">
+		<xp:inputText id="searchQuery" styleClass="lotusText" value="#{viewScope.searchQuery}" type="search">
+			<xp:this.attrs><xp:attr name="placeholder" value="Search"/></xp:this.attrs>
+			<xp:this.onkeypress><![CDATA[
+				if(event.keyCode == 13) {
+					if(window.__searchTimeout) { clearTimeout(window.__searchTimeout) }
+					XSP.partialRefreshPost("#{javascript:getComponent(compositeData.refreshId).getClientId(facesContext)}", {})
+					return false
+				}
+			]]></xp:this.onkeypress>
+			<xp:eventHandler event="search" submit="false">
+				<xp:this.script><![CDATA[
+					// search is fired when the "X" in WebKit is clicked to clear the box
+					if(window.__searchTimeout) { clearTimeout(window.__searchTimeout) }
+					window.__searchTimeout = setTimeout(function() {
+						XSP.partialRefreshPost("#{javascript:getComponent(compositeData.refreshId).getClientId(facesContext)}", {
+							execMode: "partial",
+							execId: "#{id:searchBox}"
+						})
+					}, 500)
+				]]></xp:this.script>
+			</xp:eventHandler>
+			<xp:this.onkeyup><![CDATA[
+				// Keypress doesn't fire for deletion
+				if(event.keyCode != 13) {
+					// Let's try some trickery to auto-search a couple seconds after input
+					if(window.__searchTimeout) { clearTimeout(window.__searchTimeout) }
+					window.__searchTimeout = setTimeout(function() {
+						XSP.partialRefreshPost("#{javascript:getComponent(compositeData.refreshId).getClientId(facesContext)}", {
+							execMode: "partial",
+							execId: "#{id:searchBox}"
+						})
+					}, 500)
+				}
+			]]></xp:this.onkeyup>
+		</xp:inputText>
+<!--		<xp:button id="searchButton" styleClass="lotusSearchButton">-->
+<!--			<xp:eventHandler event="onclick" submit="true" refreshMode="partial" refreshId="#{compositeData.refreshId}" />-->
+<!--		</xp:button>-->
+	</xp:div>
+</xp:view>
