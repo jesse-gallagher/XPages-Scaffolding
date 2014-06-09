@@ -6,3 +6,4 @@
 	- Better error handling for situations like ACL restrictions
 	- Testing, testing, testing
 - Decide whether the event framework is worth keeping/expanding or replacing with a more widely-used variant
+- This whole thing is probably super thread-unsafe
