@@ -1,1 +1,8 @@
 - Add PhaseListeners to reset sessionScope on user change and set the SessionID cookie to HttpOnly
+- The model data sources need some work to bring them up to code for JSF components and to work with a direct value="" instead of only manager+key
+- The REST API needs some fleshing out:
+	- List of available managers
+	- Full PUT implementation (or deciding to disallow)
+	- Better error handling for situations like ACL restrictions
+	- Testing, testing, testing
+- Decide whether the event framework is worth keeping/expanding or replacing with a more widely-used variant
