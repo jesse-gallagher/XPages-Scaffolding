@@ -31,6 +31,7 @@ Export-Package: frostillicus.framework,
  frostillicus.xsp.model.domino,
  frostillicus.xsp.servlet,
  frostillicus.xsp.util,
+ javax.persistence,
  javax.validation.constraints,
  org.hibernate.validator.constraints,
  org.hibernate.validator.constraints.br
@@ -40,4 +41,5 @@ Bundle-ClassPath: .,
  lib/validation-api-1.1.0.Final.jar,
  lib/classmate-1.0.0.jar,
  lib/hibernate-validator-5.1.1.Final.jar,
- lib/jboss-logging-3.1.3.GA.jar
+ lib/jboss-logging-3.1.3.GA.jar,
+ lib/hibernate-jpa-2.1-api-1.0.0.Final.jar
