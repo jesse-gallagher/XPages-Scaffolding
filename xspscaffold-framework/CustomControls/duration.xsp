@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:text><xp:this.value><![CDATA[#{javascript:
+		if(typeof(compositeData.value) != "number") { return ""; }
+		
+		var remainder = compositeData.value;
+		
+		var seconds = remainder % 60;
+		remainder = (remainder - seconds) / 60;
+		
+		minutes = remainder % 60;
+		remainder = (remainder - minutes) / 60;
+		
+		hours = remainder % 24;
+		remainder = (remainder - hours) / 24;
+		
+		days = remainder;
+		
+		return @Trim([
+			(days == 0 ? "" : days == 1 ? "1 day" : (days.toFixed(0) + " days")),
+			(hours == 0 ? "" : hours == 1 ? "1 hour" : (hours.toFixed(0) + " hours")),
+			(minutes == 0 ? "" : minutes == 1 ? "1 minute" : (minutes.toFixed(0) + " minutes")),
+			(seconds == 0 ? "" : seconds == 1 ? "1 second" : (seconds.toFixed(0) + " seconds"))
+		]).join(", ");
+	}]]></xp:this.value></xp:text>
+</xp:view>

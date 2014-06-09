@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:text value="#{compositeData.value}" escape="true" rendered="#{javascript:compositeData.value != NaN}">
+		<xp:this.converter>
+			<xp:convertNumber type="percent"></xp:convertNumber>
+		</xp:this.converter>
+	</xp:text>
+</xp:view>
