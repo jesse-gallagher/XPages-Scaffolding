@@ -1,8 +1,6 @@
 package frostillicus.xsp.model.domino;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -174,11 +172,6 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public final boolean isNew() {
-		return documentId_.isEmpty();
-	}
-
-	@Override
 	public final boolean category() {
 		return category_;
 	}
@@ -201,7 +194,12 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	@Override
 	public void deleteAttachment(final String fieldName, final String attachmentName) {
 		try {
-			dominoDocument().removeAttachment(fieldName, attachmentName);
+			if(FrameworkUtils.isFaces()) {
+				dominoDocument().removeAttachment(fieldName, attachmentName);
+			} else {
+				// TODO implement this
+				throw new UnsupportedOperationException("Attachment deletion not yet supported for non-Faces contexts.");
+			}
 		} catch (NotesException e) {
 			ModelUtils.publishException(e);
 		}
@@ -266,104 +264,12 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 ************************************************************************/
 	@Override
 	public Class<?> getType(final Object keyObject) {
-		if (!(keyObject instanceof String)) {
-			throw new IllegalArgumentException();
-		}
-		String key = ((String) keyObject).toLowerCase();
-
-		Method getter = findGetter(key);
-		return getter == null ? docHolder_.getType(keyObject) : getter.getReturnType();
-	}
-
-	@Override
-	public Object getValue(final Object keyObject) {
-		if (!(keyObject instanceof String)) {
-			throw new IllegalArgumentException();
-		}
-		String key = ((String) keyObject).toLowerCase();
-
-		// First priority: id
-		if ("id".equalsIgnoreCase(key)) {
-			return documentId_;
-		}
-
-		// Second priority: getters
-		Method getter = findGetter(key);
-		if (getter != null) {
-			try {
-				return getter.invoke(this);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		return getValueImmediate(keyObject);
-	}
-
-	@Override
-	public boolean isReadOnly(final Object keyObject) {
-		if (category()) {
-			return true;
-		}
-		if (!(keyObject instanceof String)) {
-			throw new IllegalArgumentException();
-		}
-		String key = (String) keyObject;
-
-		if ("id".equalsIgnoreCase(key)) {
-			return true;
-		} else if (findGetter(key) != null && findSetters(key).size() == 0) {
-			// Consider a property with a getter but no setters as read-only
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public void setValue(final Object keyObject, final Object value) {
-		if (category()) {
-			throw new UnsupportedOperationException("Categories cannot be modified");
-		}
-		if (!(keyObject instanceof String)) {
-			throw new IllegalArgumentException();
-		}
-		String key = ((String) keyObject).toLowerCase();
-
-		// First priority: disallow read-only values
-		if (isReadOnly(keyObject)) {
-			throw new IllegalArgumentException(key + " is read-only");
-		}
-
-		// Second priority: setters
-		// Look for appropriately-named setters with a fitting type
-		List<Method> setters = findSetters(key);
-		for (Method method : setters) {
-			try {
-				Class<?> param = method.getParameterTypes()[0];
-				if (value == null || param.isInstance(value)) {
-					method.invoke(this, value);
-					return;
-				}
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		// If we reached here with a matching setter name but no matching type, consider it an illegal argument
-		if (setters.size() > 0) {
-			throw new IllegalArgumentException("No match found for setter '" + key + "' with type '" + value.getClass().getName() + "'");
-		}
-
-		setValueImmediate(keyObject, value);
+		Class<?> result = super.getType(keyObject);
+		return result == null ? docHolder_.getType(keyObject) : result;
 	}
 
 	// Methods for subclasses to use to bypass the read-only, ID, and getter/setter checks in getValue/setValue
+	@Override
 	protected final Object getValueImmediate(final Object keyObject) {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
@@ -383,6 +289,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		return "";
 	}
 
+	@Override
 	protected final void setValueImmediate(final Object keyObject, final Object value) {
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
@@ -391,21 +298,6 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			throw new UnsupportedOperationException("Categories cannot be modified");
 		}
 		docHolder_.setValue(keyObject, value);
-	}
-
-
-	/* **********************************************************************
-	 * ViewRowData methods
-	 ************************************************************************/
-	@Override
-	public final String getOpenPageURL(final String pageName, final boolean readOnly) {
-		if (category()) {
-			return "";
-		}
-		if(pageName == null) {
-			return "";
-		}
-		return pageName + (pageName.contains("?") ? "&" : "?") + "id=" + documentId_;
 	}
 
 	/* **********************************************************************
@@ -509,7 +401,6 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	/* **********************************************************************
 	 * Misc. leftovers
 	 ************************************************************************/
-	//@SuppressWarnings("unused")
 	public Document document() {
 		if(category()) {
 			return null;
@@ -541,13 +432,23 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	@Override
 	public DataModel getAttachmentData(final String key) {
-		return new DominoAttachmentDataModel(dominoDocument(), key);
+		if(FrameworkUtils.isFaces()) {
+			return new DominoAttachmentDataModel(dominoDocument(), key);
+		} else {
+			// TODO implement this
+			throw new UnsupportedOperationException("Getting attachment data not yet supported for non-Faces contexts");
+		}
 	}
 
 	@Override
 	public List<FileRowData> getAttachmentList(final String fieldName) {
 		try {
-			return dominoDocument().getAttachmentList(fieldName);
+			if(FrameworkUtils.isFaces()) {
+				return dominoDocument().getAttachmentList(fieldName);
+			} else {
+				// TODO implement this
+				throw new UnsupportedOperationException("Getting attachment list not yet supported for non-Faces contexts");
+			}
 		} catch(lotus.domino.NotesException ne) {
 			throw new RuntimeException(ne);
 		}
@@ -556,7 +457,12 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	@Override
 	public List<FileRowData> getEmbeddedImageList(final String fieldName) {
 		try {
-			return dominoDocument().getEmbeddedImagesList(fieldName);
+			if(FrameworkUtils.isFaces()) {
+				return dominoDocument().getEmbeddedImagesList(fieldName);
+			} else {
+				// TODO implement this
+				throw new UnsupportedOperationException("Getting embedded images list not yet supported for non-Faces contexts");
+			}
 		} catch (NotesException e) {
 			throw new RuntimeException(e);
 		}

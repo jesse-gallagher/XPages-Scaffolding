@@ -185,6 +185,11 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		frozen_ = false;
 	}
 
+	@Override
+	public final boolean isNew() {
+		return getId().isEmpty();
+	}
+
 	/* **********************************************************************
 	 * DataModel methods
 	 ************************************************************************/
@@ -223,6 +228,109 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		// NOP
 	}
 
+	@Override
+	public Class<?> getType(final Object keyObject) {
+		if (!(keyObject instanceof String)) {
+			throw new IllegalArgumentException();
+		}
+		String key = ((String) keyObject).toLowerCase();
+
+		Method getter = findGetter(key);
+		return getter == null ? null : getter.getReturnType();
+	}
+
+	@Override
+	public boolean isReadOnly(final Object keyObject) {
+		if (category()) {
+			return true;
+		}
+		if (!(keyObject instanceof String)) {
+			throw new IllegalArgumentException();
+		}
+		String key = (String) keyObject;
+
+		if ("id".equalsIgnoreCase(key)) {
+			return true;
+		} else if (findGetter(key) != null && findSetters(key).size() == 0) {
+			// Consider a property with a getter but no setters as read-only
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public Object getValue(final Object keyObject) {
+		if (!(keyObject instanceof String)) {
+			throw new IllegalArgumentException();
+		}
+		String key = ((String) keyObject).toLowerCase();
+
+		// First priority: id
+		if ("id".equalsIgnoreCase(key)) {
+			return getId();
+		}
+
+		// Second priority: getters
+		Method getter = findGetter(key);
+		if (getter != null) {
+			try {
+				return getter.invoke(this);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		return getValueImmediate(keyObject);
+	}
+
+
+	@Override
+	public void setValue(final Object keyObject, final Object value) {
+		if (category()) {
+			throw new UnsupportedOperationException("Categories cannot be modified");
+		}
+		if (!(keyObject instanceof String)) {
+			throw new IllegalArgumentException();
+		}
+		String key = ((String) keyObject).toLowerCase();
+
+		// First priority: disallow read-only values
+		if (isReadOnly(keyObject)) {
+			throw new IllegalArgumentException(key + " is read-only");
+		}
+
+		// Second priority: setters
+		// Look for appropriately-named setters with a fitting type
+		List<Method> setters = findSetters(key);
+		for (Method method : setters) {
+			try {
+				Class<?> param = method.getParameterTypes()[0];
+				if (value == null || param.isInstance(value)) {
+					method.invoke(this, value);
+					return;
+				}
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		// If we reached here with a matching setter name but no matching type, consider it an illegal argument
+		if (setters.size() > 0) {
+			throw new IllegalArgumentException("No match found for setter '" + key + "' with type '" + value.getClass().getName() + "'");
+		}
+
+		setValueImmediate(keyObject, value);
+	}
+
+	protected abstract Object getValueImmediate(Object keyObject);
+	protected abstract void setValueImmediate(Object keyObject, Object value);
+
 	/* **********************************************************************
 	 * ViewRowData methods
 	 ************************************************************************/
@@ -249,6 +357,17 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	@Override
 	public final Object getValue(final String key) {
 		return getValue((Object) key);
+	}
+
+	@Override
+	public final String getOpenPageURL(final String pageName, final boolean readOnly) {
+		if (category()) {
+			return "";
+		}
+		if(pageName == null) {
+			return "";
+		}
+		return pageName + (pageName.contains("?") ? "&" : "?") + "id=" + getId();
 	}
 
 	/* **********************************************************************
