@@ -7,3 +7,6 @@
 	- Testing, testing, testing
 - Decide whether the event framework is worth keeping/expanding or replacing with a more widely-used variant
 - This whole thing is probably super thread-unsafe
+- Model property improvements:
+	- Replace @Properties in the model framework with javax.persistence annotation use
+	- Add ability to use enum properties

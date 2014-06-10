@@ -18,7 +18,6 @@ import com.ibm.xsp.model.domino.wrapped.DominoDocument;
 
 import frostillicus.xsp.model.AbstractModelObject;
 import frostillicus.xsp.model.ModelUtils;
-import frostillicus.xsp.model.Properties;
 import frostillicus.xsp.util.FrameworkUtils;
 
 import org.openntf.domino.*;
@@ -209,8 +208,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	public Set<String> propertyNames(final boolean includeSystem) {
 		Set<String> parent = super.propertyNames(includeSystem);
 		Set<String> result;
-		Properties props = getClass().getAnnotation(Properties.class);
-		if((props == null || !props.exhaustive()) && !category()) {
+		// If there are no declared columns, read all doc fields
+		if(parent.isEmpty() && !category()) {
 			result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			result.addAll(parent);
 			result.addAll(docHolder_.getItemNames(includeSystem));
@@ -222,12 +221,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	@Override
 	public Set<String> columnPropertyNames() {
-		Set<String> parent = super.columnPropertyNames();
-		Set<String> result = new TreeSet<String>(parent);
-		for(String name : columnValues_.keySet()) {
-			result.add(name);
-		}
-		return result;
+		return new TreeSet<String>(columnValues_.keySet());
 	}
 
 	@Override

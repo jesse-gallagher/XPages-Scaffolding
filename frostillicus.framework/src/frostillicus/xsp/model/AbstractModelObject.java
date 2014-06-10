@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +14,7 @@ import java.util.TreeSet;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
+import javax.persistence.Column;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.MessageInterpolator;
@@ -25,7 +25,6 @@ import javax.validation.metadata.PropertyDescriptor;
 
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 
-import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.designer.context.XSPContext;
 import com.ibm.xsp.model.ViewRowData;
 
@@ -59,18 +58,10 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	@Override
 	public Set<String> propertyNames(final boolean includeSystem) {
 		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		Properties props = getClass().getAnnotation(Properties.class);
-		if(props != null) {
-			result.addAll(Arrays.asList(props.value()));
-		}
-		return result;
-	}
-	@Override
-	public Set<String> columnPropertyNames() {
-		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		Properties props = getClass().getAnnotation(Properties.class);
-		if(props != null && props.includeWithView()) {
-			result.addAll(Arrays.asList(props.value()));
+		for(Field field : getClass().getDeclaredFields()) {
+			if(field.getAnnotation(Column.class) != null) {
+				result.add(field.getName());
+			}
 		}
 		return result;
 	}
@@ -81,7 +72,32 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 		// Time for validation!
 
-		// First, build a validator for the class
+		// We'll be getting values up to twice, so do a bit of cache
+		Map<String, Object> valCache = new HashMap<String, Object>();
+
+		// First, check that the data types of all @Columns match
+		boolean invalidSetters = false;
+		for(Field field : getClass().getDeclaredFields()) {
+			if(field.getAnnotation(Column.class) != null) {
+				Object val;
+				if(!valCache.containsKey(field.getName())) {
+					valCache.put(field.getName(), getValue(field.getName()));
+				}
+				val = valCache.get(field.getName());
+
+				boolean valid = checkSetter(field, val);
+				if(!valid) {
+					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
+					FacesContext.getCurrentInstance().addMessage(null, message);
+					invalidSetters = true;
+					continue;
+				}
+			}
+		}
+		if(invalidSetters) { return false; }
+
+
+		// Now, build a validator for the class
 		Validator validator = Validation.byDefaultProvider().configure()
 				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
 				.buildValidatorFactory().getValidator();
@@ -91,13 +107,11 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		for(PropertyDescriptor prop : desc.getConstrainedProperties()) {
 			try {
 				Field field = getClass().getDeclaredField(prop.getPropertyName());
-
-				Class<?> fieldClass = field.getType();
-				Object val = getValue(field.getName());
-				if(val != null && !fieldClass.isAssignableFrom(val.getClass())) {
-					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
-					FacesContext.getCurrentInstance().addMessage(null, message);
+				Object val;
+				if(!valCache.containsKey(field.getName())) {
+					valCache.put(field.getName(), getValue(field.getName()));
 				}
+				val = valCache.get(field.getName());
 
 				field.setAccessible(true);
 				field.set(this, val);
@@ -111,6 +125,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 				throw new RuntimeException(e);
 			}
 		}
+
 
 		// Now run the constraint tests and publish any failures
 		Set<ConstraintViolation<AbstractModelObject>> constraintViolations = validator.validate(this);
@@ -129,45 +144,30 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 			}
 		}
 
+		return true;
+	}
 
-		RequiredFields reqAnnotation = getClass().getAnnotation(RequiredFields.class);
-		if(reqAnnotation != null) {
-			for(String field : reqAnnotation.value()) {
-				Object val = getValue(field);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private boolean checkSetter(final Field field, final Object val) {
+		Class<?> fieldClass = field.getType();
 
-				boolean empty = false;
-				if(val == null) {
-					empty = true;
-				} else if(val instanceof String && StringUtil.isEmpty((String)val)) {
-					empty = true;
-				} else {
+		if(val != null) {
+			// See if it's an invalid value
+			// It may be an enum
+			if(fieldClass.isEnum()) {
+				if(val instanceof String) {
 					try {
-						Method isEmpty = val.getClass().getMethod("isEmpty");
-						if(isEmpty.getReturnType().equals(Boolean.TYPE) || isEmpty.getReturnType().equals(Boolean.class)) {
-							empty = (Boolean)isEmpty.invoke(val);
-						}
-					} catch(NoSuchMethodException e) {
-						System.out.println(e);
-						// Ignore
-					} catch(InvocationTargetException e) {
-						System.out.println(e);
-						// Ignore
-					} catch(IllegalAccessException e) {
-						System.out.println(e);
-						// Ignore
+						Enum.valueOf((Class<? extends Enum>)fieldClass, (String)val);
+					} catch(IllegalArgumentException e) {
+						return false;
 					}
-				}
-
-				if(empty) {
-					if(FrameworkUtils.isFaces()) {
-						FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field + "' is required", null);
-						FacesContext.getCurrentInstance().addMessage(null, message);
-					}
+				} else {
 					return false;
 				}
+			} else if(!fieldClass.isAssignableFrom(val.getClass())) {
+				return false;
 			}
 		}
-
 		return true;
 	}
 

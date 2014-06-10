@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import javax.validation.ConstraintViolationException;
@@ -21,7 +20,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import lotus.domino.NotesException;
 import frostillicus.xsp.model.ModelObject;
-import frostillicus.xsp.model.Properties;
 
 import org.openntf.domino.*;
 
@@ -337,13 +335,9 @@ public enum ResourceUtils {
 			reader.close();
 		}
 
-		Properties props = model.getClass().getAnnotation(Properties.class);
-		boolean exhaustive = props != null && props.exhaustive();
-		Set<String> propertyNames = exhaustive ? model.propertyNames(false) : null;
-
 		List<String> updatedProperties = new ArrayList<String>();
 		for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {
-			if((!exhaustive || propertyNames.contains(entry.getKey()) ) && !model.isReadOnly(entry.getKey())) {
+			if(!model.isReadOnly(entry.getKey())) {
 				model.setValue(entry.getKey(), entry.getValue());
 				updatedProperties.add(entry.getKey());
 			}
