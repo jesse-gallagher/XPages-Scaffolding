@@ -41,8 +41,8 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 	}
 
 	@Override
-	public Class<?> getType(final Object key) {
-		return Object.class;
+	public Class<E> getType(final Object key) {
+		return getModelClass();
 	}
 
 	@Override

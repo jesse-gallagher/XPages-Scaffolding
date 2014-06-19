@@ -64,6 +64,24 @@ public enum FrameworkUtils {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Map<String, Object> getApplicationScope() {
+		if(isFaces()) {
+			return (Map<String, Object>)resolveVariable("applicationScope");
+		} else {
+			return new HashMap<String, Object>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> getSessionScope() {
+		if(isFaces()) {
+			return (Map<String, Object>)resolveVariable("applicationScope");
+		} else {
+			return new HashMap<String, Object>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getViewScope() {
 		if(isFaces()) {
 			return (Map<String, Object>)resolveVariable("viewScope");
