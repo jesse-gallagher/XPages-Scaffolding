@@ -29,6 +29,11 @@ public class FrostillicusLibrary extends AbstractXspLibrary {
 	}
 
 	@Override
+	public String getTagVersion() {
+		return "1.0.0";
+	}
+
+	@Override
 	public String[] getDependencies() {
 		return new String[] { "com.ibm.xsp.core.library", "com.ibm.xsp.extsn.library", "com.ibm.xsp.domino.library", "com.ibm.xsp.designer.library", "com.ibm.xsp.extlib.library" };
 	}

@@ -29,7 +29,9 @@ public class AnnotatedBeanResolver extends VariableResolver {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object resolveVariable(final FacesContext facesContext, final String name) throws EvaluationException {
-		if(name == null) return null;
+		if(name == null) {
+			return null;
+		}
 		// Check the delegate first, since this adds the beans to the appropriate scope as needed
 		if(delegate_ != null) {
 			Object existing = delegate_.resolveVariable(facesContext, name);
@@ -51,7 +53,7 @@ public class AnnotatedBeanResolver extends VariableResolver {
 					ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
 					if(beanAnnotation != null) {
 						BeanInfo info = new BeanInfo();
-						info.className = loadedClass.getCanonicalName();
+						info.className = loadedClass.getName();
 						if(loadedClass.isAnnotationPresent(ApplicationScoped.class)) {
 							info.scope = "application";
 						} else if(loadedClass.isAnnotationPresent(SessionScoped.class)) {
