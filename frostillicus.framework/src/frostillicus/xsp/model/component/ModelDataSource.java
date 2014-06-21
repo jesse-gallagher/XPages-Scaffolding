@@ -25,6 +25,7 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 
 	private String managerName_;
 	private String key_;
+	private boolean readonly_;
 
 	public ModelDataSource() { }
 
@@ -53,6 +54,10 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 		return getDataObject();
 	}
 
+	public void setReadonly(final boolean readonly) {
+		readonly_ = readonly;
+	}
+
 	@Override
 	public boolean isReadonly() {
 		return getDataObject().readonly();
@@ -72,6 +77,10 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 		}
 		if(!(modelObject instanceof AbstractModelObject)) {
 			throw new IOException("Retrieved non-model object from manager using key '" + key + "'");
+		}
+
+		if(readonly_) {
+			((ModelObject)modelObject).freeze();
 		}
 
 		return new Container(getBeanId(), getUniqueId(), (AbstractModelObject)modelObject);

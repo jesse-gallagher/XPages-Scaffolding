@@ -12,7 +12,7 @@
 			
 			<description>The bean or class name of the Manager object used to create or retrieve the object.</description>
 			<display-name>Manager Bean Name</display-name>
-			<property-class>string</property-class>
+			<property-class>java.lang.String</property-class>
 			<property-extension>
 				<required>true</required>
 			</property-extension>
@@ -23,7 +23,7 @@
 			
 			<description>The key used to retrieve the object, or "new" or blank for a new object.</description>
 			<display-name>Object Key</display-name>
-			<property-class>string</property-class>
+			<property-class>java.lang.String</property-class>
 		</property>
 	</group>
 	
@@ -36,6 +36,17 @@
 		
 		<group-type-ref>com.ibm.xsp.model.group.DataSource</group-type-ref>
 		<group-type-ref>frostillicus.xsp.model.data_source</group-type-ref>
+		
+		<property>
+			<property-name>readonly</property-name>
+			
+			<description>Whether or not the model object should be opened in read-only mode.</description>
+			<display-name>Read-only</display-name>
+			<property-class>boolean</property-class>
+			<property-extension>
+				<allow-run-time-binding>false</allow-run-time-binding>
+			</property-extension>
+		</property>
 		
 		<complex-extension>
 			<tag-name>modelObjectData</tag-name>

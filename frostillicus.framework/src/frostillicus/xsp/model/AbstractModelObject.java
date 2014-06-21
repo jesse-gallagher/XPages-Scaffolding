@@ -68,7 +68,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	@Override
 	public boolean save() {
-		if(frozen_) { return false; }
+		if(readonly()) { return false; }
 
 		// Time for validation!
 
