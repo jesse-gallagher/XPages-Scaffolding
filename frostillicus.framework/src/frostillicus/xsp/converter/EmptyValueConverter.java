@@ -27,7 +27,7 @@ public class EmptyValueConverter implements Converter, StateHolder {
 			return emptyString;
 		}
 		String stringValue = value.toString();
-		if(StringUtil.isEmpty(stringValue)) {
+		if(StringUtil.isEmpty(StringUtil.trim(stringValue))) {
 			return emptyString;
 		}
 

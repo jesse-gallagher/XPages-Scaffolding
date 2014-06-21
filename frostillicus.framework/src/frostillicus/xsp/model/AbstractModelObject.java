@@ -173,7 +173,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	@Override
 	public boolean readonly() {
-		return frozen_ == true;
+		return category() || frozen_;
 	}
 
 	@Override
@@ -241,6 +241,10 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	@Override
 	public boolean isReadOnly(final Object keyObject) {
+		if(readonly()) {
+			return true;
+		}
+
 		if (category()) {
 			return true;
 		}
