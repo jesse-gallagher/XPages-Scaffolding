@@ -22,7 +22,7 @@ import frostillicus.xsp.model.domino.DominoColumnInfo;
 import frostillicus.xsp.model.domino.DominoModelList;
 import frostillicus.xsp.util.FrameworkUtils;
 
-public abstract class FormBasedManager extends AbstractDominoManager<AbstractDominoModel> {
+public abstract class AbstractFormBasedManager extends AbstractDominoManager<AbstractDominoModel> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
@@ -87,12 +87,18 @@ public abstract class FormBasedManager extends AbstractDominoManager<AbstractDom
 		@SuppressWarnings("unchecked")
 		private Map<String, Class<? extends AbstractDominoModel>> getFormClassMap() {
 			Map<String, Object> applicationScope = FrameworkUtils.getApplicationScope();
-			String cacheKey = FormBasedManager.class.getName() + "_formClassMap";
+			String cacheKey = AbstractFormBasedManager.class.getName() + "_formClassMap";
 			if(!applicationScope.containsKey(cacheKey)) {
 				// Build a Map of form names to model classes
 				Map<String, Class<? extends AbstractDominoModel>> result = new TreeMap<String, Class<? extends AbstractDominoModel>>(String.CASE_INSENSITIVE_ORDER);
 				DatabaseDesign design = FrameworkUtils.getDatabase().getDesign();
-				ClassLoader loader = FacesContext.getCurrentInstance().getContextClassLoader();
+
+				ClassLoader loader;
+				if(FrameworkUtils.isFaces()) {
+					loader = FacesContext.getCurrentInstance().getContextClassLoader();
+				} else {
+					loader = design.getDatabaseClassLoader(getClass().getClassLoader());
+				}
 				for(String className : design.getJavaResourceClassNames()) {
 					try {
 						Class<?> clazz = loader.loadClass(className);

@@ -91,7 +91,12 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 					requestScope.put(key, index);
 
 					try {
-						cache.put(index, createFromViewEntry(nav.getCurrent(), columnInfo_));
+						// Try to get the current one, which may be null due to an as-yet-unsolved
+						// "object has been removed or recycled" error. Check for that and switch to
+						// our exception handler to retry
+						ViewEntry entry = nav.getCurrent();
+						if(entry == null) { throw new NullPointerException(); }
+						cache.put(index, createFromViewEntry(entry, columnInfo_));
 					} catch(NullPointerException npe) {
 						// Then we've probably hit an "Object has been removed or recycled" on the nav
 

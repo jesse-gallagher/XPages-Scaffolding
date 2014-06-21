@@ -12,3 +12,5 @@
 	- Replace @Properties in the model framework with javax.persistence annotation use
 	- Add ability to use enum properties
 	- Add support for @Column on getters
+- Add equivalent to $$OpenDominoDocument - it could look at the model class for an annotation and fall back to looking for an XPage named like the class name
+- Investigate adding support in dynamicViewPanel

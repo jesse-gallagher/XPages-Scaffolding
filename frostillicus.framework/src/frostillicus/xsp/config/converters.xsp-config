@@ -46,4 +46,25 @@
 			<tag-name>convertCommonName</tag-name>
 		</converter-extension>
 	</converter>
+	
+	<converter>
+		<description>Displays either the original value as a string or, if it is null or a blank string, the specified empty string value</description>
+		<display-name>Empty Value Converter</display-name>
+		<converter-id>frostillicus.xsp.converter.EmptyValueConverter</converter-id>
+		<converter-class>frostillicus.xsp.converter.EmptyValueConverter</converter-class>
+		
+		<property>
+			<description>The string to use for null or blank values</description>
+			<display-name>Empty String Value</display-name>
+			<property-name>emptyString</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<allow-run-time-binding>false</allow-run-time-binding>
+			</property-extension>
+		</property>
+		
+		<converter-extension>
+			<tag-name>convertEmptyValue</tag-name>
+		</converter-extension>
+	</converter>
 </faces-config>

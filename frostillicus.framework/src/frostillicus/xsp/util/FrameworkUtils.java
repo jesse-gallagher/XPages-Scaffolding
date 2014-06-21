@@ -1,6 +1,7 @@
 package frostillicus.xsp.util;
 
 import javax.faces.application.Application;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 
@@ -542,7 +543,7 @@ public enum FrameworkUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void addMessage(final String type, final String message) {
+	public static void flashMessage(final String type, final String message) {
 		Map<Object, Object> flashScope = getFlashScope();
 		List<Object> messages = (List<Object>) flashScope.get(type + "Messages");
 		if (messages == null) {
@@ -551,6 +552,23 @@ public enum FrameworkUtils {
 		}
 		messages.add(message);
 	}
+
+	public static void addMessage(final String summary) {
+		if(isFaces()) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(summary));
+		}
+	}
+	public static void addMessage(final String summary, final String detail) {
+		if(isFaces()) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(summary, detail));
+		}
+	}
+	public static void addMessage(final FacesMessage.Severity severity, final String summary, final String detail) {
+		if(isFaces()) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
+		}
+	}
+
 
 	// Via http://stackoverflow.com/questions/12740889/what-is-the-least-expensive-way-to-test-if-a-view-has-been-recycled
 	public static boolean isRecycled(final lotus.domino.Base object) {
