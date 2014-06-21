@@ -87,8 +87,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 				boolean valid = checkSetter(field, val);
 				if(!valid) {
-					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
-					FacesContext.getCurrentInstance().addMessage(null, message);
+					FrameworkUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
 					invalidSetters = true;
 					continue;
 				}
@@ -134,8 +133,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 				// In a Faces environment, report the problems to the UI
 				// TODO decide if this is a good idea
 				for(ConstraintViolation<AbstractModelObject> violation : constraintViolations) {
-					FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, violation.getPropertyPath() + ": " + violation.getMessage(), null);
-					FacesContext.getCurrentInstance().addMessage(null, message);
+					FrameworkUtils.addMessage(FacesMessage.SEVERITY_ERROR, violation.getPropertyPath() + ": " + violation.getMessage(), null);
 				}
 				return false;
 			} else {
