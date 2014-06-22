@@ -31,6 +31,7 @@ public class BasicDocumentController extends BasicXPageController implements Doc
 	@Override
 	public void postSaveDocument() throws Exception { }
 
+	@Override
 	public String save() throws Exception {
 		DominoDocument doc = this.getDoc();
 
