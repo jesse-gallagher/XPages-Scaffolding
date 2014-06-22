@@ -8,6 +8,9 @@ public class ModelServlet extends AbstractRestServlet {
 
 	public static ModelServlet instance;
 
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+	                                                    value="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
+	                                                    justification="This is an intentional pattern")
 	public ModelServlet() {
 		instance = this;
 	}

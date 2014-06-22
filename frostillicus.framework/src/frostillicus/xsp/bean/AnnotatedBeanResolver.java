@@ -40,62 +40,64 @@ public class AnnotatedBeanResolver extends VariableResolver {
 			}
 		}
 
-		try {
-			// If the main resolver couldn't find it, check our annotated managed beans
-			Map<String, Object> applicationScope = (Map<String, Object>)delegate_.resolveVariable(facesContext, "applicationScope");
-			if(!applicationScope.containsKey("$$annotatedManagedBeanMap")) {
-				Map<String, BeanInfo> beanMap = new HashMap<String, BeanInfo>();
+		if(delegate_ != null) {
+			try {
+				// If the main resolver couldn't find it, check our annotated managed beans
+				Map<String, Object> applicationScope = (Map<String, Object>)delegate_.resolveVariable(facesContext, "applicationScope");
+				if(!applicationScope.containsKey("$$annotatedManagedBeanMap")) {
+					Map<String, BeanInfo> beanMap = new HashMap<String, BeanInfo>();
 
-				Database database = (Database)delegate_.resolveVariable(facesContext, "database");
-				DatabaseDesign design = database.getDesign();
-				for(String className : design.getJavaResourceClassNames()) {
-					Class<?> loadedClass = facesContext.getContextClassLoader().loadClass(className);
-					ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
-					if(beanAnnotation != null) {
-						BeanInfo info = new BeanInfo();
-						info.className = loadedClass.getName();
-						if(loadedClass.isAnnotationPresent(ApplicationScoped.class)) {
-							info.scope = "application";
-						} else if(loadedClass.isAnnotationPresent(SessionScoped.class)) {
-							info.scope = "session";
-						} else if(loadedClass.isAnnotationPresent(ViewScoped.class)) {
-							info.scope = "view";
-						} else if(loadedClass.isAnnotationPresent(RequestScoped.class)) {
-							info.scope = "request";
-						} else {
-							info.scope = "none";
-						}
+					Database database = (Database)delegate_.resolveVariable(facesContext, "database");
+					DatabaseDesign design = database.getDesign();
+					for(String className : design.getJavaResourceClassNames()) {
+						Class<?> loadedClass = facesContext.getContextClassLoader().loadClass(className);
+						ManagedBean beanAnnotation = loadedClass.getAnnotation(ManagedBean.class);
+						if(beanAnnotation != null) {
+							BeanInfo info = new BeanInfo();
+							info.className = loadedClass.getName();
+							if(loadedClass.isAnnotationPresent(ApplicationScoped.class)) {
+								info.scope = "application";
+							} else if(loadedClass.isAnnotationPresent(SessionScoped.class)) {
+								info.scope = "session";
+							} else if(loadedClass.isAnnotationPresent(ViewScoped.class)) {
+								info.scope = "view";
+							} else if(loadedClass.isAnnotationPresent(RequestScoped.class)) {
+								info.scope = "request";
+							} else {
+								info.scope = "none";
+							}
 
-						if(!StringUtil.isEmpty(beanAnnotation.name())) {
-							beanMap.put(beanAnnotation.name(), info);
-						} else {
-							beanMap.put(loadedClass.getSimpleName(), info);
+							if(!StringUtil.isEmpty(beanAnnotation.name())) {
+								beanMap.put(beanAnnotation.name(), info);
+							} else {
+								beanMap.put(loadedClass.getSimpleName(), info);
+							}
 						}
 					}
+
+					applicationScope.put("$$annotatedManagedBeanMap", beanMap);
 				}
 
-				applicationScope.put("$$annotatedManagedBeanMap", beanMap);
-			}
-
-			// Now that we know we have a built map, look for the requested name
-			Map<String, BeanInfo> beanMap = (Map<String, BeanInfo>)applicationScope.get("$$annotatedManagedBeanMap");
-			if(beanMap.containsKey(name)) {
-				BeanInfo info = beanMap.get(name);
-				Class<?> loadedClass = facesContext.getContextClassLoader().loadClass(info.className);
-				// Check its scope
-				if("none".equals(info.scope)) {
-					return loadedClass.newInstance();
-				} else {
-					Map<String, Object> scope = (Map<String, Object>)delegate_.resolveVariable(facesContext, info.scope + "Scope");
-					if(!scope.containsKey(name)) {
-						scope.put(name, loadedClass.newInstance());
+				// Now that we know we have a built map, look for the requested name
+				Map<String, BeanInfo> beanMap = (Map<String, BeanInfo>)applicationScope.get("$$annotatedManagedBeanMap");
+				if(beanMap.containsKey(name)) {
+					BeanInfo info = beanMap.get(name);
+					Class<?> loadedClass = facesContext.getContextClassLoader().loadClass(info.className);
+					// Check its scope
+					if("none".equals(info.scope)) {
+						return loadedClass.newInstance();
+					} else {
+						Map<String, Object> scope = (Map<String, Object>)delegate_.resolveVariable(facesContext, info.scope + "Scope");
+						if(!scope.containsKey(name)) {
+							scope.put(name, loadedClass.newInstance());
+						}
+						return scope.get(name);
 					}
-					return scope.get(name);
 				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
-		} catch(Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
 		}
 
 		return null;

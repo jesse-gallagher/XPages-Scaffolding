@@ -8,50 +8,74 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
-import javax.faces.model.DataModel;
+import javax.faces.el.ValueBinding;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.FacesExceptionEx;
-import com.ibm.xsp.factory.FactoryLookup;
 import com.ibm.xsp.model.AbstractDataSource;
 import com.ibm.xsp.model.DataContainer;
 
 import frostillicus.xsp.model.AbstractModelObject;
-import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
-import frostillicus.xsp.model.ModelUtils;
 
-public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.model.ModelDataSource {
+public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.model.DataSource {
 
 	private String managerName_;
 	private String key_;
-	private boolean readonly_;
+	//	private String id_;
+	private Boolean readonly_;
 
 	public ModelDataSource() { }
 
 	public void setManagerName(final String managerName) { managerName_ = managerName; }
-	public String getManagerName() { return managerName_; }
+	public String getManagerName() {
+		if(hasRuntimeProperties()) {
+			return getRuntimeProperties().computedManagerName;
+		}
+		if(managerName_ != null) {
+			return managerName_;
+		}
+		ValueBinding valueBinding = getValueBinding("managerName");
+		if(valueBinding != null) {
+			return (String)valueBinding.getValue(FacesContext.getCurrentInstance());
+		}
+
+		return null;
+	}
 
 	public void setKey(final String key) { key_ = key; }
-	public String getKey() { return key_; }
+	public String getKey() {
+		if(hasRuntimeProperties()) {
+			return getRuntimeProperties().computedKey;
+		}
+		if(key_ != null) {
+			return key_;
+		}
+		ValueBinding valueBinding = getValueBinding("key");
+		if(valueBinding != null) {
+			return (String)valueBinding.getValue(FacesContext.getCurrentInstance());
+		}
+
+		return "new";
+	}
 
 	@Override
 	protected String composeUniqueId() {
-		return getClass().getName();
+		return StringUtil.concatStrings(new String[] { getClass().getName(), getManagerName(), getKey() }, '|', false);
 	}
 
 	@Override
 	public AbstractModelObject getDataObject() {
 		Container ac = (Container)getDataContainer();
 		if(ac != null) {
-			return ac.getModelObject();
+			AbstractModelObject obj = ac.getModelObject();
+			Boolean internalReadonly = isReadonlyInternal();
+			if(internalReadonly != null && internalReadonly) {
+				obj.freeze();
+			}
+			return obj;
 		}
 		return null;
-	}
-
-	@Override
-	public DataModel getDataModel() {
-		return getDataObject();
 	}
 
 	public void setReadonly(final boolean readonly) {
@@ -60,45 +84,39 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 
 	@Override
 	public boolean isReadonly() {
+		Boolean internal = isReadonlyInternal();
+		if(internal != null) {
+			return internal;
+		}
 		return getDataObject().readonly();
+	}
+
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+	                                                    value="NP_BOOLEAN_RETURN_NULL",
+	                                                    justification="This is intentional, to signify an unset value")
+	protected Boolean isReadonlyInternal() {
+		if(hasRuntimeProperties()) {
+			return getRuntimeProperties().computedReadonly;
+		}
+		if(readonly_ != null) {
+			return readonly_;
+		}
+		ValueBinding valueBinding = getValueBinding("readonly");
+		if(valueBinding != null) {
+			Object result = valueBinding.getValue(FacesContext.getCurrentInstance());
+			if(result == null) {
+				return false;
+			} else {
+				return (Boolean)result;
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public DataContainer load(final FacesContext context) throws IOException {
-		// Now actually init the container
-		ModelManager<?> manager = ModelUtils.findManagerInstance(context, managerName_);
-		if(manager == null) {
-			throw new IOException("Unable to locate frostillic.us manager for name '" + managerName_ + "'");
-		}
-		String key = StringUtil.isEmpty(key_) ? "new" : key_;
-		Object modelObject = manager.getValue(key);
-		if(modelObject == null) {
-			throw new IOException("Received null value when retrieving object from manager using key '" + key + "'");
-		}
-		if(!(modelObject instanceof AbstractModelObject)) {
-			throw new IOException("Retrieved non-model object from manager using key '" + key + "'");
-		}
-
-		if(readonly_) {
-			((ModelObject)modelObject).freeze();
-		}
-
-		return new Container(getBeanId(), getUniqueId(), (AbstractModelObject)modelObject);
-	}
-
-	@SuppressWarnings("unused")
-	private static void dumpExistingFactories(final FactoryLookup lookup) {
-		try {
-			Class<?> facLookupClass = FactoryLookup.class;
-			java.lang.reflect.Field factoriesField = facLookupClass.getDeclaredField("_factories");
-			factoriesField.setAccessible(true);
-			Map<?, ?> factories = (Map<?, ?>)factoriesField.get(lookup);
-			for(Map.Entry<?, ?> entry : factories.entrySet()) {
-				System.out.println(">> " + entry.getKey() + " => " + entry.getValue());
-			}
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-		}
+		Boolean readonly = isReadonlyInternal();
+		return new Container(getBeanId(), getUniqueId(), getManagerName(), getKey(), readonly == null ? false : readonly);
 	}
 
 	@Override
@@ -110,5 +128,58 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 	public boolean save(final FacesContext context, final DataContainer data) throws FacesExceptionEx {
 		ModelObject modelObject = ((Container)data).getModelObject();
 		return modelObject.save();
+	}
+
+	/* ******************************************************************************
+	 * StateHolder methods
+	 ********************************************************************************/
+	@Override
+	public Object saveState(final FacesContext context) {
+		if(isTransient()) {
+			return null;
+		}
+		Object[] state = new Object[4];
+		state[0] = super.saveState(context);
+		state[1] = managerName_;
+		state[2] = key_;
+		state[3] = readonly_;
+		return state;
+	}
+	@Override
+	public void restoreState(final FacesContext context, final Object state) {
+		Object[] values = (Object[])state;
+		super.restoreState(context, values[0]);
+		managerName_ = (String)values[1];
+		key_ = (String)values[2];
+		readonly_ = (Boolean)values[3];
+	}
+
+
+	/* ******************************************************************************
+	 * Class-specific RuntimeProperties implementation
+	 ********************************************************************************/
+	@Override
+	protected ModelProperties getRuntimeProperties() {
+		return (ModelProperties)super.getRuntimeProperties();
+	}
+	@Override
+	protected ModelProperties createRuntimeProperties() {
+		return new ModelProperties();
+	}
+	@Override
+	protected void initializeRuntimeProperties(final RuntimeProperties properties) {
+		super.initializeRuntimeProperties(properties);
+		ModelProperties modelProps = (ModelProperties)properties;
+		modelProps.computedManagerName = getManagerName();
+		modelProps.computedKey = getKey();
+		modelProps.computedReadonly = isReadonly();
+	}
+
+	protected static class ModelProperties extends RuntimeProperties {
+		private static final long serialVersionUID = 1L;
+
+		String computedManagerName;
+		String computedKey;
+		Boolean computedReadonly;
 	}
 }

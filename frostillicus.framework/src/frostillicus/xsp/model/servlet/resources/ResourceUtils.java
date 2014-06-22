@@ -349,36 +349,45 @@ public enum ResourceUtils {
 
 	// From ExtLib's com.ibm.domino.services.util.JsonWriter
 
-	private static SimpleDateFormat ISO8601_UTC = null;
-	private static SimpleDateFormat ISO8601_DT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-	private static SimpleDateFormat ISO8601_DO = new SimpleDateFormat("yyyy-MM-dd");
-	private static SimpleDateFormat ISO8601_TO = new SimpleDateFormat("HH:mm:ss");
+	private static ThreadLocal<SimpleDateFormat> ISO8601_UTC = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() {
+			TimeZone tz = TimeZone.getTimeZone("UTC");
+			SimpleDateFormat result = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			result.setTimeZone(tz);
+			return result;
+		};
+	};
+	private static ThreadLocal<SimpleDateFormat> ISO8601_DT = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() { return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); }
+	};
+	private static ThreadLocal<SimpleDateFormat> ISO8601_DO = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() { return new SimpleDateFormat("yyyy-MM-dd"); }
+	};
+	private static ThreadLocal<SimpleDateFormat> ISO8601_TO = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() { return new SimpleDateFormat("HH:mm:ss"); }
+	};
 
 	private static String dateToString(final Date value, final boolean utc) {
 		String result = null;
 
-		if ( utc ) {
-			if ( ISO8601_UTC == null ) {
-				// Initialize the UTC formatter once
-				TimeZone tz = TimeZone.getTimeZone("UTC");
-				ISO8601_UTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-				ISO8601_UTC.setTimeZone(tz);
-			}
-
-			result = ISO8601_UTC.format(value);
-		}
-		else {
-			result = ISO8601_DT.format(value);
+		if(utc) {
+			result = ISO8601_UTC.get().format(value);
+		} else {
+			result = ISO8601_DT.get().format(value);
 		}
 
 		return result;
 	}
 	private static String dateOnlyToString(final Date javaDate) {
-		return ISO8601_DO.format(javaDate);
+		return ISO8601_DO.get().format(javaDate);
 	}
 
 	private static String timeOnlyToString(final Date javaDate) {
-		return ISO8601_TO.format(javaDate);
+		return ISO8601_TO.get().format(javaDate);
 	}
 
 	@SuppressWarnings("unused")

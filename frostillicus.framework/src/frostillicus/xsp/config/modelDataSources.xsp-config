@@ -51,7 +51,7 @@
 		<complex-extension>
 			<tag-name>modelObjectData</tag-name>
 			<base-complex-id>dataInterface</base-complex-id>
-			<designer-extension/>
+<!-- 			<designer-extension/> -->
 		</complex-extension>
 	</complex-type>
 	

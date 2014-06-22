@@ -18,3 +18,4 @@ The project contains the following 3rd-party code:
 	5. JBoss Logging 3.1.3, which is available from http://mvnrepository.com/artifact/org.jboss.logging/jboss-logging/3.1.3.GA and is licensed under the Apache License 2.0
 	6. The javax.validation API 1.1.0, which is available from http://mvnrepository.com/artifact/javax.validation/validation-api/1.1.0.Final and is licensed under the Apache License 2.0
 7. The Hibernate JPA API implementation 1.0.0, which is part of the Hibernate ORM, available from http://hibernate.org/ and licensed under the LGPL 2.1
+8. The annotations from FindBugs, which is available from http://findbugs.sourceforge.net/ and is licensed under the LGPL

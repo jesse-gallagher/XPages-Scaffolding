@@ -55,6 +55,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 			this.views = new SystemCache("View Definition", 16, "xsp.extlib.viewdefsize");
 		}
 
+		@Override
 		public ViewDef getViewDef(final View view) {
 			if(view == null) {
 				return null;
@@ -145,7 +146,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 				column.width = new Float(columnNode.getAttribute("width")).intValue();
 				column.actualWidth = Double.parseDouble(columnNode.getAttribute("width"));
 
-				if(columnNode.getAttribute("responsesonly").equals(true)) {
+				if(columnNode.getAttribute("responsesonly").equals("true")) {
 					column.flags |= DefaultColumnDef.FLAG_RESPONSE;
 				}
 				if(columnNode.getAttribute("categorized").equals("true")) {
@@ -330,12 +331,12 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 
 			// Check for left or right alignment
 			switch(extColDef.getAlignment()) {
-				case ViewColumn.ALIGN_CENTER:
-					styleClass += " notesViewAlignCenter";
-					break;
-				case ViewColumn.ALIGN_RIGHT:
-					styleClass += " notesViewAlignRight";
-					break;
+			case ViewColumn.ALIGN_CENTER:
+				styleClass += " notesViewAlignCenter";
+				break;
+			case ViewColumn.ALIGN_RIGHT:
+				styleClass += " notesViewAlignRight";
+				break;
 			}
 
 			// Add font information
@@ -345,7 +346,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 
 			if(extColDef.colorColumn.length() > 0) {
 				String styleFormula = "#{javascript:'" + style.replace("'", "\\'") + ";' + " + this.getClass().getName() + ".colorColumnToStyle(" + panel.getVar() + ".getColumnValue('"
-				+ extColDef.colorColumn + "'))}";
+						+ extColDef.colorColumn + "'))}";
 				ValueBinding styleBinding = context.getApplication().createValueBinding(styleFormula);
 				col.setValueBinding("style", styleBinding);
 			} else {
@@ -384,18 +385,18 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 					// return getValueDateTimeAsString(context, component, (Date) value);
 					DateFormat fmt;
 					switch (colDef.getTimeDateFmt()) {
-						case ViewColumn.FMT_DATE: {
-							fmt = com.ibm.commons.util.DateTime.getDefaultDateFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
-						}
-						break;
-						case ViewColumn.FMT_TIME: {
-							fmt = com.ibm.commons.util.DateTime.getDefaultTimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
-						}
-						break;
-						default: {
-							fmt = com.ibm.commons.util.DateTime.getDefaultDatetimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
-						}
-						break;
+					case ViewColumn.FMT_DATE: {
+						fmt = com.ibm.commons.util.DateTime.getDefaultDateFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+					}
+					break;
+					case ViewColumn.FMT_TIME: {
+						fmt = com.ibm.commons.util.DateTime.getDefaultTimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+					}
+					break;
+					default: {
+						fmt = com.ibm.commons.util.DateTime.getDefaultDatetimeFormatter(FacesContext.getCurrentInstance().getViewRoot().getLocale());
+					}
+					break;
 					}
 					return fmt.format(value);
 				}
@@ -666,205 +667,205 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 			int offset, length, parameterCount;
 
 			switch(working.charAt(0)) {
-				case 'C':
-					// @DocChildren
-					parameterCount = Integer.parseInt(working.substring(1, 2));
-					switch(parameterCount) {
-						case 0:
-							midResult = viewEntry.getChildCount() + "";
-							break;
-						case 1:
-							midResult = strRight(working, "=").replaceAll("%", viewEntry.getChildCount() + "");
-							break;
-						case 2:
-							// For convenience, I'll break the string into each option, even if I only use one
-							choices = new String[] { "", "" };
-
-							// I can cheat a bit on the first one to find the length
-							offset = 0;
-							length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
-							choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 1 + length;
-							choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							if(viewEntry.getChildCount() == 0) {
-								midResult = choices[0].replaceAll("%", "0");
-							} else {
-								midResult = choices[1].replaceAll("%", viewEntry.getChildCount() + "");
-							}
-
-							break;
-						case 3:
-							// For convenience, I'll break the string into each option, even if I only use one
-							choices = new String[] { "", "", "" };
-
-							// I can cheat a bit on the first one to find the length
-							offset = 0;
-							length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
-							choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 2 + length;
-							length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
-							choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 2 + length;
-							length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
-							choices[2] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							if(viewEntry.getChildCount() == 0) {
-								midResult = choices[0].replaceAll("%", "0");
-							} else if(viewEntry.getChildCount() == 1) {
-								midResult = choices[1].replaceAll("%", "1");
-							} else {
-								midResult = choices[2].replaceAll("%", viewEntry.getChildCount() + "");
-							}
-
-							break;
-					}
+			case 'C':
+				// @DocChildren
+				parameterCount = Integer.parseInt(working.substring(1, 2));
+				switch(parameterCount) {
+				case 0:
+					midResult = viewEntry.getChildCount() + "";
 					break;
-				case 'D':
-					// @DocDescendants
-					parameterCount = Integer.parseInt(working.substring(1, 2));
-					switch(parameterCount) {
-						case 0:
-							midResult = viewEntry.getDescendantCount() + "";
-							break;
-						case 1:
-							midResult = strRight(working, "=").replaceAll("%", viewEntry.getDescendantCount() + "");
-							break;
-						case 2:
-							// For convenience, I'll break the string into each option, even if I only use one
-							choices = new String[] { "", "" };
-
-							// I can cheat a bit on the first one to find the length
-							offset = 0;
-							length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
-							choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 1 + length;
-							choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							if(viewEntry.getDescendantCount() == 0) {
-								midResult = choices[0].replaceAll("%", "0");
-							} else {
-								midResult = choices[1].replaceAll("%", viewEntry.getDescendantCount() + "");
-							}
-
-							break;
-						case 3:
-							// For convenience, I'll break the string into each option, even if I only use one
-							choices = new String[] { "", "", "" };
-
-							// I can cheat a bit on the first one to find the length
-							offset = 0;
-							length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
-							choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 2 + length;
-							length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
-							choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 2 + length;
-							length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
-							choices[2] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							if(viewEntry.getDescendantCount() == 0) {
-								midResult = choices[0].replaceAll("%", "0");
-							} else if(viewEntry.getDescendantCount() == 1) {
-								midResult = choices[1].replaceAll("%", "1");
-							} else {
-								midResult = choices[2].replaceAll("%", viewEntry.getDescendantCount() + "");
-							}
-
-							break;
-					}
+				case 1:
+					midResult = strRight(working, "=").replaceAll("%", viewEntry.getChildCount() + "");
 					break;
-				case 'H':
-					// @DocLevel
-					midResult = (viewEntry.getIndentLevel()+1) + "";
-					break;
-				case 'A':
-					// @DocNumber
-					parameterCount = Integer.parseInt(working.substring(1, 2));
-					switch(parameterCount) {
-						case 0:
-							midResult = viewEntry.getPosition('.');
-							break;
-						case 1:
-							String delimiter = strRight(working, "=");
-							if(delimiter.length() == 0) {
-								midResult = strRightBack(viewEntry.getPosition('.'), ".");
-							} else if(delimiter.length() > 1) {
-								// Mimic formula's weird behavior for multi-character strings
-								midResult = delimiter;
-							} else {
-								midResult = viewEntry.getPosition(delimiter.charAt(0));
-							}
-							break;
-					}
-					break;
-				case 'J':
-					// @DocParentNumber
-					if(viewEntry.getIndentLevel() == 0) {
-						midResult = "";
+				case 2:
+					// For convenience, I'll break the string into each option, even if I only use one
+					choices = new String[] { "", "" };
+
+					// I can cheat a bit on the first one to find the length
+					offset = 0;
+					length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
+					choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 1 + length;
+					choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					if(viewEntry.getChildCount() == 0) {
+						midResult = choices[0].replaceAll("%", "0");
 					} else {
-						parameterCount = Integer.parseInt(working.substring(1, 2));
-						switch(parameterCount) {
-							case 0:
-								midResult = strLeftBack(viewEntry.getPosition('.'), ".");
-								break;
-							case 1:
-								String delimiter = strRight(working, "=");
-								if(delimiter.length() == 0) {
-									midResult = strRightBack(strLeftBack(viewEntry.getPosition('.'), "."), ".");
-								} else if(delimiter.length() > 1) {
-									// Mimic formula's weird behavior for multi-character strings
-									midResult = delimiter;
-								} else {
-									midResult = strLeftBack(viewEntry.getPosition(delimiter.charAt(0)), delimiter);
-								}
-								break;
-						}
+						midResult = choices[1].replaceAll("%", viewEntry.getChildCount() + "");
+					}
+
+					break;
+				case 3:
+					// For convenience, I'll break the string into each option, even if I only use one
+					choices = new String[] { "", "", "" };
+
+					// I can cheat a bit on the first one to find the length
+					offset = 0;
+					length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
+					choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 2 + length;
+					length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
+					choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 2 + length;
+					length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
+					choices[2] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					if(viewEntry.getChildCount() == 0) {
+						midResult = choices[0].replaceAll("%", "0");
+					} else if(viewEntry.getChildCount() == 1) {
+						midResult = choices[1].replaceAll("%", "1");
+					} else {
+						midResult = choices[2].replaceAll("%", viewEntry.getChildCount() + "");
+					}
+
+					break;
+				}
+				break;
+			case 'D':
+				// @DocDescendants
+				parameterCount = Integer.parseInt(working.substring(1, 2));
+				switch(parameterCount) {
+				case 0:
+					midResult = viewEntry.getDescendantCount() + "";
+					break;
+				case 1:
+					midResult = strRight(working, "=").replaceAll("%", viewEntry.getDescendantCount() + "");
+					break;
+				case 2:
+					// For convenience, I'll break the string into each option, even if I only use one
+					choices = new String[] { "", "" };
+
+					// I can cheat a bit on the first one to find the length
+					offset = 0;
+					length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
+					choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 1 + length;
+					choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					if(viewEntry.getDescendantCount() == 0) {
+						midResult = choices[0].replaceAll("%", "0");
+					} else {
+						midResult = choices[1].replaceAll("%", viewEntry.getDescendantCount() + "");
+					}
+
+					break;
+				case 3:
+					// For convenience, I'll break the string into each option, even if I only use one
+					choices = new String[] { "", "", "" };
+
+					// I can cheat a bit on the first one to find the length
+					offset = 0;
+					length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
+					choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 2 + length;
+					length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
+					choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 2 + length;
+					length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
+					choices[2] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					if(viewEntry.getDescendantCount() == 0) {
+						midResult = choices[0].replaceAll("%", "0");
+					} else if(viewEntry.getDescendantCount() == 1) {
+						midResult = choices[1].replaceAll("%", "1");
+					} else {
+						midResult = choices[2].replaceAll("%", viewEntry.getDescendantCount() + "");
+					}
+
+					break;
+				}
+				break;
+			case 'H':
+				// @DocLevel
+				midResult = (viewEntry.getIndentLevel()+1) + "";
+				break;
+			case 'A':
+				// @DocNumber
+				parameterCount = Integer.parseInt(working.substring(1, 2));
+				switch(parameterCount) {
+				case 0:
+					midResult = viewEntry.getPosition('.');
+					break;
+				case 1:
+					String delimiter = strRight(working, "=");
+					if(delimiter.length() == 0) {
+						midResult = strRightBack(viewEntry.getPosition('.'), ".");
+					} else if(delimiter.length() > 1) {
+						// Mimic formula's weird behavior for multi-character strings
+						midResult = delimiter;
+					} else {
+						midResult = viewEntry.getPosition(delimiter.charAt(0));
 					}
 					break;
-				case 'B':
-					// @DocSiblings
-					midResult = (viewEntry.getSiblingCount()) + "";
-					break;
-				case 'I':
-					// @IsCategory
+				}
+				break;
+			case 'J':
+				// @DocParentNumber
+				if(viewEntry.getIndentLevel() == 0) {
+					midResult = "";
+				} else {
 					parameterCount = Integer.parseInt(working.substring(1, 2));
 					switch(parameterCount) {
-						case 0:
-							midResult = viewEntry.isCategory() ? "*" : "";
-							break;
-						case 1:
-							midResult = viewEntry.isCategory() ? strRight(working, "=") : "";
-							break;
-						case 2:
-							// For convenience, I'll break the string into each option, even if I only use one
-							choices = new String[] { "", "" };
-							offset = 0;
-							length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
-							choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							offset = working.indexOf("=", offset) + 2 + length;
-							length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
-							choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
-
-							midResult = viewEntry.isCategory() ? choices[0] : choices[1];
-
-							break;
+					case 0:
+						midResult = strLeftBack(viewEntry.getPosition('.'), ".");
+						break;
+					case 1:
+						String delimiter = strRight(working, "=");
+						if(delimiter.length() == 0) {
+							midResult = strRightBack(strLeftBack(viewEntry.getPosition('.'), "."), ".");
+						} else if(delimiter.length() > 1) {
+							// Mimic formula's weird behavior for multi-character strings
+							midResult = delimiter;
+						} else {
+							midResult = strLeftBack(viewEntry.getPosition(delimiter.charAt(0)), delimiter);
+						}
+						break;
 					}
+				}
+				break;
+			case 'B':
+				// @DocSiblings
+				midResult = (viewEntry.getSiblingCount()) + "";
+				break;
+			case 'I':
+				// @IsCategory
+				parameterCount = Integer.parseInt(working.substring(1, 2));
+				switch(parameterCount) {
+				case 0:
+					midResult = viewEntry.isCategory() ? "*" : "";
+					break;
+				case 1:
+					midResult = viewEntry.isCategory() ? strRight(working, "=") : "";
+					break;
+				case 2:
+					// For convenience, I'll break the string into each option, even if I only use one
+					choices = new String[] { "", "" };
+					offset = 0;
+					length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
+					choices[0] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					offset = working.indexOf("=", offset) + 2 + length;
+					length = Integer.parseInt(working.substring(offset, working.indexOf("=", offset)));
+					choices[1] = working.substring(working.indexOf("=", offset)+1, working.indexOf("=", offset)+1+length);
+
+					midResult = viewEntry.isCategory() ? choices[0] : choices[1];
 
 					break;
-				case 'G':
-					// @IsExpandable
-					midResult = "";
-					break;
-				default:
-					midResult = working;
+				}
+
+				break;
+			case 'G':
+				// @IsExpandable
+				midResult = "";
+				break;
+			default:
+				midResult = working;
 				break;
 			}
 
