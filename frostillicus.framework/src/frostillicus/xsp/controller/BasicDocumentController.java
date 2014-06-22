@@ -75,15 +75,4 @@ public class BasicDocumentController extends BasicXPageController implements Doc
 	protected DominoDocument getDoc() {
 		return (DominoDocument)ExtLibUtil.resolveVariable(FacesContext.getCurrentInstance(), "doc");
 	}
-
-
-	public int getNoteCount() throws NotesException {
-		Database database = ExtLibUtil.getCurrentDatabase();
-		View notes = database.getView("Notes by Parent");
-		ViewNavigator nav = notes.createViewNavFromCategory(this.getDocumentId());
-		int count = nav.getCount();
-		nav.recycle();
-		notes.recycle();
-		return count;
-	}
 }
