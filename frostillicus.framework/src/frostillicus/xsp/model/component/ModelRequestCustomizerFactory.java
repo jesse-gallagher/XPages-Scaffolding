@@ -12,6 +12,9 @@ import com.ibm.xsp.model.DataModelFactory;
 /**
  * I don't actually care about customizing requests. Instead, I want to use this as a hook to reliably
  * attach the data model factories.
+ * I have to override the factories this way rather than using the standard extension points because
+ * IBM's factories don't behave nicely with non-DominoDocument DocumentDataSources. Instead of returning
+ * null, they try to cast all DocumentDataSources to DominoDocument, causing a ClassCastException.
  * 
  * @author jgallagher
  *
