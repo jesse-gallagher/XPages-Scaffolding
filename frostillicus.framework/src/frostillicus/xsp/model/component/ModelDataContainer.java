@@ -5,6 +5,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import com.ibm.xsp.model.AbstractDataContainer;
+import com.ibm.xsp.model.DocumentDataContainer;
 
 import frostillicus.xsp.model.ModelObject;
 
@@ -12,7 +13,7 @@ import frostillicus.xsp.model.ModelObject;
  * Container class to encapsulate the actual object. Since models are Serializable,
  * this is pretty simple
  ********************************************************************************************/
-public class ModelDataContainer extends AbstractDataContainer  {
+public class ModelDataContainer extends AbstractDataContainer implements DocumentDataContainer {
 	private ModelObject modelObject_;
 
 	public ModelDataContainer() { }
@@ -24,6 +25,11 @@ public class ModelDataContainer extends AbstractDataContainer  {
 	}
 
 	public ModelObject getModelObject() {
+		return modelObject_;
+	}
+
+	@Override
+	public Object getDocument() {
 		return modelObject_;
 	}
 
