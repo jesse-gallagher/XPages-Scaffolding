@@ -209,8 +209,9 @@ public abstract class AbstractModelList<E extends ModelObject> extends TabularDa
 		return TabularDataModel.TYPE_ENTRY;
 	}
 
-
-
+	/* ******************************************************************************
+	 * Internal iterator class
+	 ********************************************************************************/
 	private class ModelListIterator<K> implements ListIterator<K> {
 		private int index_ = 0;
 

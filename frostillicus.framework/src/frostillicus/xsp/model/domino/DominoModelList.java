@@ -260,6 +260,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	/* **********************************************************************
 	 * Misc. leftovers
 	 ************************************************************************/
+
 	@Override
 	public void search(final String searchQuery) {
 		if(invalid_) {
@@ -346,7 +347,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		return (ViewEntryCollection) requestScope.get(key);
 	}
 
-	protected View getView() {
+	public View getView() {
 		Database database = FrameworkUtils.getDatabase(server_, filePath_);
 		View view = database.getView(viewName_);
 		view.setAutoUpdate(false);

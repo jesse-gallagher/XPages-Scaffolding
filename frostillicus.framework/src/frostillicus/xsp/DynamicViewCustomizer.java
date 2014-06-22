@@ -69,7 +69,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 					if(view.isHierarchical()) { viewDef.flags |= DefaultViewDef.FLAG_HIERARCHICAL; }
 					if(view.isCategorized()) { viewDef.flags |= DefaultViewDef.FLAG_CATEGORIZED; }
 
-					viewDef.columns.addAll(this.getViewColumnInformation(view));
+					viewDef.columns.addAll(getViewColumnInformation(view));
 				}
 				return viewDef;
 			} catch(Exception ex) {
@@ -78,7 +78,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 		}
 
 		@SuppressWarnings("unchecked")
-		private List<ColumnDef> getViewColumnInformation(final View view) throws Exception {
+		public static List<ColumnDef> getViewColumnInformation(final View view) throws Exception {
 			Database database = view.getParent();
 
 			/* Generate the DXL */
