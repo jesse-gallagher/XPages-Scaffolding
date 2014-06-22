@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,8 +34,8 @@ import frostillicus.xsp.util.FrameworkUtils;
 public abstract class AbstractModelObject extends DataModel implements ModelObject {
 	private static final long serialVersionUID = 1L;
 
-	private transient Map<String, Method> getterCache_ = new HashMap<String, Method>();
-	private transient Map<String, List<Method>> setterCache_ = new HashMap<String, List<Method>>();
+	private transient Map<String, Method> getterCache_;
+	private transient Map<String, List<Method>> setterCache_;
 	private boolean frozen_;
 
 	/* **********************************************************************
@@ -377,7 +378,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	 ************************************************************************/
 	protected final Method findGetter(final String key) {
 		String lkey = key.toLowerCase();
-		if (!getterCache_.containsKey(lkey)) {
+		if (!getterCache().containsKey(lkey)) {
 			Method result = null;
 			for (Method method : getClass().getMethods()) {
 				String methodName = method.getName().toLowerCase();
@@ -390,14 +391,14 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 					}
 				}
 			}
-			getterCache_.put(lkey, result);
+			getterCache().put(lkey, result);
 		}
-		return getterCache_.get(lkey);
+		return getterCache().get(lkey);
 	}
 
 	protected final List<Method> findSetters(final String key) {
 		String lkey = key.toLowerCase();
-		if (!setterCache_.containsKey(lkey)) {
+		if (!setterCache().containsKey(lkey)) {
 			List<Method> result = new ArrayList<Method>();
 			for (Method method : getClass().getMethods()) {
 				Class<?>[] parameters = method.getParameterTypes();
@@ -406,11 +407,23 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 					result.add(method);
 				}
 			}
-			setterCache_.put(lkey, result);
+			setterCache().put(lkey, result);
 		}
-		return setterCache_.get(lkey);
+		return setterCache().get(lkey);
 	}
 
+	private synchronized Map<String, Method> getterCache() {
+		if(getterCache_ == null) {
+			getterCache_ = Collections.synchronizedMap(new HashMap<String, Method>());
+		}
+		return getterCache_;
+	}
+	private synchronized Map<String, List<Method>> setterCache() {
+		if(setterCache_ == null) {
+			setterCache_ = Collections.synchronizedMap(new HashMap<String, List<Method>>());
+		}
+		return setterCache_;
+	}
 
 	/* **********************************************************************
 	 * Validation support

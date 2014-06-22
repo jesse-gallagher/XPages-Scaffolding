@@ -40,18 +40,15 @@
 		<property>
 			<property-name>readonly</property-name>
 			
-			<description>Whether or not the model object should be opened in read-only mode.</description>
-			<display-name>Read-only</display-name>
+			<description>Value "true" indicates that this data source is read only. Default is "false".</description>
+			<display-name>Read Only Flag</display-name>
 			<property-class>boolean</property-class>
-			<property-extension>
-				<allow-run-time-binding>false</allow-run-time-binding>
-			</property-extension>
 		</property>
 		
 		<complex-extension>
 			<tag-name>modelObjectData</tag-name>
 			<base-complex-id>dataInterface</base-complex-id>
-<!-- 			<designer-extension/> -->
+			<designer-extension/>
 		</complex-extension>
 	</complex-type>
 	

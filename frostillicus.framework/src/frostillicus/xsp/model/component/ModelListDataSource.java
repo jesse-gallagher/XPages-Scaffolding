@@ -1,19 +1,17 @@
 package frostillicus.xsp.model.component;
 
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.el.MethodBinding;
+import javax.faces.el.ValueBinding;
 import javax.faces.model.DataModel;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.FacesExceptionEx;
-import com.ibm.xsp.model.AbstractDataContainer;
 import com.ibm.xsp.model.AbstractDataSource;
 import com.ibm.xsp.model.DataContainer;
-import com.ibm.xsp.model.ViewDataContainer;
 import com.ibm.xsp.model.ViewDataSource;
 import com.ibm.xsp.util.FacesUtil;
 
@@ -30,20 +28,54 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 
 	public ModelListDataSource() { }
 
+	/* ******************************************************************************
+	 * Property getter/setters
+	 ********************************************************************************/
 	public void setManagerName(final String managerName) { managerName_ = managerName; }
-	public String getManagerName() { return managerName_; }
+	public String getManagerName() {
+		if(hasRuntimeProperties()) {
+			return getRuntimeProperties().computedManagerName;
+		}
+		if(managerName_ != null) {
+			return managerName_;
+		}
+		ValueBinding valueBinding = getValueBinding("managerName");
+		if(valueBinding != null) {
+			return (String)valueBinding.getValue(FacesContext.getCurrentInstance());
+		}
+
+		return null;
+	}
 
 	public void setKey(final String key) { key_ = key; }
-	public String getKey() { return key_; }
+	public String getKey() {
+		if(hasRuntimeProperties()) {
+			return getRuntimeProperties().computedKey;
+		}
+		if(key_ != null) {
+			return key_;
+		}
+		ValueBinding valueBinding = getValueBinding("key");
+		if(valueBinding != null) {
+			return (String)valueBinding.getValue(FacesContext.getCurrentInstance());
+		}
+
+		return "new";
+	}
+
+
+	/* ******************************************************************************
+	 * Data Source methods
+	 ********************************************************************************/
 
 	@Override
 	protected String composeUniqueId() {
-		return getClass().getName();
+		return StringUtil.concatStrings(new String[] { getClass().getName(), getManagerName(), getKey() }, '|', false);
 	}
 
 	@Override
 	public AbstractModelList<?> getDataObject() {
-		Container ac = (Container)getDataContainer();
+		ModelListDataContainer ac = (ModelListDataContainer)getDataContainer();
 		if(ac != null) {
 			return ac.getView();
 		}
@@ -85,7 +117,7 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 	}
 
 	@Override
-	public Container openView(final FacesContext context) throws IOException {
+	public ModelListDataContainer openView(final FacesContext context) throws IOException {
 		MethodBinding queryOpenView = getQueryOpenView();
 		if (queryOpenView != null && FacesUtil.isCancelled(queryOpenView.invoke(context, null))) {
 			return null;
@@ -100,7 +132,7 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 			throw new IOException("Retrieved non-model-list object from manager using key '" + key_ + "'");
 		}
 
-		Container container = new Container(getBeanId(), getUniqueId(), (AbstractModelList<?>)listObject);
+		ModelListDataContainer container = new ModelListDataContainer(getBeanId(), getUniqueId(), (AbstractModelList<?>)listObject);
 
 		MethodBinding postOpenView = getPostOpenView();
 		if(postOpenView != null) {
@@ -115,35 +147,52 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 		return getDataObject();
 	}
 
-	public static class Container extends AbstractDataContainer implements ViewDataContainer {
-		private AbstractModelList<?> modelList_;
-
-		public Container() { }
-		public Container(final String beanId, final String id, final AbstractModelList<?> modelList) {
-			super(beanId, id);
-			modelList_ = modelList;
+	/* ******************************************************************************
+	 * StateHolder methods
+	 ********************************************************************************/
+	@Override
+	public Object saveState(final FacesContext context) {
+		if(isTransient()) {
+			return null;
 		}
+		return new Object[] {
+				super.saveState(context),
+				managerName_,
+				key_
+		};
+	}
+	@Override
+	public void restoreState(final FacesContext context, final Object state) {
+		Object[] values = (Object[])state;
+		super.restoreState(context, values[0]);
+		managerName_ = (String)values[1];
+		key_ = (String)values[2];
+	}
 
-		@Override
-		public AbstractModelList<?> getView() {
-			return modelList_;
-		}
 
-		@Override
-		public void deserialize(final ObjectInput in) throws IOException {
-			try {
-				modelList_ = (AbstractModelList<?>)in.readObject();
-			} catch(ClassNotFoundException cnfe) {
-				IOException ioe = new IOException("Error while deserializing object");
-				ioe.initCause(cnfe);
-				throw ioe;
-			}
-		}
+	/* ******************************************************************************
+	 * Class-specific RuntimeProperties implementation
+	 ********************************************************************************/
+	@Override
+	protected ModelListProperties getRuntimeProperties() {
+		return (ModelListProperties)super.getRuntimeProperties();
+	}
+	@Override
+	protected ModelListProperties createRuntimeProperties() {
+		return new ModelListProperties();
+	}
+	@Override
+	protected void initializeRuntimeProperties(final RuntimeProperties properties) {
+		super.initializeRuntimeProperties(properties);
+		ModelListProperties modelProps = (ModelListProperties)properties;
+		modelProps.computedManagerName = getManagerName();
+		modelProps.computedKey = getKey();
+	}
 
-		@Override
-		public void serialize(final ObjectOutput out) throws IOException {
-			out.writeObject(modelList_);
-		}
+	protected static class ModelListProperties extends RuntimeProperties {
+		private static final long serialVersionUID = 1L;
 
+		String computedManagerName;
+		String computedKey;
 	}
 }

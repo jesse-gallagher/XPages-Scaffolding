@@ -1,5 +1,6 @@
 package frostillicus.xsp.model.domino;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.*;
@@ -46,7 +47,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 ************************************************************************/
 	protected AbstractDominoModel(final Database database) {
 		DocumentHolder holder;
-		try {
+		if(FrameworkUtils.isFaces()) {
 			DominoDocument domDoc = DominoDocument.wrap(
 			                                            database.getApiPath(),		// database
 			                                            database,					// db
@@ -59,7 +60,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			                                            ""							// webQuerySaveAgent
 					);
 			holder = new DocumentHolder(domDoc);
-		} catch(IllegalStateException ise) {
+		} else {
 			holder = new DocumentHolder(database.getApiPath(), "");
 		}
 		docHolder_ = holder;
@@ -83,7 +84,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		if(entry.isDocument()) {
 			DocumentHolder holder;
-			try {
+			if(FrameworkUtils.isFaces()) {
 				DominoDocument domDoc = DominoDocument.wrap(
 				                                            entry.getAncestorDatabase().getApiPath(),
 				                                            entry.getDocument(),
@@ -94,7 +95,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				                                            ""
 						);
 				holder = new DocumentHolder(domDoc);
-			} catch(IllegalStateException ise) {
+			} else {
 				holder = new DocumentHolder(entry.getAncestorDatabase().getApiPath(), entry.getUniversalID());
 			}
 			docHolder_ = holder;
@@ -128,7 +129,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		viewRowPosition_ = "";
 
 		DocumentHolder holder;
-		try {
+		if(FrameworkUtils.isFaces()) {
 			DominoDocument domDoc = DominoDocument.wrap(
 			                                            database.getApiPath(),
 			                                            doc,
@@ -139,7 +140,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			                                            ""
 					);
 			holder = new DocumentHolder(domDoc);
-		} catch(IllegalStateException ise) {
+		} else {
 			holder = new DocumentHolder(database.getApiPath(), documentId_);
 		}
 		docHolder_ = holder;
@@ -616,6 +617,20 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				}
 			}
 			return result;
+		}
+
+		private void writeObject(final java.io.ObjectOutputStream out) throws IOException {
+			out.defaultWriteObject();
+			if(isDominoDocument()) {
+				dominoDocument_.beforeSerializing();
+			}
+		}
+		private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+			in.defaultReadObject();
+			if(isDominoDocument()) {
+				dominoDocument_.afterDeserializing(null);
+				dominoDocument_.restoreWrappedDocument();
+			}
 		}
 	}
 }
