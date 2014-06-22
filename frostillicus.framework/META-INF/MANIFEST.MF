@@ -11,6 +11,7 @@ Import-Package: lotus.domino,
  org.openntf.domino.design,
  org.openntf.domino.types,
  org.openntf.domino.utils,
+ org.openntf.domino.utils.xml,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.xsp.extlib,

@@ -26,7 +26,10 @@ import com.ibm.xsp.extlib.component.dynamicview.ViewDesign.DefaultViewDef;
 import com.ibm.xsp.extlib.component.dynamicview.ViewDesign.ViewDef;
 import com.ibm.xsp.extlib.component.dynamicview.ViewDesign.ViewFactory;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
+import com.ibm.xsp.model.ViewRowData;
 import com.ibm.xsp.util.FacesUtil;
+
+import frostillicus.xsp.model.ModelObject;
 
 import org.openntf.domino.utils.xml.XMLDocument;
 import org.openntf.domino.utils.xml.XMLNode;
@@ -376,7 +379,7 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 			UIDynamicViewPanel panel = (UIDynamicViewPanel)FacesUtil.getComponentFor(context.getViewRoot(), panelId);
 
 			// First, apply any column-color info needed
-			ViewEntry entry = this.resolveViewEntry(context, panel.getVar());
+			ViewRowData entry = this.resolveViewEntry(context, panel.getVar());
 			try {
 				if(value instanceof DateTime) {
 					return this.getValueDateTimeAsString(context, component, ((DateTime)value).toJavaDate());
@@ -407,23 +410,30 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 
 			String stringValue = value.toString();
 
-			try {
-				stringValue = specialTextDecode(stringValue, entry);
-			} catch(NotesException ne) {}
+			if(entry instanceof ViewEntry) {
+				try {
+					stringValue = specialTextDecode(stringValue, (ViewEntry)entry);
+				} catch(NotesException ne) {}
+			}
+
+			boolean isCategory = false;
+			if(entry instanceof ViewEntry) {
+				try {
+					isCategory = ((ViewEntry)entry).isCategory();
+				} catch(NotesException e) { }
+			} else if(entry instanceof ModelObject) {
+				isCategory = ((ModelObject)entry).category();
+			}
 
 			// Process the entry as Notes-style pass-through-HTML
-			try {
-				if(!entry.isCategory()) {
-					stringValue = this.handlePassThroughHTML(stringValue);
-				}
-			} catch(NotesException e) { }
+			if(!isCategory) {
+				stringValue = this.handlePassThroughHTML(stringValue);
+			}
 
 			// Add in some text for empty categories
-			try {
-				if(entry.isCategory() && stringValue.length() == 0) {
-					stringValue = "(Not Categorized)";
-				}
-			} catch(NotesException e) { }
+			if(isCategory && stringValue.length() == 0) {
+				stringValue = "(Not Categorized)";
+			}
 
 			// Include a &nbsp; to avoid weird styling problems when the content
 			// itself is empty or not visible
@@ -448,8 +458,8 @@ public class DynamicViewCustomizer extends DominoViewCustomizer implements Seria
 			return cellData;
 		}
 
-		private ViewEntry resolveViewEntry(final FacesContext context, final String var) {
-			return (ViewEntry)context.getApplication().getVariableResolver().resolveVariable(context, var);
+		private ViewRowData resolveViewEntry(final FacesContext context, final String var) {
+			return (ViewRowData)context.getApplication().getVariableResolver().resolveVariable(context, var);
 		}
 
 		@Override
