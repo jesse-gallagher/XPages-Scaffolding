@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.pde.ui.RuntimeWorkbench">
+<booleanAttribute key="append.args" value="true"/>
+<booleanAttribute key="askclear" value="false"/>
+<booleanAttribute key="automaticAdd" value="true"/>
+<booleanAttribute key="automaticValidate" value="false"/>
+<stringAttribute key="bootstrap" value=""/>
+<stringAttribute key="checked" value="[NONE]"/>
+<booleanAttribute key="clearConfig" value="false"/>
+<booleanAttribute key="clearws" value="true"/>
+<booleanAttribute key="clearwslog" value="true"/>
+<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/Designer Full Plugins"/>
+<booleanAttribute key="default" value="true"/>
+<booleanAttribute key="includeOptional" value="true"/>
+<stringAttribute key="location" value="${workspace_loc}/../runtime-Designer"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.JAVA_COMMAND" value="java"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-consoleLog -nosplash -pluginCustomization &quot;${workspace_loc:org.openntf.xsp.extlib/launchers/plugin_customization.ini}&quot; -name &quot;IBM XPages Designer&quot; -personality com.ibm.designer.domino.personality"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.home.location=&quot;${rcp_target}&quot;&#13;&#10;-Dosgi.install.area=&quot;${rcp_target}&quot;&#13;&#10;&quot;-Xbootclasspath/a:${rcp_base}/rcpbootcp.jar&quot;&#13;&#10;-Xss512K&#13;&#10;-Xms128m&#13;&#10;-Xmx1024m&#13;&#10;&quot;-Drcp.data=${rcp_data}&quot;&#13;&#10;&quot;-Drcp.home=${rcp_target}/../..&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${rcp_target}"/>
+<stringAttribute key="pde.version" value="3.3"/>
+<stringAttribute key="product" value="com.ibm.designer.domino.product.dde"/>
+<booleanAttribute key="show_selected_only" value="false"/>
+<stringAttribute key="templateConfig" value="${workspace_loc:org.openntf.xsp.extlib/launchers/config.ini}"/>
+<booleanAttribute key="tracing" value="false"/>
+<booleanAttribute key="useCustomFeatures" value="false"/>
+<booleanAttribute key="useDefaultConfig" value="false"/>
+<booleanAttribute key="useDefaultConfigArea" value="false"/>
+<booleanAttribute key="useProduct" value="true"/>
+</launchConfiguration>

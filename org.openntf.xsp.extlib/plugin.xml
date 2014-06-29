@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.ibm.commons.Extension">
+      <service
+            class="org.openntf.xsp.extlib.library.OpenNTFLibrary"
+            type="com.ibm.xsp.Library">
+      </service>
+   </extension>
+<extension point="com.ibm.commons.Extension">
+         <service
+            type="com.ibm.xsp.resource.DojoModulePathResource"
+            class="org.openntf.xsp.extlib.resources.ModulePath" />
+   </extension>
+   <extension point="com.ibm.commons.Extension">
+      <service type="com.ibm.xsp.GlobalResourceProvider" class="org.openntf.xsp.extlib.resources.ResourceProvider" />
+   </extension>
+    <extension point="com.ibm.commons.Extension">
+         <service type="com.ibm.xsp.RequestParameters" class="org.openntf.xsp.extlib.resources.RequestCustomizerFactory" />
+   </extension>
+   <extension point="com.ibm.commons.Extension">
+         <service type="com.ibm.xsp.JavaScriptLibFactory" class="org.openntf.xsp.extlib.ssjs.OpenNTFFactory" />
+   </extension>
+    <extension point="com.ibm.commons.Extension">
+         <service type="com.ibm.xsp.library.Contributor" class="org.openntf.xsp.extlib.library.OpenNTFContributor" />
+   </extension>
+ <!--   <extension
+          point="com.ibm.commons.Extension">
+       <service
+             type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.extlib.servlet.ServletFactory">
+       </service>
+    </extension>
+    -->
+</plugin>

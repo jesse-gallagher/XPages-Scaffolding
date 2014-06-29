@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!-- ******************************************************************* -->
+	<!--                                                                     -->
+	<!-- Copyright OpenNTF 2013                                            -->
+	<!--                                                                     -->
+	<!-- Licensed under the Apache License, Version 2.0 (the "License");     -->
+	<!-- you may not use this file except in compliance with the License.    -->
+	<!-- You may obtain a copy of the License at:                            -->
+	<!--                                                                     -->
+	<!-- http://www.apache.org/licenses/LICENSE-2.0                          -->
+	<!--                                                                     -->
+	<!-- Unless required by applicable law or agreed to in writing, software -->
+	<!-- distributed under the License is distributed on an "AS IS" BASIS,   -->
+	<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     -->
+	<!-- implied. See the License for the specific language governing        -->
+	<!-- permissions and limitations under the License.                      -->
+	<!--                                                                     -->
+	<!-- ******************************************************************* -->
+<faces-config>
+	<faces-config-extension>
+		<namespace-uri>http://openntf.org/p/Community%20Control%20Library</namespace-uri>
+		<default-prefix>openntf</default-prefix>
+	</faces-config-extension>
+	<component>
+		<description>A control that allows for dynamic, scriptable rendering of 2D shapes and bitmap images</description>
+		<display-name>Canvas</display-name>
+		<component-type>org.openntf.xsp.Canvas</component-type>
+		<component-class>org.openntf.xsp.extlib.components.XspCanvas</component-class>
+		<group-type-ref>org.openntf.xsp.group.html.common</group-type-ref>
+		<group-type-ref>org.openntf.xsp.group.events.touch</group-type-ref>
+		<component-extension>
+			<base-component-type>org.openntf.xsp.HtmlTag</base-component-type>
+			<component-family>com.ibm.xsp.Tag</component-family>
+			<renderer-type>org.openntf.xsp.Canvas</renderer-type>
+			<tag-name>canvas</tag-name>
+			<designer-extension>
+				<generate-id>false</generate-id>
+				<in-palette>true</in-palette>
+			</designer-extension>
+		</component-extension>
+	</component>
+</faces-config>

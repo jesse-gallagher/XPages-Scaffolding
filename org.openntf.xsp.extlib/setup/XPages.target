@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target includeMode="feature" name="XPages Plugin Target" sequenceNumber="114">
+<locations>
+<location path="${rcp_target}" type="Profile"/>
+<location path="${rcp_data}/applications/eclipse" type="Directory"/>
+</locations>
+<environment>
+<os>linux</os>
+<ws>win32</ws>
+<arch>x86</arch>
+</environment>
+<launcherArgs>
+<vmArgs>-Declipse.registry.nulltoken=true&#13;
+-Dosgi.splashPath=platform:/base/../shared/eclipse/plugins/com.ibm.notes.branding&#13;
+-Djava.util.logging.config.class=com.ibm.rcp.core.internal.logger.boot.LoggerConfig&#13;
+-Dosgi.framework.extensions=com.ibm.rcp.core.logger.frameworkhook&#13;
+-Dcom.ibm.pvc.webcontainer.port=0&#13;
+-Djava.protocol.handler.pkgs=com.ibm.net.ssl.www.protocol&#13;
+-Dosgi.hook.configurators.exclude=org.eclipse.core.runtime.internal.adaptor.EclipseLogHook,com.ibm.jxesupport.CDSHookConfigurator&#13;
+"-Xbootclasspath/a:${rcp_base}/rcpbootcp.jar"&#13;
+-Xss512K&#13;
+-Xms128m&#13;
+-Xmx1024m&#13;
+"-Drcp.data=${rcp_data}"&#13;
+"-Drcp.home=${rcp_target}/../.."&#13;
+"-Djava.security.policy=${rcp_target}/../../../java.policy"</vmArgs>
+<programArgs>-consoleLog -console -pluginCustomization "${rcp_target}/../plugin_customization.ini" -name "IBM XPages Designer" -personality com.ibm.designer.domino.personality</programArgs>
+</launcherArgs>
+<implicitDependencies>
+<plugin id="com.ibm.xsp.domino"/>
+<plugin id="com.ibm.xsp.extsn"/>
+<plugin id="com.ibm.xsp.core"/>
+</implicitDependencies>
+</target>

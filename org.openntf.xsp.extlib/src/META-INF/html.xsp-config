@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!-- ******************************************************************* -->
+	<!--                                                                     -->
+	<!-- Copyright OpenNTF 2013                                            -->
+	<!--                                                                     -->
+	<!-- Licensed under the Apache License, Version 2.0 (the "License");     -->
+	<!-- you may not use this file except in compliance with the License.    -->
+	<!-- You may obtain a copy of the License at:                            -->
+	<!--                                                                     -->
+	<!-- http://www.apache.org/licenses/LICENSE-2.0                          -->
+	<!--                                                                     -->
+	<!-- Unless required by applicable law or agreed to in writing, software -->
+	<!-- distributed under the License is distributed on an "AS IS" BASIS,   -->
+	<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     -->
+	<!-- implied. See the License for the specific language governing        -->
+	<!-- permissions and limitations under the License.                      -->
+	<!--                                                                     -->
+	<!-- ******************************************************************* -->
+<faces-config>
+	<faces-config-extension>
+		<namespace-uri>http://openntf.org/p/Community%20Control%20Library</namespace-uri>
+		<default-prefix>openntf</default-prefix>
+	</faces-config-extension>
+	<group>
+		<description>Bundles together all the attribute groups that are common to components mapping directly to an HTML tag</description>
+		<group-type>org.openntf.xsp.group.html.common</group-type>
+		<group-type-ref>com.ibm.xsp.group.core</group-type-ref>
+		<group-type-ref>com.ibm.xsp.group.events</group-type-ref>
+		<group-type-ref>com.ibm.xsp.group.i18n</group-type-ref>
+		<group-type-ref>com.ibm.xsp.group.aria.role</group-type-ref>
+	</group>
+	<group>
+		<description>HTML5 touch events</description>
+		<group-type>org.openntf.xsp.group.events.touch</group-type>
+		<property>
+			<description>JavaScript code executed when a gesture change is detected</description>
+			<display-name>Gesture Change</display-name>
+			<property-name>ongesturechange</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+		<property>
+			<description>JavaScript code executed when a gesture end is detected</description>
+			<display-name>Gesture End</display-name>
+			<property-name>ongestureend</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+		<property>
+			<description>JavaScript code executed when a gesture start is detected</description>
+			<display-name>Gesture Start</display-name>
+			<property-name>ongesturestart</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+		<property>
+			<description>JavaScript code executed when a touch cancel is detected</description>
+			<display-name>Touch Cancel</display-name>
+			<property-name>ontouchcancel</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+		<property>
+			<description>JavaScript code executed when a touch end is detected</description>
+			<display-name>Touch End</display-name>
+			<property-name>ontouchend</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+		<property>
+			<description>JavaScript code executed when a touch move is detected</description>
+			<display-name>Touch Move</display-name>
+			<property-name>ontouchmove</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+		<property>
+			<description>JavaScript code executed when a touch start is detected</description>
+			<display-name>Touch Start</display-name>
+			<property-name>ontouchstart</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<pass-through>true</pass-through>
+				<designer-extension>
+					<category>events</category>
+					<event>true</event>
+					<subcategory>Touch</subcategory>
+				</designer-extension>
+			</property-extension>
+		</property>
+	</group>
+	<component>
+		<description>Base component definition for components mapping directly to an HTML tag</description>
+		<display-name>HTML Tag</display-name>
+		<component-type>org.openntf.xsp.HtmlTag</component-type>
+		<component-class>org.openntf.xsp.extlib.components.AbstractHtmlTag</component-class>
+		<group-type-ref>org.openntf.xsp.group.html.common</group-type-ref>
+		<component-extension>
+			<base-component-type>com.ibm.xsp.Tag</base-component-type>
+			<component-family>com.ibm.xsp.Tag</component-family>
+			<renderer-type>org.openntf.xsp.HtmlTag</renderer-type>
+			<tag-name>htmlTag</tag-name>
+			<designer-extension>
+				<generate-id>false</generate-id>
+				<in-palette>false</in-palette>
+			</designer-extension>
+		</component-extension>
+	</component>
+	
+	<component>
+		<description>Base component definition for components mapping directly to an HTML tag</description>
+		<display-name>HTML Tag</display-name>
+		<component-type>com.czarnowski.base.HtmlTag</component-type>
+		<component-class>com.czarnowski.base.components.AbstractHtmlTag</component-class>
+		<group-type-ref>com.czarnowski.base.group.html.common</group-type-ref>
+		<component-extension>
+			<base-component-type>com.ibm.xsp.Tag</base-component-type>
+			<component-family>com.ibm.xsp.Tag</component-family>
+			<renderer-type>com.czarnowski.base.HtmlTag</renderer-type>
+			<tag-name>htmlTag</tag-name>
+			<designer-extension>
+				<generate-id>false</generate-id>
+				<in-palette>false</in-palette>
+			</designer-extension>
+		</component-extension>
+	</component>
+	
+
+	
+</faces-config>

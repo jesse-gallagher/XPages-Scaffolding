@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!-- ******************************************************************* -->
+	<!--                                                                     -->
+	<!-- Copyright OpenNTF 2013                                            -->
+	<!--                                                                     -->
+	<!-- Licensed under the Apache License, Version 2.0 (the "License");     -->
+	<!-- you may not use this file except in compliance with the License.    -->
+	<!-- You may obtain a copy of the License at:                            -->
+	<!--                                                                     -->
+	<!-- http://www.apache.org/licenses/LICENSE-2.0                          -->
+	<!--                                                                     -->
+	<!-- Unless required by applicable law or agreed to in writing, software -->
+	<!-- distributed under the License is distributed on an "AS IS" BASIS,   -->
+	<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or     -->
+	<!-- implied. See the License for the specific language governing        -->
+	<!-- permissions and limitations under the License.                      -->
+	<!--                                                                     -->
+	<!-- ******************************************************************* -->
+<faces-config>
+	<faces-config-extension>
+		<namespace-uri>http://openntf.org/p/Community%20Control%20Library</namespace-uri>
+		<default-prefix>openntf</default-prefix>
+	</faces-config-extension>
+		<component>
+		<description>Generates a Stack Overflow style badge</description>
+		<display-name>Stack Overflow Badge</display-name>
+		<component-type>org.openntf.xsp.extlib.UIStackOverflowBadge</component-type>
+		<component-class>org.openntf.xsp.extlib.components.UIStackOverflowBadge</component-class>
+		<component-extension>
+			<tag-name>badge</tag-name>
+			<component-family>org.openntf.xsp.extlib.UIStackOverflowBadge</component-family>
+			<designer-extension>
+				<in-palette>true</in-palette>
+				<category>Czarnowski Library</category>
+				<visible>true</visible>
+			</designer-extension>
+		</component-extension>
+		<property>
+			<description>The color of the badge</description>
+			<display-name>Badge Color</display-name>
+			<property-name>badgeColor</property-name>
+			<property-class>string</property-class>
+			<property-extension>
+				<designer-extension>
+					<category>Badge</category>
+					<editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+					<editor-parameter>gold&#xd;
+silver&#xd;
+bronze</editor-parameter>
+					<default-value>bronze</default-value>
+				</designer-extension>
+				 <required>true</required>
+			</property-extension>
+		</property>
+		<property>
+			<description>
+				The text to display in the badge			
+			</description>
+			<display-name>Badge Text</display-name>
+			<property-name>badgeText</property-name>
+			<property-class>java.lang.String</property-class>
+			<property-extension>
+				<designer-extension>
+					<category>Badge</category>
+				</designer-extension>
+				 <required>true</required>
+			</property-extension>
+		</property>
+		
+		<property>
+		<description>
+				Should the badge have a silver background			
+			</description>
+      <property-name>badgeType</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Use Tag Style Badge</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.Boolean</editor>
+          <default-value>false</default-value>
+          <category>Badge</category>
+        </designer-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+	</component>
+</faces-config>
