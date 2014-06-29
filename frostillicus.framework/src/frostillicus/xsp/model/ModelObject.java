@@ -49,4 +49,6 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public void freeze();
 
 	public void unfreeze();
+
+	public boolean frozen();
 }

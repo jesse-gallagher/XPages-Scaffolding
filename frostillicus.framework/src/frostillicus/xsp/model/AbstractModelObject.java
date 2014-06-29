@@ -185,6 +185,11 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	}
 
 	@Override
+	public boolean frozen() {
+		return frozen_;
+	}
+
+	@Override
 	public final boolean isNew() {
 		return getId().isEmpty();
 	}
