@@ -1,4 +1,4 @@
-package frostillicus.xsp.model;
+package frostillicus.xsp.controller;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -32,33 +32,31 @@ import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.util.FacesUtilExtsn;
 import com.ibm.xsp.validator.AbstractValidator;
 
-import frostillicus.xsp.controller.ControllingViewHandler;
 import frostillicus.xsp.converter.EnumBindingConverter;
 import frostillicus.xsp.model.ModelObject;
 
-public class ModelComponentMap implements DataObject, Serializable {
+public class ComponentMap implements DataObject, Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private Map<ModelObject, ComponentMap> cache_ = new HashMap<ModelObject, ComponentMap>();
+	private Map<Object, ComponentPropertyMap> cache_ = new HashMap<Object, ComponentPropertyMap>();
 	private Set<String> initialized_ = new HashSet<String>();
 	private final String controllerPropertyName_;
 
-	public ModelComponentMap(final String controllerPropertyName) {
+	public ComponentMap(final String controllerPropertyName) {
 		controllerPropertyName_ = controllerPropertyName;
 	}
 
 	@Override
-	public Class<ComponentMap> getType(final Object key) {
-		return ComponentMap.class;
+	public Class<ComponentPropertyMap> getType(final Object key) {
+		return ComponentPropertyMap.class;
 	}
 
 	@Override
-	public ComponentMap getValue(final Object key) {
-		ModelObject modelKey = (ModelObject)key;
-		if(!cache_.containsKey(modelKey)) {
-			cache_.put(modelKey, new ComponentMap(modelKey));
+	public ComponentPropertyMap getValue(final Object key) {
+		if(!cache_.containsKey(key)) {
+			cache_.put(key, new ComponentPropertyMap(key));
 		}
-		return cache_.get(modelKey);
+		return cache_.get(key);
 	}
 
 	@Override
@@ -70,7 +68,7 @@ public class ModelComponentMap implements DataObject, Serializable {
 	public void setValue(final Object key, final Object value) { }
 
 	public void initialize() {
-		for(ComponentMap map : cache_.values()) {
+		for(ComponentPropertyMap map : cache_.values()) {
 			map.initialize();
 		}
 	}
@@ -80,12 +78,12 @@ public class ModelComponentMap implements DataObject, Serializable {
 	}
 
 
-	public class ComponentMap implements DataObject {
+	public class ComponentPropertyMap implements DataObject {
 		private Map<String, UIComponent> map_ = new TreeMap<String, UIComponent>(String.CASE_INSENSITIVE_ORDER);
-		private ModelObject model_;
+		private Object object_;
 
-		public ComponentMap(final ModelObject model) {
-			model_ = model;
+		public ComponentPropertyMap(final Object object) {
+			object_ = object;
 		}
 
 		@Override
@@ -120,7 +118,11 @@ public class ModelComponentMap implements DataObject, Serializable {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public void initialize() {
-			if(model_ == null) { return; }
+			if(object_ == null) { return; }
+			if(!(object_ instanceof ModelObject)) {
+				return;
+			}
+			ModelObject model = (ModelObject)object_;
 
 			FacesContext facesContext = FacesContext.getCurrentInstance();
 			ApplicationEx app = (ApplicationEx)facesContext.getApplication();
@@ -146,9 +148,9 @@ public class ModelComponentMap implements DataObject, Serializable {
 						Pattern bindingPattern = Pattern.compile("^\\#\\{" + ControllingViewHandler.BEAN_NAME + "\\." + controllerPropertyName_ + "\\[(.*)\\]((\\.|\\[).*)\\}$");
 						Matcher matcher = bindingPattern.matcher(binding.getExpressionString());
 						if(matcher.matches()) {
-							String model = matcher.group(1);
+							String modelName = matcher.group(1);
 							String elProp = matcher.group(2);
-							String valueString = "#{" + model + elProp + "}";
+							String valueString = "#{" + modelName + elProp + "}";
 							component.setValueBinding("value", facesContext.getApplication().createValueBinding(valueString));
 						}
 					}
@@ -159,7 +161,7 @@ public class ModelComponentMap implements DataObject, Serializable {
 						/* ******************************************************************************
 						 * Add support based on constraints
 						 ********************************************************************************/
-						Set<ConstraintDescriptor<?>> constraints = model_.getConstraintDescriptors(property);
+						Set<ConstraintDescriptor<?>> constraints = model.getConstraintDescriptors(property);
 
 						if(!constraints.isEmpty()) {
 							boolean required = false;
@@ -178,14 +180,14 @@ public class ModelComponentMap implements DataObject, Serializable {
 							}
 
 							// Now, add arbitrary validators
-							input.addValidator(new ArbitraryValidator(model_.getClass(), model_.getField(property).getName()));
+							input.addValidator(new ArbitraryValidator(model.getClass(), model.getField(property).getName()));
 						}
 
 
 						/* ******************************************************************************
 						 * Add support based on the property type
 						 ********************************************************************************/
-						Type valueType = model_.getGenericType(property);
+						Type valueType = model.getGenericType(property);
 
 						// Add selectItems for single-value enums
 						if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {

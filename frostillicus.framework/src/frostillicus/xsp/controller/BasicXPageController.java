@@ -2,13 +2,12 @@ package frostillicus.xsp.controller;
 
 import javax.faces.event.PhaseEvent;
 
-import frostillicus.xsp.model.ModelComponentMap;
 import frostillicus.xsp.util.FrameworkUtils;
 
 public class BasicXPageController implements XPageController {
 	private static final long serialVersionUID = 1L;
 
-	private ModelComponentMap components_ = new ModelComponentMap("components");
+	private ComponentMap components_ = new ComponentMap("components");
 
 	public BasicXPageController() { }
 
@@ -38,7 +37,7 @@ public class BasicXPageController implements XPageController {
 	}
 
 
-	public ModelComponentMap getComponents() {
+	public ComponentMap getComponents() {
 		return components_;
 	}
 }
