@@ -3,9 +3,11 @@ package frostillicus.xsp.model;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +24,7 @@ import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.metadata.BeanDescriptor;
+import javax.validation.metadata.ConstraintDescriptor;
 import javax.validation.metadata.PropertyDescriptor;
 
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
@@ -194,6 +197,51 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		return getId().isEmpty();
 	}
 
+	@Override
+	public Type getGenericType(final Object keyObject) {
+		if (!(keyObject instanceof String)) {
+			throw new IllegalArgumentException();
+		}
+		String key = ((String) keyObject).toLowerCase();
+
+		Method getter = findGetter(key);
+		if(getter != null) {
+			return getter.getGenericReturnType();
+		} else {
+			// Look for the property in the classes declared fields, case-insensitive
+			for(Field field : getClass().getDeclaredFields()) {
+				if(field.getName().equalsIgnoreCase(key)) {
+					return field.getGenericType();
+				}
+			}
+			// If we're here, there's no definition
+			return Object.class;
+		}
+	}
+
+	@Override
+	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(final String key) {
+		final Validator validator = Validation.byDefaultProvider().configure().buildValidatorFactory().getValidator();
+
+		BeanDescriptor beanDesc = validator.getConstraintsForClass(getClass());
+		for(PropertyDescriptor prop : beanDesc.getConstrainedProperties()) {
+			if(prop.getPropertyName().equalsIgnoreCase(key)) {
+				return prop.getConstraintDescriptors();
+			}
+		}
+		return new HashSet<ConstraintDescriptor<?>>();
+	}
+
+	@Override
+	public Field getField(final String key) {
+		for(Field field : getClass().getDeclaredFields()) {
+			if(field.getName().equalsIgnoreCase(key)) {
+				return field;
+			}
+		}
+		return null;
+	}
+
 	/* **********************************************************************
 	 * DataModel methods
 	 ************************************************************************/
@@ -240,7 +288,18 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		String key = ((String) keyObject).toLowerCase();
 
 		Method getter = findGetter(key);
-		return getter == null ? null : getter.getReturnType();
+		if(getter != null) {
+			return getter.getReturnType();
+		} else {
+			// Look for the property in the classes declared fields, case-insensitive
+			for(Field field : getClass().getDeclaredFields()) {
+				if(field.getName().equalsIgnoreCase(key)) {
+					return field.getType();
+				}
+			}
+			// If we're here, there's no definition
+			return Object.class;
+		}
 	}
 
 	@Override
@@ -338,6 +397,15 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	protected abstract Object getValueImmediate(Object keyObject);
 	protected abstract void setValueImmediate(Object keyObject, Object value);
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected Object coaxValue(final String keyObject, final Object value) {
+		Class<?> type = getType(keyObject);
+		if(type != null && type.isEnum() && value != null) {
+			return Enum.valueOf((Class<? extends Enum>)type, String.valueOf(value));
+		}
+		return value;
+	}
 
 	/* **********************************************************************
 	 * ViewRowData methods

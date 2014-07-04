@@ -8,6 +8,7 @@
             type="com.ibm.xsp.Library">
       </service>
    </extension>
+ <!--   
 <extension point="com.ibm.commons.Extension">
          <service
             type="com.ibm.xsp.resource.DojoModulePathResource"
@@ -25,7 +26,7 @@
     <extension point="com.ibm.commons.Extension">
          <service type="com.ibm.xsp.library.Contributor" class="org.openntf.xsp.extlib.library.OpenNTFContributor" />
    </extension>
- <!--   <extension
+   <extension
           point="com.ibm.commons.Extension">
        <service
              type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.extlib.servlet.ServletFactory">

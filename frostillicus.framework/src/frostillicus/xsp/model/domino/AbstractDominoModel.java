@@ -260,7 +260,15 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	@Override
 	public Class<?> getType(final Object keyObject) {
 		Class<?> result = super.getType(keyObject);
-		return result == null ? docHolder_.getType(keyObject) : result;
+		if(result == null || result == Object.class) {
+			if(docHolder_ == null) {
+				return null;
+			} else {
+				return docHolder_.getType(keyObject);
+			}
+		} else {
+			return result;
+		}
 	}
 
 	// Methods for subclasses to use to bypass the read-only, ID, and getter/setter checks in getValue/setValue
@@ -272,14 +280,14 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		String key = ((String) keyObject).toLowerCase();
 
 		if(columnValues_.containsKey(key)) {
-			return columnValues_.get(key);
+			return coaxValue(key, columnValues_.get(key));
 		}
 		if(docHolder_ != null) {
 			Object result = docHolder_.getValue(keyObject);
 			if(result instanceof List && ((List<?>)result).isEmpty()) {
 				return "";
 			}
-			return result;
+			return coaxValue(key, result);
 		}
 		return "";
 	}
@@ -292,7 +300,12 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		if (category()) {
 			throw new UnsupportedOperationException("Categories cannot be modified");
 		}
-		docHolder_.setValue(keyObject, value);
+
+		if(value instanceof Enum) {
+			docHolder_.setValue(keyObject, ((Enum<?>)value).name());
+		} else {
+			docHolder_.setValue(keyObject, value);
+		}
 	}
 
 	/* **********************************************************************

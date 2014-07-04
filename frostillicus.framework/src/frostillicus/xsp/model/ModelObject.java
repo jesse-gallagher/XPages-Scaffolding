@@ -1,11 +1,14 @@
 package frostillicus.xsp.model;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import javax.faces.model.DataModel;
+import javax.validation.metadata.ConstraintDescriptor;
 
 import com.ibm.xsp.model.FileRowData;
 import com.ibm.xsp.model.DataObject;
@@ -51,4 +54,10 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public void unfreeze();
 
 	public boolean frozen();
+
+	public Type getGenericType(Object key);
+
+	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(String key);
+
+	public Field getField(String key);
 }

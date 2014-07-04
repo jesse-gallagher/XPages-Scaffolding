@@ -17,6 +17,7 @@ import org.openntf.domino.*;
 import java.util.*;
 
 public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerExImpl {
+	public static final String BEAN_NAME = "controller";
 
 	public ControllingViewHandler(final ViewHandler delegate) {
 		super(delegate);
@@ -61,19 +62,19 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 		try {
 			XPageController pageController = controllerClass.newInstance();
 			Map<String, Object> requestScope = (Map<String, Object>)resolveVariable(context, "requestScope");
-			requestScope.put("controller", pageController);
+			requestScope.put(BEAN_NAME, pageController);
 
 			root = (UIViewRootEx)super.createView(context, pageName);
-			root.getViewMap().put("controller", pageController);
-			requestScope.remove("controller");
+			root.getViewMap().put(BEAN_NAME, pageController);
+			requestScope.remove(BEAN_NAME);
 
-			MethodBinding beforeRenderResponse = context.getApplication().createMethodBinding("#{controller.beforeRenderResponse}", new Class[] { PhaseEvent.class });
+			MethodBinding beforeRenderResponse = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".beforeRenderResponse}", new Class[] { PhaseEvent.class });
 			root.setBeforeRenderResponse(beforeRenderResponse);
 
-			MethodBinding afterRenderResponse = context.getApplication().createMethodBinding("#{controller.afterRenderResponse}", new Class[] { PhaseEvent.class });
+			MethodBinding afterRenderResponse = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".afterRenderResponse}", new Class[] { PhaseEvent.class });
 			root.setAfterRenderResponse(afterRenderResponse);
 
-			MethodBinding afterRestoreView = context.getApplication().createMethodBinding("#{controller.afterRestoreView}", new Class[] { PhaseEvent.class });
+			MethodBinding afterRestoreView = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".afterRestoreView}", new Class[] { PhaseEvent.class });
 			root.setAfterRestoreView(afterRestoreView);
 		} catch(Exception e) {
 			e.printStackTrace();

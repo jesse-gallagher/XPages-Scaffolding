@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.extlib;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.openntf.xsp.extlib.Activator
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.ibm.commons.util,
  com.ibm.commons.vfs,
  com.ibm.designer.runtime,
@@ -29,10 +29,12 @@ Export-Package: org.openntf.xsp.extlib,
  org.openntf.xsp.extlib.beans,
  org.openntf.xsp.extlib.components,
  org.openntf.xsp.extlib.context,
+ org.openntf.xsp.extlib.el,
  org.openntf.xsp.extlib.implicit,
  org.openntf.xsp.extlib.library,
  org.openntf.xsp.extlib.lifecycle,
  org.openntf.xsp.extlib.listeners,
+ org.openntf.xsp.extlib.query,
  org.openntf.xsp.extlib.renderkit,
  org.openntf.xsp.extlib.resolver,
  org.openntf.xsp.extlib.resources,
