@@ -24,8 +24,10 @@ import javax.validation.metadata.ConstraintDescriptor;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.complex.ValueBindingObject;
 import com.ibm.xsp.component.UIOutputLabel;
+import com.ibm.xsp.designer.context.XSPContext;
 import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.util.FacesUtilExtsn;
 import com.ibm.xsp.validator.AbstractValidator;
@@ -120,10 +122,19 @@ public class ModelComponentMap implements DataObject, Serializable {
 		public void initialize() {
 			if(model_ == null) { return; }
 
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			ApplicationEx app = (ApplicationEx)facesContext.getApplication();
+			ResourceBundle translation = null;
+			try {
+				translation = app.getResourceBundle("model_translation", XSPContext.getXSPContext(facesContext).getLocale());
+			} catch(IOException ioe) {
+				// Ignore
+			}
+
 			for(Map.Entry<String, UIComponent> entry : map_.entrySet()) {
 				UIComponent component = entry.getValue();
 				String property = entry.getKey();
-				String clientId = component.getClientId(FacesContext.getCurrentInstance());
+				String clientId = component.getClientId(facesContext);
 				if(!initialized_.contains(clientId)) {
 					ValueBinding binding = component.getValueBinding("binding");
 
@@ -138,7 +149,7 @@ public class ModelComponentMap implements DataObject, Serializable {
 							String model = matcher.group(1);
 							String elProp = matcher.group(2);
 							String valueString = "#{" + model + elProp + "}";
-							component.setValueBinding("value", FacesContext.getCurrentInstance().getApplication().createValueBinding(valueString));
+							component.setValueBinding("value", facesContext.getApplication().createValueBinding(valueString));
 						}
 					}
 
@@ -194,8 +205,20 @@ public class ModelComponentMap implements DataObject, Serializable {
 
 								for(Enum<?> constant : constants) {
 									UISelectItem item = new UISelectItem();
-									item.setItemLabel(constant.name());
-									//									item.setItemValue(constant.name());
+
+									// Look for a localized label
+									String label = constant.name();
+									if(translation != null) {
+										String transKey = ((Class<?>)valueType).getName() + "." + constant.name();
+										try {
+											label = translation.getString(transKey);
+										} catch(Exception e) {
+											// Ignore
+										}
+									}
+
+									item.setItemLabel(label);
+
 									item.setItemValue(constant);
 									select.getChildren().add(item);
 									item.setParent(select);
