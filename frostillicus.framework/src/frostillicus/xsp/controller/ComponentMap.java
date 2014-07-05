@@ -126,7 +126,6 @@ public class ComponentMap implements DataObject, Serializable {
 
 			// If we didn't find any, there's no work to do
 			if(adapter == null) {
-				System.out.println("found no adapter for object of type " + object_.getClass().getName());
 				return;
 			}
 
@@ -198,7 +197,16 @@ public class ComponentMap implements DataObject, Serializable {
 								UISelectOne select = (UISelectOne)input;
 
 								UISelectItem empty = new UISelectItem();
-								empty.setItemLabel("- Choose One -");
+								try {
+									String transKey = ((Class<?>)valueType).getName() + ".(SELECT_ONE)";
+									empty.setItemLabel(translation.getString(transKey));
+								} catch(Exception e) {
+									try {
+										empty.setItemLabel(translation.getString("(SELECT_ONE)"));
+									} catch(Exception e2) {
+										empty.setItemLabel(" - Select One -");
+									}
+								}
 								empty.setItemValue("");
 								select.getChildren().add(empty);
 								empty.setParent(select);
