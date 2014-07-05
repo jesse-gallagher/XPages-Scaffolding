@@ -192,7 +192,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public void deleteAttachment(final String fieldName, final String attachmentName) {
+	public void deleteAttachment(final Object keyObj, final String attachmentName) {
+		String fieldName = String.valueOf(keyObj);
 		try {
 			if(FrameworkUtils.isFaces()) {
 				dominoDocument().removeAttachment(fieldName, attachmentName);
@@ -439,7 +440,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 ************************************************************************/
 
 	@Override
-	public DataModel getAttachmentData(final String key) {
+	public DataModel getAttachmentData(final Object keyObj) {
+		String key = String.valueOf(keyObj);
 		if(FrameworkUtils.isFaces()) {
 			return new DominoAttachmentDataModel(dominoDocument(), key);
 		} else {
@@ -449,7 +451,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public List<FileRowData> getAttachmentList(final String fieldName) {
+	public List<FileRowData> getAttachmentList(final Object keyObj) {
+		String fieldName = String.valueOf(keyObj);
 		try {
 			if(FrameworkUtils.isFaces()) {
 				return dominoDocument().getAttachmentList(fieldName);
@@ -463,7 +466,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public List<FileRowData> getEmbeddedImageList(final String fieldName) {
+	public List<FileRowData> getEmbeddedImageList(final Object keyObj) {
+		String fieldName = String.valueOf(keyObj);
 		try {
 			if(FrameworkUtils.isFaces()) {
 				return dominoDocument().getEmbeddedImagesList(fieldName);

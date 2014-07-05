@@ -17,9 +17,9 @@ import com.ibm.xsp.model.ViewRowData;
 public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public boolean delete();
 
-	public void deleteAttachment(String fieldName, String attachmentName);
+	public void deleteAttachment(Object key, String attachmentName);
 
-	public List<FileRowData> getAttachmentList(String fieldName);
+	public List<FileRowData> getAttachmentList(Object key);
 
 	public String getId();
 
@@ -33,9 +33,9 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 
 	public boolean save();
 
-	public DataModel getAttachmentData(String key);
+	public DataModel getAttachmentData(Object key);
 
-	public List<FileRowData> getEmbeddedImageList(String fieldName);
+	public List<FileRowData> getEmbeddedImageList(Object key);
 
 	public Set<String> propertyNames(boolean includeSystem);
 
@@ -57,7 +57,7 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 
 	public Type getGenericType(Object key);
 
-	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(String key);
+	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(Object key);
 
-	public Field getField(String key);
+	public Field getField(Object key);
 }

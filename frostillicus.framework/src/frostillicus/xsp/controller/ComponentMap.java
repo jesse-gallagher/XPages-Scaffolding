@@ -7,17 +7,12 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UISelectItem;
 import javax.faces.component.UISelectOne;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
-import javax.faces.validator.ValidatorException;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.validation.metadata.ConstraintDescriptor;
@@ -25,18 +20,14 @@ import javax.validation.metadata.ConstraintDescriptor;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.complex.ValueBindingObject;
-import com.ibm.xsp.component.UIOutputLabel;
-import com.ibm.xsp.designer.context.XSPContext;
 import com.ibm.xsp.model.DataObject;
-import com.ibm.xsp.util.FacesUtilExtsn;
-import com.ibm.xsp.validator.AbstractValidator;
 
 import frostillicus.xsp.converter.EnumBindingConverter;
-import frostillicus.xsp.model.ModelObject;
 
 public class ComponentMap implements DataObject, Serializable {
 	private static final long serialVersionUID = 1L;
+
+	public static final String COMPONENT_MAP_SERVICE_NAME = "frostillicus.xsp.controller.ComponentMapAdapterFactory";
 
 	private Map<Object, ComponentPropertyMap> cache_ = new HashMap<Object, ComponentPropertyMap>();
 	private Set<String> initialized_ = new HashSet<String>();
@@ -119,19 +110,27 @@ public class ComponentMap implements DataObject, Serializable {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public void initialize() {
 			if(object_ == null) { return; }
-			if(!(object_ instanceof ModelObject)) {
-				return;
-			}
-			ModelObject model = (ModelObject)object_;
 
 			FacesContext facesContext = FacesContext.getCurrentInstance();
 			ApplicationEx app = (ApplicationEx)facesContext.getApplication();
-			ResourceBundle translation = null;
-			try {
-				translation = app.getResourceBundle("model_translation", XSPContext.getXSPContext(facesContext).getLocale());
-			} catch(IOException ioe) {
-				// Ignore
+
+			// Now search for an appropriate adapter
+			List<ComponentMapAdapterFactory> factories = app.findServices(COMPONENT_MAP_SERVICE_NAME);
+			ComponentMapAdapter adapter = null;
+			for(ComponentMapAdapterFactory fac : factories) {
+				adapter = fac.createAdapter(object_);
+				if(adapter != null) {
+					break;
+				}
 			}
+
+			// If we didn't find any, there's no work to do
+			if(adapter == null) {
+				System.out.println("found no adapter for object of type " + object_.getClass().getName());
+				return;
+			}
+
+			ResourceBundle translation = adapter.getTranslationBundle();
 
 			for(Map.Entry<String, UIComponent> entry : map_.entrySet()) {
 				UIComponent component = entry.getValue();
@@ -139,7 +138,6 @@ public class ComponentMap implements DataObject, Serializable {
 				String clientId = component.getClientId(facesContext);
 				if(!initialized_.contains(clientId)) {
 					ValueBinding binding = component.getValueBinding("binding");
-
 
 					/* ******************************************************************************
 					 * Add a value binding
@@ -161,7 +159,7 @@ public class ComponentMap implements DataObject, Serializable {
 						/* ******************************************************************************
 						 * Add support based on constraints
 						 ********************************************************************************/
-						Set<ConstraintDescriptor<?>> constraints = model.getConstraintDescriptors(property);
+						Set<ConstraintDescriptor<?>> constraints = adapter.getConstraintDescriptors(property);
 
 						if(!constraints.isEmpty()) {
 							boolean required = false;
@@ -180,14 +178,14 @@ public class ComponentMap implements DataObject, Serializable {
 							}
 
 							// Now, add arbitrary validators
-							input.addValidator(new ArbitraryValidator(model.getClass(), model.getField(property).getName()));
+							input.addValidator(adapter.createValidator(property));
 						}
 
 
 						/* ******************************************************************************
 						 * Add support based on the property type
 						 ********************************************************************************/
-						Type valueType = model.getGenericType(property);
+						Type valueType = adapter.getGenericType(property);
 
 						// Add selectItems for single-value enums
 						if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {
@@ -234,45 +232,6 @@ public class ComponentMap implements DataObject, Serializable {
 				}
 
 			}
-		}
-	}
-
-	public static class ArbitraryValidator extends AbstractValidator implements ValueBindingObject {
-		private Class<?> clazz_;
-		private String property_;
-
-		public ArbitraryValidator() { }
-		public ArbitraryValidator(final Class<?> clazz, final String property) {
-			clazz_ = clazz;
-			property_ = property;
-		}
-
-		@Override
-		public void validate(final FacesContext context, final UIComponent c, final Object value) throws ValidatorException {
-			UIOutputLabel label = (UIOutputLabel)FacesUtilExtsn.getLabelFor(c);
-			Validator validator = Validation.byDefaultProvider().configure().buildValidatorFactory().getValidator();
-			Set<?> violations = validator.validateValue(clazz_, property_, value);
-			if(!violations.isEmpty()) {
-				ConstraintViolation<?> violation = (ConstraintViolation<?>)violations.iterator().next();
-				String propDisplay = label == null ? property_ : (String)label.getValue();
-				throw new ValidatorException(new FacesMessage(propDisplay + ": ", violation.getMessage()));
-			}
-		}
-
-		@Override
-		public Object saveState(final FacesContext context) {
-			Object[] state = new Object[3];
-			state[0] = super.saveState(context);
-			state[1] = clazz_;
-			state[2] = property_;
-			return state;
-		}
-		@Override
-		public void restoreState(final FacesContext context, final Object stateObj) {
-			Object[] state = (Object[])stateObj;
-			super.restoreState(context, state[0]);
-			clazz_ = (Class<?>)state[1];
-			property_ = (String)state[2];
 		}
 	}
 }

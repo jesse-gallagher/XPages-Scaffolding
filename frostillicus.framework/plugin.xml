@@ -21,6 +21,10 @@
 		<service type="com.ibm.xsp.extlib.controls.DynamicColumnBuilderFactory" class="frostillicus.xsp.model.component.ModelListDynamicColumnBuilderFactory"/>
 	</extension>
 	
+	<extension point="com.ibm.commons.Extension">
+		<service type="frostillicus.xsp.controller.ComponentMapAdapterFactory" class="frostillicus.xsp.model.component.ModelComponentMapAdapterFactory"/>
+	</extension>
+	
 	<extension
 		id="frostillicus.xsp.model.Servlet"
 		name="fmodelservlet"

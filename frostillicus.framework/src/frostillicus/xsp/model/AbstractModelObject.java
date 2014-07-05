@@ -220,7 +220,8 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	}
 
 	@Override
-	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(final String key) {
+	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(final Object keyObj) {
+		String key = String.valueOf(keyObj);
 		final Validator validator = Validation.byDefaultProvider().configure().buildValidatorFactory().getValidator();
 
 		BeanDescriptor beanDesc = validator.getConstraintsForClass(getClass());
@@ -233,7 +234,8 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	}
 
 	@Override
-	public Field getField(final String key) {
+	public Field getField(final Object keyObj) {
+		String key = String.valueOf(keyObj);
 		for(Field field : getClass().getDeclaredFields()) {
 			if(field.getName().equalsIgnoreCase(key)) {
 				return field;
