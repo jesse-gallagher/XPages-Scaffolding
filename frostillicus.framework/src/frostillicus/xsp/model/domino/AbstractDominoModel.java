@@ -2,7 +2,10 @@ package frostillicus.xsp.model.domino;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.text.MessageFormat;
 import java.util.*;
 
 import javax.faces.model.DataModel;
@@ -305,7 +308,22 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		if(value instanceof Enum) {
 			docHolder_.setValue(keyObject, ((Enum<?>)value).name());
 		} else {
-			docHolder_.setValue(keyObject, value);
+			// Look to translate known value types
+			Type fieldType = getGenericType(keyObject);
+			if(fieldType.equals(java.sql.Time.class) && value instanceof Date) {
+				System.out.println("setting " + keyObject + " to time only");
+				DateTime val = document().getAncestorSession().createDateTime((Date)value);
+				val.setAnyDate();
+				docHolder_.setValue(keyObject, val);
+			} else if(fieldType.equals(java.sql.Date.class) && value instanceof Date) {
+				System.out.println("setting " + keyObject + " to date only");
+				DateTime val = document().getAncestorSession().createDateTime((Date)value);
+				val.setAnyTime();
+				docHolder_.setValue(keyObject, val);
+			} else {
+				docHolder_.setValue(keyObject, value);
+			}
+
 		}
 	}
 
@@ -325,6 +343,16 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				}
 
 				Document doc = document(true);
+
+				// Clean up any date/time-only fields
+				Session session = doc.getAncestorSession();
+				for(Field field : getClass().getDeclaredFields()) {
+					if(field.getType().equals(java.sql.Date.class)) {
+						session.evaluate(MessageFormat.format(" @If(@IsTime({0}); @SetField(\"{0}\"; @Date({0})); \"\") ", field.getName()), doc);
+					} else if(field.getType().equals(java.sql.Time.class)) {
+						session.evaluate(MessageFormat.format(" @If(@IsTime({0}); @SetField(\"{0}\"; @Time({0})); \"\") ", field.getName()), doc);
+					}
+				}
 
 				for(String fieldName : stringSet(namesFields())) {
 					Item item = doc.getFirstItem(fieldName);
