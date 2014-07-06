@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
+import javax.faces.component.UIOutput;
 import javax.faces.component.UISelectItem;
 import javax.faces.component.UISelectOne;
 import javax.faces.context.FacesContext;
@@ -19,7 +20,14 @@ import javax.validation.metadata.ConstraintDescriptor;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
+import com.ibm.xsp.component.UISelectOneMenu;
+import com.ibm.xsp.component.xp.XspDateTimeHelper;
+import com.ibm.xsp.component.xp.XspInputText;
+import com.ibm.xsp.component.xp.XspSelectOneMenu;
+import com.ibm.xsp.convert.DateTimeConverter;
+import com.ibm.xsp.extlib.component.data.UIFormLayoutRow;
 import com.ibm.xsp.model.DataObject;
 
 import frostillicus.xsp.converter.EnumBindingConverter;
@@ -107,7 +115,7 @@ public class ComponentMap implements DataObject, Serializable {
 			map_.clear();
 		}
 
-		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@SuppressWarnings("unchecked")
 		public void initialize() {
 			if(object_ == null) { return; }
 
@@ -138,100 +146,41 @@ public class ComponentMap implements DataObject, Serializable {
 				if(!initialized_.contains(clientId)) {
 					ValueBinding binding = component.getValueBinding("binding");
 
-					/* ******************************************************************************
-					 * Add a value binding
-					 ********************************************************************************/
-					if(component.getValueBinding("value") == null) {
-						Pattern bindingPattern = Pattern.compile("^\\#\\{" + ControllingViewHandler.BEAN_NAME + "\\." + controllerPropertyName_ + "\\[(.*)\\]((\\.|\\[).*)\\}$");
-						Matcher matcher = bindingPattern.matcher(binding.getExpressionString());
-						if(matcher.matches()) {
-							String modelName = matcher.group(1);
-							String elProp = matcher.group(2);
-							String valueString = "#{" + modelName + elProp + "}";
-							component.setValueBinding("value", facesContext.getApplication().createValueBinding(valueString));
+					if(component instanceof UIFormLayoutRow) {
+						UIFormLayoutRow formRow = (UIFormLayoutRow)component;
+						if(StringUtil.isEmpty(formRow.getLabel())) {
+							try {
+								formRow.setLabel(translation.getString(object_.getClass().getName() + "." + property));
+							} catch(Exception e) {
+								formRow.setLabel(property);
+							}
 						}
-					}
-
-					if(component instanceof UIInput) {
-						UIInput input = (UIInput)component;
-
-						/* ******************************************************************************
-						 * Add support based on constraints
-						 ********************************************************************************/
-						Set<ConstraintDescriptor<?>> constraints = adapter.getConstraintDescriptors(property);
-
-						if(!constraints.isEmpty()) {
-							boolean required = false;
-							for(ConstraintDescriptor<?> desc : constraints) {
-								// First, add basic required support
-								Object annotation = desc.getAnnotation();
-								if(annotation instanceof NotNull || annotation instanceof NotEmpty) {
-									required = true;
-									break;
-								} else if(annotation instanceof Size && ((Size)annotation).min() > 0) {
-									required = true;
-								}
+						UIComponent input;
+						if(formRow.getChildCount() == 0) {
+							input = createComponent(adapter, property);
+							formRow.getChildren().add(input);
+							input.setParent(formRow);
+						} else {
+							// Otherwise, check to see if the first child is an input. If so, use it; otherwise, insert a new one at the start
+							if(formRow.getChildren().get(0) instanceof UIInput) {
+								input = (UIInput)formRow.getChildren().get(0);
+							} else {
+								input = createComponent(adapter, property);
+								formRow.getChildren().add(0, input);
+								input.setParent(formRow);
 							}
-							if(required) {
-								input.setRequired(true);
-							}
+						}
 
-							// Now, add arbitrary validators
-							input.addValidator(adapter.createValidator(property));
+						attachValueBinding(input, binding);
+						attachConverterAndValidators(input, adapter, property, translation);
+					} else {
+						if(component instanceof UIInput || component instanceof UIOutput) {
+							attachValueBinding(component, binding);
 						}
 
 
-						/* ******************************************************************************
-						 * Add support based on the property type
-						 ********************************************************************************/
-						Type valueType = adapter.getGenericType(property);
-
-						// Add selectItems for single-value enums
-						if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {
-							if(input.getConverter() == null) {
-								input.setConverter(new EnumBindingConverter((Class<? extends Enum>)valueType));
-							}
-
-							if(input instanceof UISelectOne) {
-								Enum<?>[] constants = (Enum<?>[]) ((Class<?>)valueType).getEnumConstants();
-								UISelectOne select = (UISelectOne)input;
-
-								UISelectItem empty = new UISelectItem();
-								try {
-									String transKey = ((Class<?>)valueType).getName() + ".(SELECT_ONE)";
-									empty.setItemLabel(translation.getString(transKey));
-								} catch(Exception e) {
-									try {
-										empty.setItemLabel(translation.getString("(SELECT_ONE)"));
-									} catch(Exception e2) {
-										empty.setItemLabel(" - Select One -");
-									}
-								}
-								empty.setItemValue("");
-								select.getChildren().add(empty);
-								empty.setParent(select);
-
-								for(Enum<?> constant : constants) {
-									UISelectItem item = new UISelectItem();
-
-									// Look for a localized label
-									String label = constant.name();
-									if(translation != null) {
-										String transKey = ((Class<?>)valueType).getName() + "." + constant.name();
-										try {
-											label = translation.getString(transKey);
-										} catch(Exception e) {
-											// Ignore
-										}
-									}
-
-									item.setItemLabel(label);
-
-									item.setItemValue(constant);
-									select.getChildren().add(item);
-									item.setParent(select);
-								}
-							}
+						if(component instanceof UIInput) {
+							attachConverterAndValidators(component, adapter, property, translation);
 						}
 					}
 
@@ -239,6 +188,160 @@ public class ComponentMap implements DataObject, Serializable {
 					initialized_.add(clientId);
 				}
 
+			}
+		}
+
+		private UIComponent createComponent(final ComponentMapAdapter adapter, final String property) {
+			UIInput input;
+			Type valueType = adapter.getGenericType(property);
+			if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {
+				input = new XspSelectOneMenu();
+			} else {
+				input = new XspInputText();
+			}
+			return input;
+		}
+
+		private void attachValueBinding(final UIComponent component, final ValueBinding binding) {
+			if(component.getValueBinding("value") == null) {
+				Pattern bindingPattern = Pattern.compile("^\\#\\{" + ControllingViewHandler.BEAN_NAME + "\\." + controllerPropertyName_ + "\\[(.*)\\]((\\.|\\[).*)\\}$");
+				Matcher matcher = bindingPattern.matcher(binding.getExpressionString());
+				if(matcher.matches()) {
+					String modelName = matcher.group(1);
+					String elProp = matcher.group(2);
+					String valueString = "#{" + modelName + elProp + "}";
+					component.setValueBinding("value", FacesContext.getCurrentInstance().getApplication().createValueBinding(valueString));
+				}
+			}
+		}
+
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		private void attachConverterAndValidators(final UIComponent component, final ComponentMapAdapter adapter, final Object property, final ResourceBundle translation) {
+			UIInput input = (UIInput)component;
+
+			/* ******************************************************************************
+			 * Add support based on constraints
+			 ********************************************************************************/
+			Set<ConstraintDescriptor<?>> constraints = adapter.getConstraintDescriptors(property);
+
+			if(!constraints.isEmpty()) {
+				boolean required = false;
+				for(ConstraintDescriptor<?> desc : constraints) {
+					// First, add basic required support
+					Object annotation = desc.getAnnotation();
+					if(annotation instanceof NotNull || annotation instanceof NotEmpty) {
+						required = true;
+						break;
+					} else if(annotation instanceof Size && ((Size)annotation).min() > 0) {
+						required = true;
+					}
+				}
+				if(required) {
+					input.setRequired(true);
+				}
+
+				// Now, add arbitrary validators
+				input.addValidator(adapter.createValidator(property));
+			}
+
+
+			/* ******************************************************************************
+			 * Add support based on the property type
+			 ********************************************************************************/
+			Type valueType = adapter.getGenericType(property);
+
+			// Add selectItems for single-value enums
+			if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {
+				Class<? extends Enum> enumType = (Class<? extends Enum>)valueType;
+
+				if(input.getConverter() == null) {
+					input.setConverter(new EnumBindingConverter((Class<? extends Enum>)valueType));
+				}
+
+				if(input.getChildren().isEmpty()) {
+					if(input instanceof UISelectOne) {
+						if(input instanceof UISelectOneMenu) {
+							addEmptySelectItem(component, enumType, translation);
+						}
+
+						populateEnumSelectItems(input, enumType, translation);
+					}
+				}
+			}
+
+			// Add a converter and helper for date/time fields
+			if(valueType.equals(Date.class)) {
+				if(input.getConverter() == null) {
+					DateTimeConverter converter = new DateTimeConverter();
+					converter.setType(DateTimeConverter.TYPE_BOTH);
+					input.setConverter(converter);
+				}
+				XspDateTimeHelper helper = new XspDateTimeHelper();
+				component.getChildren().add(helper);
+				helper.setParent(component);
+			} else if(valueType.equals(java.sql.Date.class)) {
+				if(input.getConverter() == null) {
+					DateTimeConverter converter = new DateTimeConverter();
+					converter.setType(DateTimeConverter.TYPE_DATE);
+					input.setConverter(converter);
+				}
+				XspDateTimeHelper helper = new XspDateTimeHelper();
+				component.getChildren().add(helper);
+				helper.setParent(component);
+			} else if(valueType.equals(java.sql.Time.class)) {
+				if(input.getConverter() == null) {
+					DateTimeConverter converter = new DateTimeConverter();
+					converter.setType(DateTimeConverter.TYPE_TIME);
+					input.setConverter(converter);
+				}
+				XspDateTimeHelper helper = new XspDateTimeHelper();
+				component.getChildren().add(helper);
+				helper.setParent(component);
+			}
+		}
+
+
+		@SuppressWarnings("unchecked")
+		private void addEmptySelectItem(final UIComponent component, final Class<?> enumType, final ResourceBundle translation) {
+			UISelectItem empty = new UISelectItem();
+			try {
+				String transKey = enumType.getName() + ".(SELECT_ONE)";
+				empty.setItemLabel(translation.getString(transKey));
+			} catch(Exception e) {
+				try {
+					empty.setItemLabel(translation.getString("(SELECT_ONE)"));
+				} catch(Exception e2) {
+					empty.setItemLabel(" - Select One -");
+				}
+			}
+			empty.setItemValue("");
+			component.getChildren().add(empty);
+			empty.setParent(component);
+		}
+
+		@SuppressWarnings("unchecked")
+		private void populateEnumSelectItems(final UIComponent component, final Class<?> enumType, final ResourceBundle translation) {
+
+			Enum<?>[] constants = (Enum<?>[])enumType.getEnumConstants();
+			for(Enum<?> constant : constants) {
+				UISelectItem item = new UISelectItem();
+
+				// Look for a localized label
+				String label = constant.name();
+				if(translation != null) {
+					String transKey = enumType.getName() + "." + constant.name();
+					try {
+						label = translation.getString(transKey);
+					} catch(Exception e) {
+						// Ignore
+					}
+				}
+
+				item.setItemLabel(label);
+
+				item.setItemValue(constant);
+				component.getChildren().add(item);
+				item.setParent(component);
 			}
 		}
 	}
