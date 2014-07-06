@@ -3,9 +3,7 @@ package frostillicus.xsp.model.component;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
@@ -66,4 +64,14 @@ public class ModelClassComponentMapAdapter implements ComponentMapAdapter {
 		return Object.class;
 	}
 
+	@Override
+	public Collection<String> getPropertyNames() {
+		List<String> result = new ArrayList<String>();
+		for(Field field : clazz_.getDeclaredFields()) {
+			if(!field.getName().endsWith("_")) {
+				result.add(field.getName());
+			}
+		}
+		return result;
+	}
 }

@@ -37,7 +37,7 @@ public interface ModelObject extends Serializable, DataObject, ViewRowData {
 
 	public List<FileRowData> getEmbeddedImageList(Object key);
 
-	public Set<String> propertyNames(boolean includeSystem);
+	public Set<String> propertyNames(boolean includeSystem, boolean includeAll);
 
 	public Set<String> columnPropertyNames();
 

@@ -3,6 +3,7 @@ package frostillicus.xsp.model;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,10 +61,10 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	}
 
 	@Override
-	public Set<String> propertyNames(final boolean includeSystem) {
+	public Set<String> propertyNames(final boolean includeSystem, final boolean includeAll) {
 		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		for(Field field : getClass().getDeclaredFields()) {
-			if(field.getAnnotation(Column.class) != null) {
+			if(!Modifier.isStatic(field.getModifiers()) && !field.getName().endsWith("_")) {
 				result.add(field.getName());
 			}
 		}

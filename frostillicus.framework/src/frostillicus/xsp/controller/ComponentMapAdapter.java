@@ -1,6 +1,7 @@
 package frostillicus.xsp.controller;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -17,4 +18,6 @@ public interface ComponentMapAdapter {
 	public Validator createValidator(Object property);
 
 	public Type getGenericType(Object property);
+
+	public Collection<String> getPropertyNames();
 }

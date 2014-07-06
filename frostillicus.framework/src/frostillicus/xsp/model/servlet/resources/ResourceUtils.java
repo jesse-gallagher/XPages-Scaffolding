@@ -118,7 +118,7 @@ public enum ResourceUtils {
 	public static void writeModelObject(final ModelObject model, final String managerName, final boolean includeSystem, final JsonWriter writer) throws NotesException, IOException, JsonException {
 		writeSystemProperties(model, writer);
 
-		for(String property : model.propertyNames(includeSystem)) {
+		for(String property : model.propertyNames(includeSystem, false)) {
 			writer.startProperty(property);
 			writeProperty(model.getValue(property), true, writer);
 			writer.endProperty();

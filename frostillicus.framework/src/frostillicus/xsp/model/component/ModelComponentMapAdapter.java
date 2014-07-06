@@ -2,6 +2,7 @@ package frostillicus.xsp.model.component;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -57,5 +58,10 @@ public class ModelComponentMapAdapter implements ComponentMapAdapter {
 	@Override
 	public Type getGenericType(final Object property) {
 		return model_.getGenericType(property);
+	}
+
+	@Override
+	public Collection<String> getPropertyNames() {
+		return model_.propertyNames(false, false);
 	}
 }

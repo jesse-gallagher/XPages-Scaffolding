@@ -33,6 +33,7 @@ import com.ibm.xsp.component.xp.XspViewColumn;
 import com.ibm.xsp.component.xp.XspViewColumnHeader;
 import com.ibm.xsp.convert.DateTimeConverter;
 import com.ibm.xsp.extlib.component.data.UIFormLayoutRow;
+import com.ibm.xsp.extlib.component.data.UIFormTable;
 import com.ibm.xsp.model.DataObject;
 
 import frostillicus.xsp.converter.EnumBindingConverter;
@@ -161,28 +162,17 @@ public class ComponentMap implements DataObject, Serializable {
 
 					} else if(component instanceof UIFormLayoutRow) {
 
-						UIFormLayoutRow formRow = (UIFormLayoutRow)component;
-						if(StringUtil.isEmpty(formRow.getLabel())) {
-							formRow.setLabel(adapter.getTranslationForProperty(property));
-						}
-						UIComponent input;
-						if(formRow.getChildCount() == 0) {
-							input = createComponent(adapter, property);
-							formRow.getChildren().add(input);
-							input.setParent(formRow);
-						} else {
-							// Otherwise, check to see if the first child is an input. If so, use it; otherwise, insert a new one at the start
-							if(formRow.getChildren().get(0) instanceof UIInput) {
-								input = (UIInput)formRow.getChildren().get(0);
-							} else {
-								input = createComponent(adapter, property);
-								formRow.getChildren().add(0, input);
-								input.setParent(formRow);
-							}
-						}
+						populateFormRow((UIFormLayoutRow)component, adapter, property, binding, translation);
 
-						attachValueBinding(input, binding);
-						attachConverterAndValidators(input, adapter, property, translation);
+					} else if(component instanceof UIFormTable) {
+
+						for(String propertyName : adapter.getPropertyNames()) {
+							UIFormLayoutRow formRow = new UIFormLayoutRow();
+							component.getChildren().add(formRow);
+							formRow.setParent(component);
+
+							populateFormRow(formRow, adapter, propertyName, binding, translation);
+						}
 
 					} else if(component instanceof XspViewColumn) {
 						// TODO make this work
@@ -203,6 +193,31 @@ public class ComponentMap implements DataObject, Serializable {
 				}
 
 			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private void populateFormRow(final UIFormLayoutRow formRow, final ComponentMapAdapter adapter, final String property, final ValueBinding binding, final ResourceBundle translation) {
+			if(StringUtil.isEmpty(formRow.getLabel())) {
+				formRow.setLabel(adapter.getTranslationForProperty(property));
+			}
+			UIComponent input;
+			if(formRow.getChildCount() == 0) {
+				input = createComponent(adapter, property);
+				formRow.getChildren().add(input);
+				input.setParent(formRow);
+			} else {
+				// Otherwise, check to see if the first child is an input. If so, use it; otherwise, insert a new one at the start
+				if(formRow.getChildren().get(0) instanceof UIInput) {
+					input = (UIInput)formRow.getChildren().get(0);
+				} else {
+					input = createComponent(adapter, property);
+					formRow.getChildren().add(0, input);
+					input.setParent(formRow);
+				}
+			}
+
+			attachValueBinding(input, binding);
+			attachConverterAndValidators(input, adapter, property, translation);
 		}
 
 		@SuppressWarnings("unchecked")

@@ -210,11 +210,11 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	}
 
 	@Override
-	public Set<String> propertyNames(final boolean includeSystem) {
-		Set<String> parent = super.propertyNames(includeSystem);
+	public Set<String> propertyNames(final boolean includeSystem, final boolean includeAll) {
+		Set<String> parent = super.propertyNames(includeSystem, includeAll);
 		Set<String> result;
 		// If there are no declared columns, read all doc fields
-		if(parent.isEmpty() && !category()) {
+		if(includeAll || (parent.isEmpty() && !category())) {
 			result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			result.addAll(parent);
 			result.addAll(docHolder_.getItemNames(includeSystem));
