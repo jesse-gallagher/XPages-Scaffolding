@@ -10,6 +10,8 @@ import javax.validation.metadata.ConstraintDescriptor;
 public interface ComponentMapAdapter {
 	public ResourceBundle getTranslationBundle();
 
+	public String getTranslationForProperty(Object property);
+
 	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(Object property);
 
 	public Validator createValidator(Object property);

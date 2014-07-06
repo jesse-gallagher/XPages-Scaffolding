@@ -2,6 +2,7 @@ package frostillicus.xsp.controller;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -11,6 +12,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectMany;
 import javax.faces.component.UISelectOne;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
@@ -25,7 +27,10 @@ import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.component.UISelectOneMenu;
 import com.ibm.xsp.component.xp.XspDateTimeHelper;
 import com.ibm.xsp.component.xp.XspInputText;
+import com.ibm.xsp.component.xp.XspSelectManyListbox;
 import com.ibm.xsp.component.xp.XspSelectOneMenu;
+import com.ibm.xsp.component.xp.XspViewColumn;
+import com.ibm.xsp.component.xp.XspViewColumnHeader;
 import com.ibm.xsp.convert.DateTimeConverter;
 import com.ibm.xsp.extlib.component.data.UIFormLayoutRow;
 import com.ibm.xsp.model.DataObject;
@@ -146,14 +151,19 @@ public class ComponentMap implements DataObject, Serializable {
 				if(!initialized_.contains(clientId)) {
 					ValueBinding binding = component.getValueBinding("binding");
 
-					if(component instanceof UIFormLayoutRow) {
+					if(component instanceof UIInput || component instanceof UIOutput) {
+
+						attachValueBinding(component, binding);
+
+						if(component instanceof UIInput) {
+							attachConverterAndValidators(component, adapter, property, translation);
+						}
+
+					} else if(component instanceof UIFormLayoutRow) {
+
 						UIFormLayoutRow formRow = (UIFormLayoutRow)component;
 						if(StringUtil.isEmpty(formRow.getLabel())) {
-							try {
-								formRow.setLabel(translation.getString(object_.getClass().getName() + "." + property));
-							} catch(Exception e) {
-								formRow.setLabel(property);
-							}
+							formRow.setLabel(adapter.getTranslationForProperty(property));
 						}
 						UIComponent input;
 						if(formRow.getChildCount() == 0) {
@@ -173,14 +183,18 @@ public class ComponentMap implements DataObject, Serializable {
 
 						attachValueBinding(input, binding);
 						attachConverterAndValidators(input, adapter, property, translation);
-					} else {
-						if(component instanceof UIInput || component instanceof UIOutput) {
-							attachValueBinding(component, binding);
-						}
 
+					} else if(component instanceof XspViewColumn) {
+						// TODO make this work
 
-						if(component instanceof UIInput) {
-							attachConverterAndValidators(component, adapter, property, translation);
+						XspViewColumn column = (XspViewColumn)component;
+						column.setColumnName(property);
+						if(column.getHeader() == null) {
+							XspViewColumnHeader header = new XspViewColumnHeader();
+							header.setValue(adapter.getTranslationForProperty(property));
+							column.getChildren().add(header);
+							header.setParent(column);
+							column.setHeader(header);
 						}
 					}
 
@@ -191,12 +205,35 @@ public class ComponentMap implements DataObject, Serializable {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		private UIComponent createComponent(final ComponentMapAdapter adapter, final String property) {
 			UIInput input;
 			Type valueType = adapter.getGenericType(property);
+
 			if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {
+				// Single-value enum
 				input = new XspSelectOneMenu();
+			} else if(valueType instanceof ParameterizedType) {
+				ParameterizedType ptype = (ParameterizedType)valueType;
+				if(Collection.class.isAssignableFrom((Class<?>)ptype.getRawType())) {
+					// Then it's a collection of one form or another with one and only one type argument
+					Type genericType = ptype.getActualTypeArguments()[0];
+					if(String.class.equals(genericType)) {
+						input = new XspInputText();
+						((XspInputText)input).setMultipleSeparator(";");
+						((XspInputText)input).setMultipleTrim(true);
+					} else if(genericType instanceof Class && ((Class<?>)genericType).isEnum()) {
+						input = new XspSelectManyListbox();
+						input.getAttributes().put("multiple", Boolean.TRUE);
+					} else {
+						input = new XspInputText();
+					}
+				} else {
+					// Punt back to single-value text
+					input = new XspInputText();
+				}
 			} else {
+				// Assume single-value text
 				input = new XspInputText();
 			}
 			return input;
@@ -250,16 +287,30 @@ public class ComponentMap implements DataObject, Serializable {
 			 ********************************************************************************/
 			Type valueType = adapter.getGenericType(property);
 
+			// Determine if we're dealing with a Collection or not
+			Type baseType;
+			if(valueType instanceof ParameterizedType) {
+				ParameterizedType ptype = (ParameterizedType)valueType;
+				if(Collection.class.isAssignableFrom((Class<?>)ptype.getRawType())) {
+					baseType = ptype.getActualTypeArguments()[0];
+				} else {
+					baseType = valueType;
+				}
+			} else {
+				baseType = valueType;
+			}
+
+
 			// Add selectItems for single-value enums
-			if(valueType instanceof Class && ((Class<?>)valueType).isEnum()) {
-				Class<? extends Enum> enumType = (Class<? extends Enum>)valueType;
+			if(baseType instanceof Class && ((Class<?>)baseType).isEnum()) {
+				Class<? extends Enum> enumType = (Class<? extends Enum>)baseType;
 
 				if(input.getConverter() == null) {
-					input.setConverter(new EnumBindingConverter((Class<? extends Enum>)valueType));
+					input.setConverter(new EnumBindingConverter(enumType));
 				}
 
 				if(input.getChildren().isEmpty()) {
-					if(input instanceof UISelectOne) {
+					if(input instanceof UISelectOne || input instanceof UISelectMany) {
 						if(input instanceof UISelectOneMenu) {
 							addEmptySelectItem(component, enumType, translation);
 						}
@@ -270,7 +321,7 @@ public class ComponentMap implements DataObject, Serializable {
 			}
 
 			// Add a converter and helper for date/time fields
-			if(valueType.equals(Date.class)) {
+			if(baseType.equals(Date.class)) {
 				if(input.getConverter() == null) {
 					DateTimeConverter converter = new DateTimeConverter();
 					converter.setType(DateTimeConverter.TYPE_BOTH);
@@ -279,7 +330,7 @@ public class ComponentMap implements DataObject, Serializable {
 				XspDateTimeHelper helper = new XspDateTimeHelper();
 				component.getChildren().add(helper);
 				helper.setParent(component);
-			} else if(valueType.equals(java.sql.Date.class)) {
+			} else if(baseType.equals(java.sql.Date.class)) {
 				if(input.getConverter() == null) {
 					DateTimeConverter converter = new DateTimeConverter();
 					converter.setType(DateTimeConverter.TYPE_DATE);
@@ -288,7 +339,7 @@ public class ComponentMap implements DataObject, Serializable {
 				XspDateTimeHelper helper = new XspDateTimeHelper();
 				component.getChildren().add(helper);
 				helper.setParent(component);
-			} else if(valueType.equals(java.sql.Time.class)) {
+			} else if(baseType.equals(java.sql.Time.class)) {
 				if(input.getConverter() == null) {
 					DateTimeConverter converter = new DateTimeConverter();
 					converter.setType(DateTimeConverter.TYPE_TIME);

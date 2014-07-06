@@ -1,7 +1,9 @@
 package frostillicus.xsp.model.component;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -12,15 +14,14 @@ import javax.validation.metadata.ConstraintDescriptor;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.designer.context.XSPContext;
 
-import frostillicus.xsp.controller.ArbitraryValidator;
 import frostillicus.xsp.controller.ComponentMapAdapter;
 import frostillicus.xsp.model.ModelObject;
 
-public class ModelComponentMapAdapter implements ComponentMapAdapter {
-	private final ModelObject model_;
+public class ModelClassComponentMapAdapter implements ComponentMapAdapter {
+	private final Class<? extends ModelObject> clazz_;
 
-	public ModelComponentMapAdapter(final ModelObject model) {
-		model_ = model;
+	public ModelClassComponentMapAdapter(final Class<? extends ModelObject> clazz) {
+		clazz_ = clazz;
 	}
 
 	@Override
@@ -38,24 +39,31 @@ public class ModelComponentMapAdapter implements ComponentMapAdapter {
 	public String getTranslationForProperty(final Object property) {
 		ResourceBundle translation = getTranslationBundle();
 		try {
-			return translation.getString(model_.getClass().getName() + "." + property);
+			return translation.getString(clazz_.getName() + "." + property);
 		} catch(Exception e) {
 			return String.valueOf(property);
 		}
 	}
-
 	@Override
 	public Set<ConstraintDescriptor<?>> getConstraintDescriptors(final Object property) {
-		return model_.getConstraintDescriptors(property);
+		return Collections.emptySet();
 	}
 
 	@Override
 	public Validator createValidator(final Object property) {
-		return new ArbitraryValidator(model_.getClass(), model_.getField(property).getName());
+		return null;
 	}
 
 	@Override
 	public Type getGenericType(final Object property) {
-		return model_.getGenericType(property);
+		if(property == null) { return null; }
+		String propertyName = String.valueOf(property);
+		for(Field field : clazz_.getDeclaredFields()) {
+			if(field.getName().equalsIgnoreCase(propertyName)) {
+				return field.getGenericType();
+			}
+		}
+		return Object.class;
 	}
+
 }
