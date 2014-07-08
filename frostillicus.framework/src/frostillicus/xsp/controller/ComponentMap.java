@@ -80,6 +80,7 @@ public class ComponentMap implements DataObject, Serializable {
 
 	private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
 		cache_.clear();
+		stream.defaultWriteObject();
 	}
 
 
