@@ -16,6 +16,7 @@ import javax.faces.component.UISelectMany;
 import javax.faces.component.UISelectOne;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
+import javax.faces.validator.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.validation.metadata.ConstraintDescriptor;
@@ -298,7 +299,10 @@ public class ComponentMap implements DataObject, Serializable {
 				}
 
 				// Now, add arbitrary validators
-				input.addValidator(adapter.createValidator(property));
+				Validator validator = adapter.createValidator(property);
+				if(validator != null) {
+					input.addValidator(validator);
+				}
 			}
 
 
