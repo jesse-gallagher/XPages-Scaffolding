@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import javax.faces.model.DataModel;
+import javax.persistence.Table;
 
 import lotus.domino.NotesException;
 
@@ -35,20 +36,20 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	private Map<String, Object> columnValues_ = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
 
 	//	private final DominoDocument dominoDocument_;
-	private final DocumentHolder docHolder_;
+	private DocumentHolder docHolder_;
 	private String documentId_;
 	private int noteId_;
 
-	private final boolean category_;
-	private final int columnIndentLevel_;
-	private final String viewRowPosition_;
+	private boolean category_;
+	private int columnIndentLevel_;
+	private String viewRowPosition_;
 
 	/* **********************************************************************
 	 * Cover the three ways a model object can be created
 	 * ViewEntry and Document are similar, except ViewEntry reads in column
 	 * 	values for speedier access
 	 ************************************************************************/
-	protected AbstractDominoModel(final Database database) {
+	public void initFromDatabase(final Database database) {
 		DocumentHolder holder;
 		if(FrameworkUtils.isFaces()) {
 			DominoDocument domDoc = DominoDocument.wrap(
@@ -73,9 +74,15 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		category_ = false;
 		columnIndentLevel_ = 0;
 		viewRowPosition_ = "";
+
+		// Look for an @Table annotation to set the form
+		Table tableAnnotation = getClass().getAnnotation(Table.class);
+		if(tableAnnotation != null) {
+			setValueImmediate("Form", tableAnnotation.name());
+		}
 	}
 
-	protected AbstractDominoModel(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
+	public void initFromViewEntry(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
 		if (entry.isCategory()) {
 			category_ = true;
 			documentId_ = "";
@@ -107,7 +114,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		}
 
 		columnIndentLevel_ = entry.getColumnIndentLevel();
-		viewRowPosition_ = entry.getPosition('.');
+		viewRowPosition_ = entry.getPosition();
 
 		boolean preferJavaDates = entry.isPreferJavaDates();
 		entry.setPreferJavaDates(true);
@@ -123,7 +130,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		entry.setPreferJavaDates(preferJavaDates);
 	}
 
-	protected AbstractDominoModel(final Document doc) {
+	public void initFromDocument(final Document doc) {
 		Database database = doc.getParentDatabase();
 		documentId_ = doc.getUniversalID();
 		noteId_ = new BigInteger(doc.getNoteID(), 16).intValue();

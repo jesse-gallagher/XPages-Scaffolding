@@ -1,7 +1,5 @@
 package frostillicus.xsp.model.domino;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -52,12 +50,9 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	protected E createFromViewEntry(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
 		try {
-			Constructor<E> con = getClazz().getConstructor(ViewEntry.class, List.class);
-			return con.newInstance(entry, columnInfo);
-		} catch (NoSuchMethodException nsme) {
-			throw new RuntimeException(nsme);
-		} catch (InvocationTargetException ite) {
-			throw new RuntimeException(ite);
+			E result = getClazz().newInstance();
+			result.initFromViewEntry(entry, columnInfo);
+			return result;
 		} catch (IllegalAccessException iae) {
 			throw new RuntimeException(iae);
 		} catch (InstantiationException ie) {

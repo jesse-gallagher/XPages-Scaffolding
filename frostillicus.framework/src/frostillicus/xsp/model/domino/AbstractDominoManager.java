@@ -11,8 +11,16 @@ import frostillicus.xsp.util.FrameworkUtils;
 public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager<E> {
 	private static final long serialVersionUID = 1L;
 
-	abstract protected Class<E> getModelClass();
 	abstract protected String getViewPrefix();
+
+	@SuppressWarnings("unchecked")
+	protected Class<E> getModelClass() {
+		Class<?> enclosingClass = getClass().getEnclosingClass();
+		if(AbstractDominoModel.class.isAssignableFrom(enclosingClass)) {
+			return (Class<E>)enclosingClass;
+		}
+		throw new RuntimeException("No model class found.");
+	}
 
 	@Override
 	public DominoModelList<E> getNamedCollection(final String name, final String category) {
@@ -21,7 +29,9 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 
 	protected E createFromDocument(final Document doc) {
 		try {
-			return getModelClass().getConstructor(Document.class).newInstance(doc);
+			E model = getModelClass().newInstance();
+			model.initFromDocument(doc);
+			return model;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -30,7 +40,9 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 	@Override
 	public E create() {
 		try {
-			return getModelClass().getConstructor(Database.class).newInstance(getDatabase());
+			E model = getModelClass().newInstance();
+			model.initFromDatabase(getDatabase());
+			return model;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -1,7 +1,5 @@
 package frostillicus.xsp.model.domino;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -45,7 +43,9 @@ public abstract class AbstractFormBasedManager extends AbstractDominoManager<Abs
 		@Override
 		protected AbstractDominoModel createFromViewEntry(final ViewEntry entry, final List<DominoColumnInfo> columnInfo) {
 			if(entry.isCategory()) {
-				return new CategoryDominoModel(entry, columnInfo);
+				AbstractDominoModel model = new CategoryDominoModel();
+				model.initFromViewEntry(entry, columnInfo);
+				return model;
 			}
 
 			String form = null;
@@ -63,11 +63,10 @@ public abstract class AbstractFormBasedManager extends AbstractDominoManager<Abs
 				Map<String, Class<? extends AbstractDominoModel>> formClassMap = getFormClassMap();
 				if(formClassMap.containsKey(form)) {
 					try {
-						Constructor<? extends AbstractDominoModel> con = formClassMap.get(form).getConstructor(ViewEntry.class, List.class);
-						return con.newInstance(entry, columnInfo);
+						AbstractDominoModel result = formClassMap.get(form).newInstance();
+						result.initFromViewEntry(entry, columnInfo);
+						return result;
 					} catch (SecurityException e) {
-						throw new RuntimeException(e);
-					} catch (NoSuchMethodException e) {
 						throw new RuntimeException(e);
 					} catch (IllegalArgumentException e) {
 						throw new RuntimeException(e);
@@ -75,13 +74,13 @@ public abstract class AbstractFormBasedManager extends AbstractDominoManager<Abs
 						throw new RuntimeException(e);
 					} catch (IllegalAccessException e) {
 						throw new RuntimeException(e);
-					} catch (InvocationTargetException e) {
-						throw new RuntimeException(e);
 					}
 				}
 			}
 
-			return new CategoryDominoModel(entry, columnInfo);
+			AbstractDominoModel model = new GenericDominoModel();
+			model.initFromViewEntry(entry, columnInfo);
+			return model;
 		}
 
 		@SuppressWarnings("unchecked")
