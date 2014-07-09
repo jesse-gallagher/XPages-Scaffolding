@@ -274,15 +274,17 @@ public class ModelResource {
 
 					writer.startProperty("@entries");
 					writer.startArray();
-					for(int i = start-1; i < end; i++) {
-						ModelObject model = modelList.get(i);
-						writer.startArrayItem();
-						writer.startObject();
+					if(!modelList.isEmpty()) {
+						for(int i = start-1; i < end; i++) {
+							ModelObject model = modelList.get(i);
+							writer.startArrayItem();
+							writer.startObject();
 
-						ResourceUtils.writeModelObject(model, managerName, hidden, writer);
+							ResourceUtils.writeModelObject(model, managerName, hidden, writer);
 
-						writer.endObject();
-						writer.endArrayItem();
+							writer.endObject();
+							writer.endArrayItem();
+						}
 					}
 					writer.endArray();
 					writer.endProperty();	// @entries

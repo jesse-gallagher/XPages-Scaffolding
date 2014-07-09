@@ -337,7 +337,7 @@ public enum ResourceUtils {
 
 		List<String> updatedProperties = new ArrayList<String>();
 		for(Map.Entry<String, Object> entry : jsonItems.entrySet()) {
-			if(!model.isReadOnly(entry.getKey())) {
+			if(!model.isReadOnly(entry.getKey()) && !entry.getKey().startsWith("@")) {
 				model.setValue(entry.getKey(), entry.getValue());
 				updatedProperties.add(entry.getKey());
 			}
