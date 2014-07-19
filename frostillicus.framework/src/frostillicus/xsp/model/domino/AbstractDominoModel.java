@@ -50,24 +50,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	 * 	values for speedier access
 	 ************************************************************************/
 	public void initFromDatabase(final Database database) {
-		DocumentHolder holder;
-		if(FrameworkUtils.isFaces()) {
-			DominoDocument domDoc = DominoDocument.wrap(
-			                                            database.getApiPath(),		// database
-			                                            database,					// db
-			                                            "",							// parentId
-			                                            "",							// form
-			                                            "",							// computeWithForm
-			                                            "",							// concurrencyMode
-			                                            false,						// allowDeletedDocs
-			                                            "",							// saveLinksAs
-			                                            ""							// webQuerySaveAgent
-					);
-			holder = new DocumentHolder(domDoc);
-		} else {
-			holder = new DocumentHolder(database.getApiPath(), "");
-		}
-		docHolder_ = holder;
+		docHolder_ = new DocumentHolder(database.getApiPath(), "");
 
 		documentId_ = "";
 		noteId_ = 0;
@@ -93,22 +76,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		noteId_ = entry.getNoteIDAsInt();
 
 		if(entry.isDocument()) {
-			DocumentHolder holder;
-			if(FrameworkUtils.isFaces()) {
-				DominoDocument domDoc = DominoDocument.wrap(
-				                                            entry.getAncestorDatabase().getApiPath(),
-				                                            entry.getDocument(),
-				                                            "",
-				                                            "",
-				                                            false,
-				                                            "",
-				                                            ""
-						);
-				holder = new DocumentHolder(domDoc);
-			} else {
-				holder = new DocumentHolder(entry.getAncestorDatabase().getApiPath(), entry.getUniversalID());
-			}
-			docHolder_ = holder;
+			docHolder_ = new DocumentHolder(entry.getAncestorDatabase().getApiPath(), entry.getUniversalID());
 		} else {
 			docHolder_ = null;
 		}
@@ -137,23 +105,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		category_ = false;
 		columnIndentLevel_ = 0;
 		viewRowPosition_ = "";
-
-		DocumentHolder holder;
-		if(FrameworkUtils.isFaces()) {
-			DominoDocument domDoc = DominoDocument.wrap(
-			                                            database.getApiPath(),
-			                                            doc,
-			                                            "",
-			                                            "",
-			                                            false,
-			                                            "",
-			                                            ""
-					);
-			holder = new DocumentHolder(domDoc);
-		} else {
-			holder = new DocumentHolder(database.getApiPath(), documentId_);
-		}
-		docHolder_ = holder;
+		docHolder_ = new DocumentHolder(database.getApiPath(), documentId_);;
 	}
 
 	/* **********************************************************************
@@ -521,25 +473,24 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	private class DocumentHolder implements Serializable, DataObject {
 		private static final long serialVersionUID = 1L;
 
-		private final DominoDocument dominoDocument_;
 		private final String databasePath_;
 		private final String documentId_;
+		private final boolean isDominoDocument_;
+		private DominoDocument dominoDocument_;
 		private final Map<String, Object> changes_;
 
 		private transient Document storedDoc_;
 		private transient boolean storedChanges_ = false;
 
-		public DocumentHolder(final DominoDocument dominoDocument) {
-			dominoDocument_ = dominoDocument;
-			databasePath_ = null;
-			documentId_ = null;
-			changes_ = null;
-		}
 		public DocumentHolder(final String databasePath, final String documentId) {
-			dominoDocument_ = null;
 			databasePath_ = databasePath;
 			documentId_ = documentId;
-			changes_ = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
+			isDominoDocument_ = FrameworkUtils.isFaces();
+			if(isDominoDocument_) {
+				changes_ = null;
+			} else {
+				changes_ = new TreeMap<String, Object>(String.CASE_INSENSITIVE_ORDER);
+			}
 		}
 
 		public boolean isNewNote() {
@@ -561,7 +512,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		public Document getDocument(final boolean applyChanges) {
 			if(isDominoDocument()) {
 				try {
-					return (Document)dominoDocument_.getDocument(applyChanges);
+					return (Document)getDominoDocument().getDocument(applyChanges);
 				} catch (NotesException ne) {
 					throw new RuntimeException(ne);
 				}
@@ -586,10 +537,37 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		public Document getDocument() { return getDocument(false); }
 
 		public boolean isDominoDocument() {
-			return dominoDocument_ != null;
+			return isDominoDocument_;
 		}
 
 		public DominoDocument getDominoDocument() {
+			if(isDominoDocument_ && dominoDocument_ == null) {
+				Database database = FrameworkUtils.getSession().getDatabase(databasePath_);
+				if(StringUtil.isEmpty(documentId_)) {
+					dominoDocument_ = DominoDocument.wrap(
+					                                      database.getApiPath(),		// database
+					                                      database,					// db
+					                                      "",							// parentId
+					                                      "",							// form
+					                                      "",							// computeWithForm
+					                                      "",							// concurrencyMode
+					                                      false,						// allowDeletedDocs
+					                                      "",							// saveLinksAs
+					                                      ""							// webQuerySaveAgent
+							);
+				} else {
+					Document doc = database.getDocumentByUNID(documentId_);
+					dominoDocument_ = DominoDocument.wrap(
+					                                      database.getApiPath(),
+					                                      doc,
+					                                      "",
+					                                      "",
+					                                      false,
+					                                      "",
+					                                      ""
+							);
+				}
+			}
 			return dominoDocument_;
 		}
 		@Override

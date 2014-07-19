@@ -4,13 +4,24 @@ import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 import org.openntf.domino.*;
 import org.openntf.domino.utils.Factory;
 import org.openntf.domino.utils.XSPUtil;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.HttpService;
+import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
+import com.ibm.designer.runtime.domino.adapter.preload.XPagesPreloader;
 import com.ibm.domino.osgi.core.context.ContextInfo;
+import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
+import com.ibm.domino.xsp.module.nsf.NSFService;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+import com.ibm.domino.xsp.module.nsf.runtime.NotesApplication;
 import com.ibm.xsp.component.UIViewRootEx2;
+import com.ibm.xsp.webapp.DesignerFacesServlet;
 
 import lotus.domino.NotesException;
 import lotus.domino.local.NotesBase;
@@ -19,10 +30,84 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
 
 public enum FrameworkUtils {
 	;
+
+	public static void runLoaderTest() throws Exception {
+		System.out.println("in runLoaderTest");
+		LCDEnvironment env = LCDEnvironment.getInstance();
+		System.out.println("got instance: " + env);
+		XPagesPreloader foo = new XPagesPreloader(env, new String[] { "tests/blank.nsf" });
+		System.out.println("created preloader: " + foo);
+		foo.run();
+		System.out.println("ran preloader");
+		for(ComponentModule activeMod : env.getActiveModules()) {
+			System.out.println(activeMod.getModuleName() + " - " + activeMod);
+			if(activeMod.getModuleName().equals("tests/blank.nsf")) {
+				NSFComponentModule nsfMod = (NSFComponentModule)activeMod;
+				//				ClassLoader moduleLoader = nsfMod.getModuleClassLoader();
+				//				System.out.println(moduleLoader.loadClass("xsp.Home"));
+
+
+
+				//				Servlet servlet = nsfMod.getXspEngineServlet();
+				//				if(servlet instanceof DesignerFacesServlet) {
+				//					DesignerFacesServlet facesServlet = (DesignerFacesServlet)servlet;
+				//
+				//					System.out.println("faces app: " + facesServlet.createFacesController().getApplication());
+				//
+				//					java.lang.reflect.Field appField = facesServlet.getClass().getDeclaredField("_application");
+				//					appField.setAccessible(true);
+				//					com.ibm.designer.runtime.Application app = (com.ibm.designer.runtime.Application)appField.get(facesServlet);
+				//					NotesApplication notesApp = (NotesApplication)app;
+				//				}
+				//				System.out.println("servlet is " + servlet);
+
+				ClassLoader loader = nsfMod.getModuleClassLoader();
+				Class<?> clazz = loader.loadClass("test.SomeClass");
+				System.out.println(clazz);
+			}
+		}
+	}
+	public static void runLoaderTest2() throws Exception {
+		final NSFComponentModule module = AccessController.doPrivileged(new PrivilegedAction<NSFComponentModule>() {
+
+			@Override
+			public NSFComponentModule run() {
+				try {
+					return getNSFService().loadModule("tests/blank.nsf");
+				} catch (ServletException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		});
+		//		NotesContext current = NotesContext.getCurrent();
+		try {
+			//			NotesContext.termThread();
+			NotesContext ctxContext = new NotesContext(module);
+			NotesContext.initThread(ctxContext);
+
+			ClassLoader loader = module.getModuleClassLoader();
+			Class<?> clazz = loader.loadClass("test.SomeClass");
+			System.out.println(clazz);
+		} finally {
+			NotesContext.termThread();
+			//			NotesContext.initThread(current);
+		}
+	}
+	private static NSFService getNSFService() {
+		for (HttpService service : LCDEnvironment.getInstance().getServices()) {
+			if (service instanceof NSFService) {
+				return (NSFService) service;
+			}
+		}
+		return null;
+	}
 
 	public static Database getDatabase(final String server, final String filePath) {
 		Map<String, Object> requestScope = getRequestScope();
@@ -40,7 +125,12 @@ public enum FrameworkUtils {
 			return (Session)resolveVariable("session");
 		} else {
 			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
-			Session session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+			Session session;
+			if(lotusSession == null) {
+				session = Factory.getSession();
+			} else {
+				session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+			}
 			session.setConvertMime(false);
 			return session;
 		}
@@ -59,7 +149,12 @@ public enum FrameworkUtils {
 		} else {
 			Session session = getSession();
 			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
-			Database database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+			Database database;
+			if(lotusDatabase == null) {
+				database = session.getCurrentDatabase();
+			} else {
+				database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+			}
 			return database;
 		}
 	}
