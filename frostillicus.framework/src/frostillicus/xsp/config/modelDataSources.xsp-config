@@ -63,6 +63,38 @@
 		<group-type-ref>frostillicus.xsp.model.data_source</group-type-ref>
 		
 		<property>
+			<property-name>categoryFilter</property-name>
+			
+			<description>The filter used to restrict to a single category.</description>
+			<display-name>Category Filter</display-name>
+			<property-class>java.lang.String</property-class>
+		</property>
+		
+		<property>
+			<property-name>search</property-name>
+			
+			<description>The search query to apply to the collection.</description>
+			<display-name>Search Query</display-name>
+			<property-class>java.lang.String</property-class>
+		</property>
+		
+		<property>
+			<property-name>sortColumn</property-name>
+			
+			<description>The column to sort by, when not the default collation.</description>
+			<display-name>Sort Column</display-name>
+			<property-class>java.lang.String</property-class>
+		</property>
+		
+		<property>
+			<property-name>sortOrder</property-name>
+			
+			<description>The the order ("ascending" or "descending") to use to sort by the specified column.</description>
+			<display-name>Sort Order</display-name>
+			<property-class>java.lang.String</property-class>
+		</property>
+		
+		<property>
 			<property-name>postOpenView</property-name>
 			
 			<description>Triggered after retrieving the collection.</description>

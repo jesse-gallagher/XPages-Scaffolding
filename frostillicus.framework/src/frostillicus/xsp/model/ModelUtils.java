@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,7 +25,8 @@ public enum ModelUtils {
 	;
 
 	public static Map<String, Object> getCacheScope() {
-		return FrameworkUtils.getViewScope();
+		Map<String, Object> scope = FrameworkUtils.getViewScope();
+		return scope == null ? new HashMap<String, Object>() : scope;
 	}
 
 	public static boolean isUnid(final String value) {

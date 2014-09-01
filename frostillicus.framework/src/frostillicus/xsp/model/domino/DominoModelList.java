@@ -11,7 +11,7 @@ import frostillicus.xsp.util.FrameworkUtils;
 import org.openntf.domino.*;
 
 @SuppressWarnings("serial")
-public class DominoModelList<E extends AbstractDominoModel> extends AbstractModelList<E> {
+public class DominoModelList<E extends AbstractDominoModel> extends AbstractModelList<E> implements RandomAccess {
 
 	private transient Map<String, Object> internalCacheScope_ = new HashMap<String, Object>();;
 
@@ -369,6 +369,10 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	private Map<String, Object> getRequestScope() {
+		if(FrameworkUtils.getViewScope() == null) {
+			// This is the case in Xots
+			return new HashMap<String, Object>();
+		}
 		return FrameworkUtils.isFaces() ? FrameworkUtils.getRequestScope() : internalCacheScope_;
 	}
 

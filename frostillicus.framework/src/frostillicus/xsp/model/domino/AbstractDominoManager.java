@@ -92,7 +92,7 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 			return result;
 		} catch (Exception ne) {
 			// I'll want to know about this
-			throw new RuntimeException(ne);
+			throw ne instanceof RuntimeException ? (RuntimeException)ne : new RuntimeException(ne);
 		}
 	}
 
