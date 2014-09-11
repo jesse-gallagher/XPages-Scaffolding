@@ -19,4 +19,34 @@
 			<value>#{database.title}</value>
 		</property>
 	</control>
+	
+	<!-- Messages -->
+	<control>
+		<name>Messages.Confirmation</name>
+		<property>
+			<name>styleClass</name>
+			<value>lotusMessage lotusConfirm</value>
+		</property>
+	</control>
+	<control>
+		<name>Messages.Error</name>
+		<property>
+			<name>styleClass</name>
+			<value>lotusMessage</value>
+		</property>
+	</control>
+	<control>
+		<name>Messages.Information</name>
+		<property>
+			<name>styleClass</name>
+			<value>lotusMessage lotusInfo</value>
+		</property>
+	</control>
+	<control>
+		<name>Messages.Warning</name>
+		<property>
+			<name>styleClass</name>
+			<value>lotusMessage lotusWarning</value>
+		</property>
+	</control>
 </theme>

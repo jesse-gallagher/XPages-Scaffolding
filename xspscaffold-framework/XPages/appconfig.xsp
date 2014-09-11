@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex" xmlns:xc="http://www.ibm.com/xsp/custom" xmlns:ff="http://frostillic.us/framework"
+	beforePageLoad="#{controller.beforePageLoad}" afterPageLoad="#{controller.afterPageLoad}" pageTitle="${translation.config}">
+
+	<xp:this.acl>
+		<xp:acl>
+			<xp:this.entries>
+				<xp:aclEntry type="ROLE" right="EDITOR" name="[Admin]"/>
+				<xp:aclEntry type="ROLE" right="READER" name="[Admin]"/>
+			</xp:this.entries>
+		</xp:acl>
+	</xp:this.acl>
+	
+	<xp:this.navigationRules>
+		<xp:navigationRule outcome="xsp-success" viewId="/home.xsp" redirect="true" />
+	</xp:this.navigationRules>
+
+	<xc:layout navigationPath="/Config/AppConfig" pageTitle="${view.pageTitle}">
+		<xp:this.facets>
+			<xe:breadCrumbs xp:key="BreadCrumbs">
+				<xe:this.treeNodes>
+					<xe:basicLeafNode href="/" imageAlt="icon-home home-icon" label="${translation.home}"/>
+					<xe:basicLeafNode label="${translation.config}"/>
+				</xe:this.treeNodes>
+			</xe:breadCrumbs>
+			<xc:actionBar xp:key="ActionBar">
+				<xp:button id="save" value="${translation.save}">
+					<xp:eventHandler event="onclick" submit="true" action="#{controller.save}"/>
+				</xp:button>
+			</xc:actionBar>
+		</xp:this.facets>
+		
+		
+	</xc:layout>
+</xp:view>
