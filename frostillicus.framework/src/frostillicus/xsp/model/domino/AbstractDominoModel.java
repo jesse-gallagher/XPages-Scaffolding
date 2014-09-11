@@ -212,7 +212,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		List<String> result = new ArrayList<String>();
 		Document doc = document();
 		if(doc != null) {
-			result.addAll(doc.getItemValue("$UpdatedBy"));
+			result.addAll((List<String>)(List<?>)doc.getItemValue("$UpdatedBy"));
 		}
 		return result;
 	}

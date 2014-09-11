@@ -38,6 +38,7 @@ import com.ibm.xsp.extlib.component.data.UIFormTable;
 import com.ibm.xsp.model.DataObject;
 
 import frostillicus.xsp.converter.EnumBindingConverter;
+import frostillicus.xsp.util.FrameworkUtils;
 
 public class ComponentMap implements DataObject, Serializable {
 	private static final long serialVersionUID = 1L;
@@ -177,7 +178,11 @@ public class ComponentMap implements DataObject, Serializable {
 							component.getChildren().add(formRow);
 							formRow.setParent(component);
 
-							populateFormRow(formRow, adapter, propertyName, binding, translation);
+							// Create a binding for the field by replacing the ".all" at the end with the field name
+							String bindingString = FrameworkUtils.strLeftBack(binding.getExpressionString(), ".all") + "." + propertyName + "}";
+							ValueBinding rowBinding = ApplicationEx.getInstance().createValueBinding(bindingString);
+
+							populateFormRow(formRow, adapter, propertyName, rowBinding, translation);
 						}
 
 					} else if(component instanceof XspViewColumn) {
@@ -421,3 +426,4 @@ public class ComponentMap implements DataObject, Serializable {
 		}
 	}
 }
+

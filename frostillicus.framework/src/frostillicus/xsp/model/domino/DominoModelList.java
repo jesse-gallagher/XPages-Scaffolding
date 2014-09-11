@@ -27,7 +27,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	private Set<Integer> collapsedIds_ = new TreeSet<Integer>();
 	private Set<Integer> expandedIds_ = new TreeSet<Integer>();
 
-	private transient boolean reset_ = false;
+	private transient int reset_ = 0;
 
 	// This is intended to store an extra reference to the Navigator, in case it's being recycled unnecessarily
 	// It's not meant for actual use
@@ -95,8 +95,8 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 					} catch(NullPointerException npe) {
 						// Then we've probably hit an "Object has been removed or recycled" on the nav
 
-						if(!reset_) {
-							reset_ = true;
+						if(reset_ < 10) {
+							reset_++;
 							clearCache();
 							return get(index);
 						}
