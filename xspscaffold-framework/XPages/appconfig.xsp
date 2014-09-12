@@ -30,6 +30,12 @@
 			</xc:actionBar>
 		</xp:this.facets>
 		
+		<xe:formTable formTitle="${translation.configAppInfo}">
+			<xe:formRow label="${translation.configAppName}">
+				<xp:inputText value="#{viewScope.appConfigData.appName}"/>
+			</xe:formRow>
+		</xe:formTable>
+		
 		<xe:formTable formTitle="${translation.configData}">
 			<xe:formRow label="${translation.configDataDatabaseServer}">
 				<xp:inputText value="#{viewScope.appConfigData.dataDatabaseServer}"/>
