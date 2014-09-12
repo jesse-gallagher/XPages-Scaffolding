@@ -280,6 +280,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			} else if(fieldType.equals(Boolean.class) || fieldType.equals(Boolean.TYPE)) {
 				if(Boolean.TRUE.equals(value) || "Y".equals(value) || ((Integer)1).equals(value) || "true".equals(value)) {
 					docHolder_.setValue(keyObject, "Y");
+				} else if(value == null || "".equals(value)) {
+					docHolder_.setValue(keyObject, null);
 				} else {
 					docHolder_.setValue(keyObject, "N");
 				}
