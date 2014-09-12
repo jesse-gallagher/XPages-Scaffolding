@@ -23,6 +23,10 @@ public class appconfig extends BasicXPageController {
 			configData.put(key, appConfig.getValue(key));
 		}
 
+		if(!configData.containsKey("aliases") || "".equals(configData.get("aliases"))) {
+			configData.put("aliases", new ArrayList<Map<String, Object>>());
+		}
+
 
 		FrameworkUtils.getViewScope().put("appConfigData", configData);
 	}
@@ -42,5 +46,35 @@ public class appconfig extends BasicXPageController {
 		FrameworkUtils.flashMessage("confirmation", Translation.get().getValue("configChangeConfirmation"));
 
 		return "xsp-success";
+	}
+
+	/* ******************************************************************************
+	 * Aliases
+	 ********************************************************************************/
+
+	@SuppressWarnings("unchecked")
+	public List<Map<String, Object>> getAliases() {
+		Map<String, Object> viewScope = FrameworkUtils.getViewScope();
+		Map<String, Object> appConfigData = (Map<String, Object>)viewScope.get("appConfigData");
+		return (List<Map<String, Object>>)appConfigData.get("aliases");
+	}
+
+	public void addAlias() {
+		getAliases().add(new HashMap<String, Object>());
+	}
+
+	public void removeAlias() {
+		int index = (Integer)FrameworkUtils.resolveVariable("aliasIndex");
+		getAliases().remove(index);
+	}
+
+	public void moveAliasUp() {
+		int index = (Integer)FrameworkUtils.resolveVariable("aliasIndex");
+		Collections.swap(getAliases(), index, index-1);
+	}
+
+	public void moveAliasDown() {
+		int index = (Integer)FrameworkUtils.resolveVariable("aliasIndex");
+		Collections.swap(getAliases(), index, index+1);
 	}
 }
