@@ -9,6 +9,8 @@ import javax.faces.validator.Validator;
 import javax.validation.metadata.ConstraintDescriptor;
 
 public interface ComponentMapAdapter {
+	public Object getObject();
+
 	public ResourceBundle getTranslationBundle();
 
 	public String getTranslationForProperty(Object property);

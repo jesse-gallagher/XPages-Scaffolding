@@ -404,8 +404,16 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Object coaxValue(final String keyObject, final Object value) {
 		Class<?> type = getType(keyObject);
-		if(type != null && type.isEnum() && value != null && !"".equals(value)) {
-			return Enum.valueOf((Class<? extends Enum>)type, String.valueOf(value));
+		if(type != null) {
+			if(type.isEnum() && value != null && !"".equals(value)) {
+				return Enum.valueOf((Class<? extends Enum>)type, String.valueOf(value));
+			} else if(Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
+				if(value != null && (value.equals(1) || value.equals("Y"))) {
+					return true;
+				} else {
+					return false;
+				}
+			}
 		}
 		return value;
 	}

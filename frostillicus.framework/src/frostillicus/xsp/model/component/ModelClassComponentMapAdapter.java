@@ -23,6 +23,11 @@ public class ModelClassComponentMapAdapter implements ComponentMapAdapter {
 	}
 
 	@Override
+	public Object getObject() {
+		return clazz_;
+	}
+
+	@Override
 	public ResourceBundle getTranslationBundle() {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		ApplicationEx app = (ApplicationEx)facesContext.getApplication();

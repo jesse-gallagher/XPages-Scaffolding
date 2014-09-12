@@ -270,15 +270,19 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			// Look to translate known value types
 			Type fieldType = getGenericType(keyObject);
 			if(fieldType.equals(java.sql.Time.class) && value instanceof Date) {
-				System.out.println("setting " + keyObject + " to time only");
 				DateTime val = document().getAncestorSession().createDateTime((Date)value);
 				val.setAnyDate();
 				docHolder_.setValue(keyObject, val);
 			} else if(fieldType.equals(java.sql.Date.class) && value instanceof Date) {
-				System.out.println("setting " + keyObject + " to date only");
 				DateTime val = document().getAncestorSession().createDateTime((Date)value);
 				val.setAnyTime();
 				docHolder_.setValue(keyObject, val);
+			} else if(fieldType.equals(Boolean.class) || fieldType.equals(Boolean.TYPE)) {
+				if(Boolean.TRUE.equals(value) || "Y".equals(value) || ((Integer)1).equals(value) || "true".equals(value)) {
+					docHolder_.setValue(keyObject, "Y");
+				} else {
+					docHolder_.setValue(keyObject, "N");
+				}
 			} else {
 				docHolder_.setValue(keyObject, value);
 			}

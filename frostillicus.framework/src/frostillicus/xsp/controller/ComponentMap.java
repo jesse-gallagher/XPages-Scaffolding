@@ -30,6 +30,7 @@ import com.ibm.xsp.component.xp.XspDateTimeHelper;
 import com.ibm.xsp.component.xp.XspInputText;
 import com.ibm.xsp.component.xp.XspSelectManyListbox;
 import com.ibm.xsp.component.xp.XspSelectOneMenu;
+import com.ibm.xsp.component.xp.XspSelectOneRadio;
 import com.ibm.xsp.component.xp.XspViewColumn;
 import com.ibm.xsp.component.xp.XspViewColumnHeader;
 import com.ibm.xsp.convert.DateTimeConverter;
@@ -258,6 +259,9 @@ public class ComponentMap implements DataObject, Serializable {
 					// Punt back to single-value text
 					input = new XspInputText();
 				}
+			} else if(Boolean.class.equals(valueType) || Boolean.TYPE.equals(valueType)) {
+				input = new XspSelectOneRadio();
+
 			} else {
 				// Assume single-value text
 				input = new XspInputText();
@@ -347,6 +351,45 @@ public class ComponentMap implements DataObject, Serializable {
 						populateEnumSelectItems(input, enumType, translation);
 					}
 				}
+			} else if(Boolean.class.equals(baseType) || Boolean.TYPE.equals(baseType)) {
+				// Do the same for booleans
+
+				UISelectItem itemTrue = new UISelectItem();
+				itemTrue.setItemValue("true");
+				UISelectItem itemFalse = new UISelectItem();
+				itemFalse.setItemValue("false");
+				if(translation != null) {
+					String trueKey = adapter.getObject().getClass().getName() + "." + property + ".true";
+					try {
+						itemTrue.setItemLabel(translation.getString(trueKey));
+					} catch(Exception e) {
+						try {
+							// Then see if there's a generic catchall
+							itemTrue.setItemLabel(translation.getString("true"));
+						} catch(Exception e2) {
+							// If all else fails...
+							itemTrue.setItemLabel("true");
+						}
+					}
+
+					String falseKey = adapter.getObject().getClass().getName() + "." + property + ".false";
+					try {
+						itemFalse.setItemLabel(translation.getString(falseKey));
+					} catch(Exception e) {
+						try {
+							// Then see if there's a generic catchall
+							itemFalse.setItemLabel(translation.getString("false"));
+						} catch(Exception e2) {
+							// If all else fails...
+							itemFalse.setItemLabel("false");
+						}
+					}
+				}
+
+				component.getChildren().add(itemTrue);
+				itemTrue.setParent(component);
+				component.getChildren().add(itemFalse);
+				itemFalse.setParent(component);
 			}
 
 			// Add a converter and helper for date/time fields
