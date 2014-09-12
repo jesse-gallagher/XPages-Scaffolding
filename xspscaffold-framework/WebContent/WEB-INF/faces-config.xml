@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faces-config>
   <managed-bean>
-    <managed-bean-name>appConfig</managed-bean-name>
-    <managed-bean-class>config.AppConfig</managed-bean-class>
-    <managed-bean-scope>application</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
     <managed-bean-name>applicationDispatcher</managed-bean-name>
     <managed-bean-class>frostillicus.xsp.event.SimpleEventDispatcher</managed-bean-class>
     <managed-bean-scope>application</managed-bean-scope>

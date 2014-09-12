@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><note class="form" maintenanceversion="1.1" replicaid="85257CF200732868" version="9.0" xmlns="http://www.lotus.com/dxl">
-<noteinfo noteid="1ba" sequence="9" unid="8DB8A7908812B4BB85257C85007FF39F">
+<?xml version="1.0" encoding="UTF-8"?><note class="form" maintenanceversion="1.2" replicaid="85257CF200732868" version="9.0" xmlns="http://www.lotus.com/dxl">
+<noteinfo noteid="1ba" sequence="12" unid="8DB8A7908812B4BB85257C85007FF39F">
 <created><datetime>20140220T181734,39-05</datetime></created>
-<modified><datetime dst="true">20140609T165750,71-04</datetime></modified>
-<revised><datetime dst="true">20140405T174215,60-04</datetime></revised>
-<lastaccessed><datetime dst="true">20140609T165750,70-04</datetime></lastaccessed>
+<modified><datetime dst="true">20140911T135113,45-04</datetime></modified>
+<revised><datetime dst="true">20140911T135113,44-04</datetime></revised>
+<lastaccessed><datetime dst="true">20140911T135113,44-04</datetime></lastaccessed>
 <addedtofile><datetime dst="true">20140609T165750,70-04</datetime></addedtofile></noteinfo>
 <updatedby><name>CN=Jesse Gallagher/O=Frost</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
 <wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
@@ -13,9 +13,9 @@
 
 
 
-<item name="$FileNames" sign="true"><text>messages.xsp</text></item>
-<item name="$DesignerVersion"><text>8.5.2</text></item>
 
+<item name="$FileNames" sign="true"><text>messages.xsp</text></item>
+<item name="$DesignerVersion"><text>8.5.1</text></item>
 
 
 
