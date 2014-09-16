@@ -7,8 +7,11 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 
+import lotus.domino.NotesException;
+
 import org.openntf.domino.*;
 import org.openntf.domino.design.*;
+import org.openntf.domino.utils.Factory;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -47,7 +50,8 @@ public class AnnotatedBeanResolver extends VariableResolver {
 				if(!applicationScope.containsKey("$$annotatedManagedBeanMap")) {
 					Map<String, BeanInfo> beanMap = new HashMap<String, BeanInfo>();
 
-					Database database = (Database)delegate_.resolveVariable(facesContext, "database");
+
+					Database database = getDatabase(facesContext);
 					DatabaseDesign design = database.getDesign();
 					for(String className : design.getJavaResourceClassNames()) {
 						Class<?> loadedClass = facesContext.getContextClassLoader().loadClass(className);
@@ -101,6 +105,18 @@ public class AnnotatedBeanResolver extends VariableResolver {
 		}
 
 		return null;
+	}
+
+	private Database getDatabase(final FacesContext facesContext) throws NotesException {
+		lotus.domino.Database lotusDatabase = (lotus.domino.Database)delegate_.resolveVariable(facesContext, "database");
+		Database database;
+		if(lotusDatabase instanceof Database) {
+			database = (Database)lotusDatabase;
+		} else {
+			Session session = Factory.fromLotus(lotusDatabase.getParent(), Session.SCHEMA, null);
+			database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+		}
+		return database;
 	}
 
 	private static class BeanInfo implements Serializable {

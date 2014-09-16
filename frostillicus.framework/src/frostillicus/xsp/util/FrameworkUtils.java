@@ -37,7 +37,11 @@ public enum FrameworkUtils {
 
 	public static Session getSession() {
 		if(isFaces()) {
-			return (Session)resolveVariable("session");
+			Object session = resolveVariable("session");
+			if(!(session instanceof Session)) {
+				session = resolveVariable("opensession");
+			}
+			return (Session)session;
 		} else {
 			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
 			Session session;
@@ -60,7 +64,11 @@ public enum FrameworkUtils {
 
 	public static Database getDatabase() {
 		if(isFaces()) {
-			return (Database)resolveVariable("database");
+			Object database = resolveVariable("database");
+			if(!(database instanceof Database)) {
+				database = resolveVariable("opendatabase");
+			}
+			return (Database)database;
 		} else {
 			Session session = getSession();
 			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();

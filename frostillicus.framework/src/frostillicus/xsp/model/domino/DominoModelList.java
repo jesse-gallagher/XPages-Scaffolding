@@ -23,6 +23,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	private String searchQuery_;
 
 	private final boolean invalid_;
+	private int size_ = -1;
 
 	private Set<Integer> collapsedIds_ = new TreeSet<Integer>();
 	private Set<Integer> expandedIds_ = new TreeSet<Integer>();
@@ -121,18 +122,21 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@Override
 	public int size() {
+		if(size_ != -1) { return size_; }
 		if(invalid_) { return 0; }
+
 		try {
 			if (searchQuery_ == null || searchQuery_.isEmpty()) {
 				ViewNavigator nav = getNavigator();
-				return nav == null ? 0 : getNavigator().getCount();
+				size_ = nav == null ? 0 : getNavigator().getCount();
 			} else {
 				ViewEntryCollection vec = getEntries();
-				return vec == null ? 0 : vec.getCount();
+				size_ = vec == null ? 0 : vec.getCount();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		return size_;
 	}
 
 	/* **********************************************************************
@@ -360,6 +364,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	public final void clearCache() {
 		getCache().clear();
 		getView().refresh();
+		size_ = -1;
 
 		final Map<String, Object> requestScope = getRequestScope();
 		String thisToString = this.toString();
