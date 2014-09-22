@@ -605,8 +605,8 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 					Document doc = getDocument();
 					if(doc.hasItem(itemName)) {
 						Item item = doc.getFirstItem(itemName);
-						switch(item.getType()) {
-						case Item.RICHTEXT:
+						switch(item.getTypeEx()) {
+						case RICHTEXT:
 							try {
 								DominoUtils.HtmlConverterWrapper converter = new DominoUtils.HtmlConverterWrapper();
 								converter.convertItem(Factory.toLotus(doc), itemName);
@@ -614,7 +614,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 							} catch(NotesException ne) {
 								throw new RuntimeException(ne);
 							}
-						case Item.MIME_PART:
+						case MIME_PART:
 							// TODO this would be better converted elsewhere, but eh...
 							MIMEEntity entity = item.getMIMEEntity();
 							if(entity.getNthHeader("X-Java-Class") == null) {

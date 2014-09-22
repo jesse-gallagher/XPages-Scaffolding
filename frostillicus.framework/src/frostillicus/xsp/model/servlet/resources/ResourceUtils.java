@@ -250,7 +250,7 @@ public enum ResourceUtils {
 				writer.endProperty();
 			}
 			writer.endObject();
-		} else if(input instanceof Item && ((Item)input).getType() == Item.MIME_PART) {
+		} else if(input instanceof Item && ((Item)input).getTypeEx() == Item.Type.MIME_PART) {
 			// TODO clean up this mess and make sure it doesn't crash the server
 
 			Item itemValue = (Item)input;

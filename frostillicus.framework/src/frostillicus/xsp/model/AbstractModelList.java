@@ -24,6 +24,8 @@ public abstract class AbstractModelList<E extends ModelObject> extends TabularDa
 		return clazz_;
 	}
 
+	public abstract void stampAll(String propertyName, Object value);
+
 	/* **********************************************************************
 	 * List methods
 	 ************************************************************************/

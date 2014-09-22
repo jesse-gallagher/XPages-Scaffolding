@@ -70,7 +70,7 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 				result = create();
 			} else if (ModelUtils.isUnid(key)) {
 				Database database = getDatabase();
-				Document doc = database.getDocumentByUNID(key);
+				Document doc = database.getDocumentWithKey(key);
 				if(doc == null) {
 					result = null;
 				} else {
@@ -93,6 +93,17 @@ public abstract class AbstractDominoManager<E extends AbstractDominoModel> imple
 		} catch (Exception ne) {
 			// I'll want to know about this
 			throw ne instanceof RuntimeException ? (RuntimeException)ne : new RuntimeException(ne);
+		}
+	}
+
+	@Override
+	public E getById(final String id) {
+		Database database = getDatabase();
+		Document doc = database.getDocumentWithKey(id);
+		if(doc == null) {
+			return null;
+		} else {
+			return createFromDocument(doc);
 		}
 	}
 

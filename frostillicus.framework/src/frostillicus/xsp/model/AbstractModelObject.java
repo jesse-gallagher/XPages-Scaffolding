@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -412,6 +413,12 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 					return true;
 				} else {
 					return false;
+				}
+			} else if(List.class.isAssignableFrom(type)) {
+				if(value == null) {
+					return Collections.emptyList();
+				} else if(!List.class.isAssignableFrom(value.getClass())) {
+					return Arrays.asList(value);
 				}
 			}
 		}

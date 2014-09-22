@@ -61,6 +61,12 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		}
 	}
 
+	@Override
+	public void stampAll(final String propertyName, final Object value) {
+		ViewEntryCollection vec = getEntries();
+		vec.stampAll(propertyName, value);
+	}
+
 	/* **********************************************************************
 	 * List methods
 	 ************************************************************************/
@@ -341,7 +347,11 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 				view.FTSearch(searchQuery_);
 			}
 
-			requestScope.put(key, view.getAllEntries());
+			if(category_ != null) {
+				requestScope.put(key, view.getAllEntriesByKey(category_));
+			} else {
+				requestScope.put(key, view.getAllEntries());
+			}
 		}
 		return (ViewEntryCollection) requestScope.get(key);
 	}

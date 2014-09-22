@@ -8,4 +8,6 @@ public interface ModelManager<E extends ModelObject> extends Serializable, DataO
 	public AbstractModelList<E> getNamedCollection(final String name, final String category);
 
 	public E create();
+
+	public E getById(String id);
 }
