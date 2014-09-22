@@ -295,6 +295,11 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 	/* **********************************************************************
 	 * The dirty work of actually saving or deleting the document
 	 ************************************************************************/
+
+	protected boolean querySaveDocument(final Document doc) {
+		return true;
+	}
+
 	@Override
 	public boolean save() {
 		if (category()) {
@@ -308,6 +313,10 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				}
 
 				Document doc = document(true);
+
+				if(!querySaveDocument(doc)) {
+					return false;
+				}
 
 				// Clean up any date/time-only fields
 				Session session = doc.getAncestorSession();
