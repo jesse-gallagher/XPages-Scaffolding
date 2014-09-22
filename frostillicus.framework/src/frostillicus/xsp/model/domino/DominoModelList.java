@@ -114,6 +114,16 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 						System.out.println("=============================== Current cache: " + cache);
 						System.out.println("=============================== Current reported size: " + size());
 						throw npe;
+					} catch(RuntimeException re) {
+						if(String.valueOf(re.getCause()).contains("Argument has been removed or recycled")) {
+							if(reset_ < 10) {
+								reset_++;
+								clearCache();
+								return get(index);
+							}
+						}
+						// Otherwise, throw it up
+						throw re;
 					}
 				} else {
 					ViewEntryCollection vec = getEntries();
@@ -134,13 +144,14 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		try {
 			if (searchQuery_ == null || searchQuery_.isEmpty()) {
 				ViewNavigator nav = getNavigator();
-				size_ = nav == null ? 0 : getNavigator().getCount();
+				size_ = nav == null ? 0 : getNewNavigator().skip(Integer.MAX_VALUE)+1;
+				//				size_ = nav == null ? 0 : getNavigator().getCount();
 			} else {
 				ViewEntryCollection vec = getEntries();
 				size_ = vec == null ? 0 : vec.getCount();
 			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw e instanceof RuntimeException ? (RuntimeException)e : new RuntimeException(e);
 		}
 		return size_;
 	}

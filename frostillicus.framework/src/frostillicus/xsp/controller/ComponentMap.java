@@ -12,6 +12,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIOutput;
 import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectItems;
 import javax.faces.component.UISelectMany;
 import javax.faces.component.UISelectOne;
 import javax.faces.context.FacesContext;
@@ -342,7 +343,16 @@ public class ComponentMap implements DataObject, Serializable {
 					input.setConverter(new EnumBindingConverter(enumType));
 				}
 
-				if(input.getChildren().isEmpty()) {
+				// Look for select items in its children
+				List<UIComponent> children = input.getChildren();
+				boolean hasSelectItems = false;
+				for(UIComponent child : children) {
+					if(child instanceof UISelectItem || child instanceof UISelectItems) {
+						hasSelectItems = true;
+						break;
+					}
+				}
+				if(!hasSelectItems) {
 					if(input instanceof UISelectOne || input instanceof UISelectMany) {
 						if(input instanceof UISelectOneMenu) {
 							addEmptySelectItem(component, enumType, translation);
