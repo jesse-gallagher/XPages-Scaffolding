@@ -23,6 +23,7 @@ import javax.validation.constraints.Size;
 import javax.validation.metadata.ConstraintDescriptor;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.openntf.xsp.extlib.query.XspQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
@@ -213,16 +214,21 @@ public class ComponentMap implements DataObject, Serializable {
 			if(StringUtil.isEmpty(formRow.getLabel())) {
 				formRow.setLabel(adapter.getTranslationForProperty(property));
 			}
-			UIComponent input;
+			UIComponent input = null;
 			if(formRow.getChildCount() == 0) {
 				input = createComponent(adapter, property);
 				formRow.getChildren().add(input);
 				input.setParent(formRow);
 			} else {
-				// Otherwise, check to see if the first child is an input. If so, use it; otherwise, insert a new one at the start
-				if(formRow.getChildren().get(0) instanceof UIInput) {
-					input = (UIInput)formRow.getChildren().get(0);
-				} else {
+				// Otherwise, check for an input control with no value binding
+				List<UIComponent> inputControls = new XspQuery().addInstanceOf(UIInput.class).locate(formRow);
+				for(UIComponent control : inputControls) {
+					if(control.getValueBinding("value") == null) {
+						input = control;
+						break;
+					}
+				}
+				if(input == null) {
 					input = createComponent(adapter, property);
 					formRow.getChildren().add(0, input);
 					input.setParent(formRow);

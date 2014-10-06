@@ -110,6 +110,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 						System.out.println("=============================== NPE in DominoModelList");
 						System.out.println("=============================== Current class: " + getClass().getName());
+						System.out.println("=============================== Type: " + getClazz().getName());
 						System.out.println("=============================== Desired index: " + index);
 						System.out.println("=============================== Current cache: " + cache);
 						System.out.println("=============================== Current reported size: " + size());
@@ -130,7 +131,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 					cache.put(index, createFromViewEntry(vec.getNthEntry(index + 1), columnInfo_));
 				}
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				throw e instanceof RuntimeException ? (RuntimeException)e : new RuntimeException(e);
 			}
 		}
 		return cache.get(index);
@@ -144,8 +145,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		try {
 			if (searchQuery_ == null || searchQuery_.isEmpty()) {
 				ViewNavigator nav = getNavigator();
-				size_ = nav == null ? 0 : getNewNavigator().skip(Integer.MAX_VALUE)+1;
-				//				size_ = nav == null ? 0 : getNavigator().getCount();
+				size_ = nav == null ? 0 : nav.getCount();
 			} else {
 				ViewEntryCollection vec = getEntries();
 				size_ = vec == null ? 0 : vec.getCount();
@@ -333,6 +333,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 			nav = view.createViewNavFromCategory(category_);
 		}
 		nav.setBufferMaxEntries(50); // The most common use will likely be a paged view
+
 		int[] expandedIds = new int[expandedIds_.size()];
 		int i = 0;
 		for(Integer id : expandedIds_) {
@@ -344,6 +345,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 			collapsedIds[i++] = id;
 		}
 		nav.setAutoExpandGuidance(50, collapsedIds, expandedIds);
+
 		return nav;
 	}
 
