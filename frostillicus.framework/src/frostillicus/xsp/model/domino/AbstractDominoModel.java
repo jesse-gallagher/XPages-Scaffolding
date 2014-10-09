@@ -312,6 +312,13 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 					return false;
 				}
 
+				if(isNew()) {
+					setValueImmediate("$$ModelCreatedAt", new Date());
+					setValueImmediate("$$ModelCreatedBy", FrameworkUtils.getUserName());
+				}
+				setValueImmediate("$$ModelModifiedAt", new Date());
+				setValueImmediate("$$ModelModifiedBy", FrameworkUtils.getUserName());
+
 				Document doc = document(true);
 
 				if(!querySaveDocument(doc)) {
