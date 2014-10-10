@@ -409,16 +409,24 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 			if(type.isEnum() && value != null && !"".equals(value)) {
 				return Enum.valueOf((Class<? extends Enum>)type, String.valueOf(value));
 			} else if(Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
-				if(value != null && (value.equals(1) || value.equals("Y"))) {
-					return true;
-				} else {
+				if(value != null) {
+					if(value.equals(1) || value.equals("Y") || value.equals("true")) {
+						return true;
+					} else if(value.equals(0) || value.equals("N") || value.equals("false")) {
+						return false;
+					}
+				}
+				// For un-set values, boolean gets false, while java.lang.Boolean gets null
+				if(Boolean.TYPE.equals(type)) {
 					return false;
+				} else {
+					return null;
 				}
 			} else if(List.class.isAssignableFrom(type)) {
 				if(value == null) {
-					return Collections.emptyList();
+					return new ArrayList<Object>();
 				} else if(!List.class.isAssignableFrom(value.getClass())) {
-					return Arrays.asList(value);
+					return new ArrayList<Object>(Arrays.asList(value));
 				}
 			}
 		}

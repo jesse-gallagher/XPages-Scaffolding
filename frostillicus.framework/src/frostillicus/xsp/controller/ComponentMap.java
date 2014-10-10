@@ -28,8 +28,10 @@ import org.openntf.xsp.extlib.query.XspQuery;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.component.UISelectOneMenu;
+import com.ibm.xsp.component.xp.XspColumn;
 import com.ibm.xsp.component.xp.XspDateTimeHelper;
 import com.ibm.xsp.component.xp.XspInputText;
+import com.ibm.xsp.component.xp.XspOutputText;
 import com.ibm.xsp.component.xp.XspSelectManyListbox;
 import com.ibm.xsp.component.xp.XspSelectOneMenu;
 import com.ibm.xsp.component.xp.XspSelectOneRadio;
@@ -174,6 +176,10 @@ public class ComponentMap implements DataObject, Serializable {
 
 						populateFormRow((UIFormLayoutRow)component, adapter, property, binding, translation);
 
+					} else if(component instanceof XspColumn) {
+
+						populateColumn((XspColumn)component, adapter, property, binding, translation);
+
 					} else if(component instanceof UIFormTable) {
 
 						for(String propertyName : adapter.getPropertyNames()) {
@@ -209,19 +215,42 @@ public class ComponentMap implements DataObject, Serializable {
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		private void populateFormRow(final UIFormLayoutRow formRow, final ComponentMapAdapter adapter, final String property, final ValueBinding binding, final ResourceBundle translation) {
 			if(StringUtil.isEmpty(formRow.getLabel())) {
 				formRow.setLabel(adapter.getTranslationForProperty(property));
 			}
+
+			UIComponent input = findOrCreateInput(formRow, adapter, property);
+			attachValueBinding(input, binding);
+			attachConverterAndValidators(input, adapter, property, translation);
+		}
+
+		@SuppressWarnings("unchecked")
+		private void populateColumn(final XspColumn column, final ComponentMapAdapter adapter, final String property, final ValueBinding binding, final ResourceBundle translation) {
+			Map<String, UIComponent> facets = column.getFacets();
+			if(!facets.containsKey("header")) {
+				String label = adapter.getTranslationForProperty(property);
+				if(StringUtil.isNotEmpty(label)) {
+					XspOutputText text = new XspOutputText();
+					text.setValue(label);
+					facets.put("header", text);
+				}
+			}
+
+			UIComponent input = findOrCreateInput(column, adapter, property);
+			attachValueBinding(input, binding);
+			attachConverterAndValidators(input, adapter, property, translation);
+		}
+		@SuppressWarnings("unchecked")
+		private UIComponent findOrCreateInput(final UIComponent component, final ComponentMapAdapter adapter, final String property) {
 			UIComponent input = null;
-			if(formRow.getChildCount() == 0) {
+			if(component.getChildCount() == 0) {
 				input = createComponent(adapter, property);
-				formRow.getChildren().add(input);
-				input.setParent(formRow);
+				component.getChildren().add(input);
+				input.setParent(component);
 			} else {
 				// Otherwise, check for an input control with no value binding
-				List<UIComponent> inputControls = new XspQuery().addInstanceOf(UIInput.class).locate(formRow);
+				List<UIComponent> inputControls = new XspQuery().addInstanceOf(UIInput.class).locate(component);
 				for(UIComponent control : inputControls) {
 					if(control.getValueBinding("value") == null) {
 						input = control;
@@ -230,13 +259,11 @@ public class ComponentMap implements DataObject, Serializable {
 				}
 				if(input == null) {
 					input = createComponent(adapter, property);
-					formRow.getChildren().add(0, input);
-					input.setParent(formRow);
+					component.getChildren().add(0, input);
+					input.setParent(component);
 				}
 			}
-
-			attachValueBinding(input, binding);
-			attachConverterAndValidators(input, adapter, property, translation);
+			return input;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -371,9 +398,9 @@ public class ComponentMap implements DataObject, Serializable {
 				// Do the same for booleans
 
 				UISelectItem itemTrue = new UISelectItem();
-				itemTrue.setItemValue("true");
+				itemTrue.setItemValue(Boolean.TRUE);
 				UISelectItem itemFalse = new UISelectItem();
-				itemFalse.setItemValue("false");
+				itemFalse.setItemValue(Boolean.FALSE);
 				if(translation != null) {
 					String trueKey = adapter.getObject().getClass().getName() + "." + property + ".true";
 					try {

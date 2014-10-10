@@ -3,6 +3,7 @@ package frostillicus.xsp.model.domino;
 import java.math.BigInteger;
 import java.util.*;
 
+import com.ibm.designer.runtime.domino.bootstrap.util.StringUtil;
 import com.ibm.xsp.model.TabularDataModel;
 
 import frostillicus.xsp.model.AbstractModelList;
@@ -354,10 +355,12 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		final String key = "viewentries-" + this.toString();
 		if (!requestScope.containsKey(key)) {
 			View view = getView();
-			if (getResortColumn() != null) {
-				view.FTSearchSorted(searchQuery_, 0, getResortColumn(), isAscending(), false, false, false);
-			} else {
-				view.FTSearch(searchQuery_);
+			if(StringUtil.isNotEmpty(searchQuery_)) {
+				if (getResortColumn() != null) {
+					view.FTSearchSorted(searchQuery_, 0, getResortColumn(), isAscending(), false, false, false);
+				} else {
+					view.FTSearch(searchQuery_);
+				}
 			}
 
 			if(category_ != null) {

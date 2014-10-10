@@ -321,12 +321,14 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 				Document doc = document(true);
 
+				Session session = doc.getAncestorSession();
+				session.evaluate(" @SetField('$$ModelUNID'; @DocumentUniqueID) ", doc);
+
 				if(!querySaveDocument(doc)) {
 					return false;
 				}
 
 				// Clean up any date/time-only fields
-				Session session = doc.getAncestorSession();
 				for(Field field : getClass().getDeclaredFields()) {
 					if(field.getType().equals(java.sql.Date.class)) {
 						session.evaluate(MessageFormat.format(" @If(@IsTime({0}); @SetField(\"{0}\"; @Date({0})); \"\") ", field.getName()), doc);
