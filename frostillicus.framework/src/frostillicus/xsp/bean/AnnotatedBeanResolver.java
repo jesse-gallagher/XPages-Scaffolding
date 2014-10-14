@@ -108,15 +108,26 @@ public class AnnotatedBeanResolver extends VariableResolver {
 	}
 
 	private Database getDatabase(final FacesContext facesContext) throws NotesException {
-		lotus.domino.Database lotusDatabase = (lotus.domino.Database)delegate_.resolveVariable(facesContext, "database");
-		Database database;
-		if(lotusDatabase instanceof Database) {
-			database = (Database)lotusDatabase;
-		} else {
-			Session session = Factory.fromLotus(lotusDatabase.getParent(), Session.SCHEMA, null);
-			database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+		Object database = delegate_.resolveVariable(facesContext, "database");
+		if(!(database instanceof Database)) {
+			database = delegate_.resolveVariable(facesContext, "opendatabase");
 		}
-		return database;
+		return (Database)database;
+		//		lotus.domino.Database lotusDatabase = (lotus.domino.Database)delegate_.resolveVariable(facesContext, "database");
+		//		Database database;
+		//		if(lotusDatabase instanceof Database) {
+		//			database = (Database)lotusDatabase;
+		//		} else {
+		//			Session session;
+		//			lotus.domino.Session lotusSession = lotusDatabase.getParent();
+		//			if(lotusSession instanceof Session) {
+		//				session = (Session)lotusSession;
+		//			} else {
+		//				session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+		//			}
+		//			database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
+		//		}
+		//		return database;
 	}
 
 	private static class BeanInfo implements Serializable {

@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -428,6 +429,12 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 				} else if(!List.class.isAssignableFrom(value.getClass())) {
 					return new ArrayList<Object>(Arrays.asList(value));
 				}
+			} else if(value instanceof Date && java.sql.Date.class.equals(type)) {
+				// Then the value should be a java.util.Date
+				return new java.sql.Date(((Date)value).getTime());
+			} else if(value instanceof Date && java.sql.Time.class.equals(type)) {
+				// Then the value should be a java.util.Date
+				return new java.sql.Time(((Date)value).getTime());
 			}
 		}
 		return value;

@@ -3,7 +3,7 @@
    <description name="frostillic.us Framework" url="https://github.com/jesse-gallagher/XPages-Scaffolding">
       A collection of support classes for XPages development.
    </description>
-   <feature url="features/frostillicus.framework.feature_1.0.0.201410101300.jar" id="frostillicus.framework.feature" version="1.0.0.201410101300">
+   <feature url="features/frostillicus.framework.feature_1.0.0.201410121135.jar" id="frostillicus.framework.feature" version="1.0.0.201410121135">
       <category name="frostillic.us"/>
    </feature>
    <category-def name="frostillic.us" label="frostillic.us"/>

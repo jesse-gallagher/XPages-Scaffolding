@@ -649,15 +649,26 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			if(!(key instanceof String)) {
 				throw new IllegalArgumentException("key must be a String");
 			}
+
+			// convert java.sql types to Date
+			Object storedValue = null;
+			if(value instanceof java.sql.Date) {
+				storedValue = new Date(((java.sql.Date)value).getTime());
+			} else if(value instanceof java.sql.Time) {
+				storedValue = new Date(((java.sql.Time)value).getTime());
+			} else {
+				storedValue = value;
+			}
+
 			if(isDominoDocument()) {
 				// for Rich Text items, do a manual conversion to a MimeMultipart
 				if(stringSet(richTextFields()).contains(key) && value instanceof String) {
-					getDominoDocument().setValue(key, MimeMultipart.fromHTML(value));
+					getDominoDocument().setValue(key, MimeMultipart.fromHTML(storedValue));
 				} else {
-					getDominoDocument().setValue(key, value);
+					getDominoDocument().setValue(key, storedValue);
 				}
 			} else {
-				changes_.put((String)key, value);
+				changes_.put((String)key, storedValue);
 				storedChanges_ = false;
 			}
 		}
