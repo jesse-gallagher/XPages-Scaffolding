@@ -246,7 +246,7 @@ public class ModelResource {
 					if(StringUtil.isNotEmpty(range) && range.startsWith("items=")) {
 						// Then use the header range
 						int pos = "items=".length();
-						int sep = range.indexOf(pos);
+						int sep = range.indexOf('-', pos);
 						start = Integer.valueOf(range.substring(pos, sep));
 						int last = Integer.valueOf(range.substring(sep+1));
 						count = last - start+1;
