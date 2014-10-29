@@ -1,25 +1,41 @@
 package frostillicus.xsp.util;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
 import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 
-import org.openntf.domino.*;
+import lotus.domino.NotesException;
+import lotus.domino.local.NotesBase;
+
+import org.openntf.domino.Database;
+import org.openntf.domino.DateTime;
+import org.openntf.domino.Session;
+import org.openntf.domino.ViewEntry;
 import org.openntf.domino.utils.Factory;
 import org.openntf.domino.utils.XSPUtil;
 
 import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.component.UIViewRootEx2;
-
-import lotus.domino.NotesException;
-import lotus.domino.local.NotesBase;
-
-import java.io.*;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.*;
+import com.ibm.xsp.designer.context.XSPContext;
+import com.ibm.xsp.designer.context.XSPUrl;
+import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 public enum FrameworkUtils {
 	;
@@ -36,16 +52,16 @@ public enum FrameworkUtils {
 	}
 
 	public static Session getSession() {
-		if(isFaces()) {
+		if (isFaces()) {
 			Object session = resolveVariable("session");
-			if(!(session instanceof Session)) {
+			if (!(session instanceof Session)) {
 				session = resolveVariable("opensession");
 			}
-			return (Session)session;
+			return (Session) session;
 		} else {
 			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
 			Session session;
-			if(lotusSession == null) {
+			if (lotusSession == null) {
 				session = Factory.getSession();
 			} else {
 				session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
@@ -54,8 +70,9 @@ public enum FrameworkUtils {
 			return session;
 		}
 	}
+
 	public static Session getSessionAsSigner() {
-		if(isFaces()) {
+		if (isFaces()) {
 			return XSPUtil.getCurrentSessionAsSigner();
 		} else {
 			return getSession();
@@ -63,17 +80,17 @@ public enum FrameworkUtils {
 	}
 
 	public static Database getDatabase() {
-		if(isFaces()) {
+		if (isFaces()) {
 			Object database = resolveVariable("database");
-			if(!(database instanceof Database)) {
+			if (!(database instanceof Database)) {
 				database = resolveVariable("opendatabase");
 			}
-			return (Database)database;
+			return (Database) database;
 		} else {
 			Session session = getSession();
 			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
 			Database database;
-			if(lotusDatabase == null) {
+			if (lotusDatabase == null) {
 				database = session.getCurrentDatabase();
 			} else {
 				database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
@@ -84,8 +101,8 @@ public enum FrameworkUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getApplicationScope() {
-		if(isFaces()) {
-			return (Map<String, Object>)resolveVariable("applicationScope");
+		if (isFaces()) {
+			return (Map<String, Object>) resolveVariable("applicationScope");
 		} else {
 			return new HashMap<String, Object>();
 		}
@@ -93,8 +110,8 @@ public enum FrameworkUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getSessionScope() {
-		if(isFaces()) {
-			return (Map<String, Object>)resolveVariable("applicationScope");
+		if (isFaces()) {
+			return (Map<String, Object>) resolveVariable("applicationScope");
 		} else {
 			return new HashMap<String, Object>();
 		}
@@ -102,8 +119,8 @@ public enum FrameworkUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getViewScope() {
-		if(isFaces()) {
-			return (Map<String, Object>)resolveVariable("viewScope");
+		if (isFaces()) {
+			return (Map<String, Object>) resolveVariable("viewScope");
 		} else {
 			return new HashMap<String, Object>();
 		}
@@ -111,8 +128,8 @@ public enum FrameworkUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getRequestScope() {
-		if(isFaces()) {
-			return (Map<String, Object>)resolveVariable("requestScope");
+		if (isFaces()) {
+			return (Map<String, Object>) resolveVariable("requestScope");
 		} else {
 			return new HashMap<String, Object>();
 		}
@@ -120,8 +137,8 @@ public enum FrameworkUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<Object, Object> getFlashScope() {
-		if(isFaces()) {
-			return (Map<Object, Object>)resolveVariable("flashScope");
+		if (isFaces()) {
+			return (Map<Object, Object>) resolveVariable("flashScope");
 		} else {
 			return new HashMap<Object, Object>();
 		}
@@ -129,8 +146,8 @@ public enum FrameworkUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> getParam() {
-		if(isFaces()) {
-			return (Map<String, String>)resolveVariable("param");
+		if (isFaces()) {
+			return (Map<String, String>) resolveVariable("param");
 		} else {
 			return new HashMap<String, String>();
 		}
@@ -141,7 +158,7 @@ public enum FrameworkUtils {
 	}
 
 	public static Object getBindingValue(final String ref) {
-		if(isFaces()) {
+		if (isFaces()) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			Application application = context.getApplication();
 			return application.createValueBinding(ref).getValue(context);
@@ -151,7 +168,7 @@ public enum FrameworkUtils {
 	}
 
 	public static void setBindingValue(final String ref, final Object newObject) {
-		if(isFaces()) {
+		if (isFaces()) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			Application application = context.getApplication();
 			ValueBinding binding = application.createValueBinding(ref);
@@ -160,7 +177,7 @@ public enum FrameworkUtils {
 	}
 
 	public static Object resolveVariable(final String varName) {
-		if(isFaces()) {
+		if (isFaces()) {
 			FacesContext context = FacesContext.getCurrentInstance();
 			return context.getApplication().getVariableResolver().resolveVariable(context, varName);
 		} else {
@@ -306,28 +323,31 @@ public enum FrameworkUtils {
 	}
 
 	public static boolean isSpecialText(final String specialText) {
-		return specialText.contains((char)127 + "");
+		return specialText.contains((char) 127 + "");
 	}
 
 	public static String specialTextDecode(final String specialText, final ViewEntry viewEntry) throws NotesException {
 		String result = specialText;
-		//if(true) return result;
+		// if(true) return result;
 
-		String specialStart = (char)127 + "";
-		String specialEnd = (char)160 + "";
+		String specialStart = (char) 127 + "";
+		String specialEnd = (char) 160 + "";
 
 		// First, find the start and end of the special text
 		int start_pos = result.indexOf(specialStart);
 		int end_pos = result.indexOf(specialEnd);
 
-		// This is just in case things get out of hand - no need to have broken code
-		//	result in an infinite loop on the server
+		// This is just in case things get out of hand - no need to have broken
+		// code
+		// result in an infinite loop on the server
 		int loopStopper = 1;
 		while (start_pos > -1 && end_pos > start_pos && loopStopper < 100) {
 			loopStopper++;
 
-			// "working" holds the text we're going to replace, minus the delimiters
-			// "result" holds the text we're going to replace working and the delimiters with
+			// "working" holds the text we're going to replace, minus the
+			// delimiters
+			// "result" holds the text we're going to replace working and the
+			// delimiters with
 			String working = result.substring(start_pos + 1, end_pos);
 			String midResult = "";
 			String[] choices;
@@ -345,7 +365,8 @@ public enum FrameworkUtils {
 					midResult = strRight(working, "=").replaceAll("%", viewEntry.getChildCount() + "");
 					break;
 				case 2:
-					// For convenience, I'll break the string into each option, even if I only use one
+					// For convenience, I'll break the string into each option,
+					// even if I only use one
 					choices = new String[] { "", "" };
 
 					// I can cheat a bit on the first one to find the length
@@ -364,7 +385,8 @@ public enum FrameworkUtils {
 
 					break;
 				case 3:
-					// For convenience, I'll break the string into each option, even if I only use one
+					// For convenience, I'll break the string into each option,
+					// even if I only use one
 					choices = new String[] { "", "", "" };
 
 					// I can cheat a bit on the first one to find the length
@@ -402,7 +424,8 @@ public enum FrameworkUtils {
 					midResult = strRight(working, "=").replaceAll("%", viewEntry.getDescendantCount() + "");
 					break;
 				case 2:
-					// For convenience, I'll break the string into each option, even if I only use one
+					// For convenience, I'll break the string into each option,
+					// even if I only use one
 					choices = new String[] { "", "" };
 
 					// I can cheat a bit on the first one to find the length
@@ -421,7 +444,8 @@ public enum FrameworkUtils {
 
 					break;
 				case 3:
-					// For convenience, I'll break the string into each option, even if I only use one
+					// For convenience, I'll break the string into each option,
+					// even if I only use one
 					choices = new String[] { "", "", "" };
 
 					// I can cheat a bit on the first one to find the length
@@ -454,11 +478,16 @@ public enum FrameworkUtils {
 				break;
 			case 'A':
 				// @DocNumber
-				/* Three forms:
+				/*
+				 * Three forms:
+				 * 
 				 * @DocNumber - all levels separated by "."
+				 * 
 				 * @DocNumber("") - only the least significant level
-				 * @DocNumber(char) - all levels separated by char. Note: the formula accepts a multi-character string, but
-				 * 	displays it as just the string, not the doc level
+				 * 
+				 * @DocNumber(char) - all levels separated by char. Note: the
+				 * formula accepts a multi-character string, but displays it as
+				 * just the string, not the doc level
 				 */
 				parameterCount = Integer.parseInt(working.substring(1, 2));
 				switch (parameterCount) {
@@ -470,7 +499,8 @@ public enum FrameworkUtils {
 					if (delimiter.length() == 0) {
 						midResult = strRightBack(viewEntry.getPosition('.'), ".");
 					} else if (delimiter.length() > 1) {
-						// Mimic formula's weird behavior for multi-character strings
+						// Mimic formula's weird behavior for multi-character
+						// strings
 						midResult = delimiter;
 					} else {
 						midResult = viewEntry.getPosition(delimiter.charAt(0));
@@ -480,7 +510,8 @@ public enum FrameworkUtils {
 				break;
 			case 'J':
 				// @DocParentNumber
-				// Same as above, just for the parent, so do the same thing and chomp off the last bit
+				// Same as above, just for the parent, so do the same thing and
+				// chomp off the last bit
 				if (viewEntry.getIndentLevel() == 0) {
 					midResult = "";
 				} else {
@@ -494,7 +525,8 @@ public enum FrameworkUtils {
 						if (delimiter.length() == 0) {
 							midResult = strRightBack(strLeftBack(viewEntry.getPosition('.'), "."), ".");
 						} else if (delimiter.length() > 1) {
-							// Mimic formula's weird behavior for multi-character strings
+							// Mimic formula's weird behavior for
+							// multi-character strings
 							midResult = delimiter;
 						} else {
 							midResult = strLeftBack(viewEntry.getPosition(delimiter.charAt(0)), delimiter);
@@ -509,10 +541,15 @@ public enum FrameworkUtils {
 				break;
 			case 'I':
 				// @IsCategory
-				/* Three forms:
+				/*
+				 * Three forms:
+				 * 
 				 * @IsCategory - "*" if it's a category, "" otherwise
+				 * 
 				 * @IsCategory(string) - string if it's a category, "" otherwise
-				 * @IsCategory(string1, string 2) - string1 if it's a category, string2 otherwise
+				 * 
+				 * @IsCategory(string1, string 2) - string1 if it's a category,
+				 * string2 otherwise
 				 */
 				parameterCount = Integer.parseInt(working.substring(1, 2));
 				switch (parameterCount) {
@@ -523,7 +560,8 @@ public enum FrameworkUtils {
 					midResult = viewEntry.isCategory() ? strRight(working, "=") : "";
 					break;
 				case 2:
-					// For convenience, I'll break the string into each option, even if I only use one
+					// For convenience, I'll break the string into each option,
+					// even if I only use one
 					choices = new String[] { "", "" };
 					offset = 0;
 					length = Integer.parseInt(strLeft(strRight(working, ";"), "="));
@@ -541,9 +579,11 @@ public enum FrameworkUtils {
 				break;
 			case 'G':
 				// @IsExpandable
-				// This is a UI function that changes based on the expanded/collapsed state of the entry in
-				//	the Notes client. This kind of behavior could be better done without @functions on the web,
-				//	so it's not really worth implementing
+				// This is a UI function that changes based on the
+				// expanded/collapsed state of the entry in
+				// the Notes client. This kind of behavior could be better done
+				// without @functions on the web,
+				// so it's not really worth implementing
 				midResult = "";
 				break;
 			default:
@@ -572,23 +612,25 @@ public enum FrameworkUtils {
 	}
 
 	public static void addMessage(final String summary) {
-		if(isFaces()) {
+		if (isFaces()) {
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(summary));
 		}
 	}
+
 	public static void addMessage(final String summary, final String detail) {
-		if(isFaces()) {
+		if (isFaces()) {
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(summary, detail));
 		}
 	}
+
 	public static void addMessage(final FacesMessage.Severity severity, final String summary, final String detail) {
-		if(isFaces()) {
+		if (isFaces()) {
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
 		}
 	}
 
-
-	// Via http://stackoverflow.com/questions/12740889/what-is-the-least-expensive-way-to-test-if-a-view-has-been-recycled
+	// Via
+	// http://stackoverflow.com/questions/12740889/what-is-the-least-expensive-way-to-test-if-a-view-has-been-recycled
 	public static boolean isRecycled(final lotus.domino.Base object) {
 		if (!(object instanceof NotesBase)) {
 			// No reason to test non-NotesBase objects -> isRecycled = true
@@ -609,17 +651,69 @@ public enum FrameworkUtils {
 
 	/**
 	 * @param url
-	 * 	The URL of a resource in the application in the style used for XSP component URLs, e.g. "/foo.js"
-	 * @return
-	 * 	The server-relative URL of the resource inside the application
+	 *            The URL of a resource in the application in the style used for
+	 *            XSP component URLs, e.g. "/foo.js"
+	 * @return The server-relative URL of the resource inside the application
 	 */
 	public String getResourceURL(final String url) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
-		return facesContext.getExternalContext().encodeResourceURL(facesContext.getApplication().getViewHandler().getResourceURL(facesContext, url));
+		return facesContext.getExternalContext().encodeResourceURL(
+				facesContext.getApplication().getViewHandler().getResourceURL(facesContext, url));
 	}
 
 	public String getActionURL(final String url) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
-		return facesContext.getExternalContext().encodeActionURL(facesContext.getApplication().getViewHandler().getActionURL(facesContext, url));
+		return facesContext.getExternalContext().encodeActionURL(
+				facesContext.getApplication().getViewHandler().getActionURL(facesContext, url));
+	}
+
+	public static boolean isMobile() {
+		boolean retVal_ = false;
+		try {
+			XSPContext context = ExtLibUtil.getXspContext();
+			String agent = context.getUserAgent().getUserAgent();
+			if (null == agent)
+				return false;
+			agent = agent.toLowerCase();
+			if (agent.contains("iphone") || agent.contains("iPad") || agent.contains("android")) {
+				retVal_ = true;
+			}
+		} catch (Throwable t) {
+
+		}
+		return retVal_;
+	}
+
+	/**
+	 * Reloads the page, using redirectToPage and passing current URL and
+	 * queryString
+	 */
+	public static void reloadPage() {
+		XSPContext context = (XSPContext) resolveVariable("context");
+		XSPUrl thisUrl = context.getUrl();
+		context.redirectToPage(thisUrl.getAddress() + thisUrl.getQueryString());
+	}
+
+	/**
+	 * Tests that the whole string is numeric
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumeric(String str) {
+		NumberFormat formatter = NumberFormat.getInstance();
+		ParsePosition pos = new ParsePosition(0);
+		formatter.parse(str, pos);
+		return str.length() == pos.getIndex();
+	}
+
+	/**
+	 * Test whether we're in the Render Response phase
+	 * 
+	 * @return
+	 */
+	public static boolean isRenderingPhase() {
+		UIViewRootEx2 view = (UIViewRootEx2) resolveVariable("view");
+		return view.isRenderingPhase();
 	}
 }
