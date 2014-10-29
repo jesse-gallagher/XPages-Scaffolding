@@ -67,4 +67,16 @@
 			<tag-name>convertEmptyValue</tag-name>
 		</converter-extension>
 	</converter>
+	
+	
+	<converter>
+		<description>Displays a list of Domino name values in common name format</description>
+		<display-name>Iterable Common Name Converter</display-name>
+    	<converter-id>iterableCommonNameConverter</converter-id>
+    	<converter-class>converter.IterableCommonNameConverter</converter-class>
+    	
+		<converter-extension>
+			<tag-name>convertIterableCommonName</tag-name>
+		</converter-extension>
+	</converter>
 </faces-config>
