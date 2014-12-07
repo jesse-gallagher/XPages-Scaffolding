@@ -1,17 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: frostillic.us Framework
-Bundle-SymbolicName: frostillicus.framework;singleton:=true
+Bundle-SymbolicName: frostillicus.framework.plugin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: frostillicus.framework.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: lotus.domino,
  org.eclipse.core.runtime,
- org.openntf.domino,
- org.openntf.domino.design,
- org.openntf.domino.types,
- org.openntf.domino.utils,
- org.openntf.domino.utils.xml,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.xsp.extlib,
@@ -25,7 +20,8 @@ Require-Bundle: com.ibm.xsp.extlib,
  com.ibm.commons.vfs,
  com.ibm.designer.runtime,
  com.ibm.domino.napi,
- com.ibm.icu.base
+ com.ibm.icu.base,
+ org.openntf.domino
 Export-Package: frostillicus.framework,
  frostillicus.xsp,
  frostillicus.xsp.bean,

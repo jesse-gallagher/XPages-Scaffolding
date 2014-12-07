@@ -13,7 +13,6 @@ import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.component.UIViewRootEx2;
 
 import lotus.domino.NotesException;
-import lotus.domino.local.NotesBase;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -585,26 +584,6 @@ public enum FrameworkUtils {
 		if(isFaces()) {
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
 		}
-	}
-
-
-	// Via http://stackoverflow.com/questions/12740889/what-is-the-least-expensive-way-to-test-if-a-view-has-been-recycled
-	public static boolean isRecycled(final lotus.domino.Base object) {
-		if (!(object instanceof NotesBase)) {
-			// No reason to test non-NotesBase objects -> isRecycled = true
-			return true;
-		}
-
-		try {
-			NotesBase notesObject = (NotesBase) object;
-			Method isDead = notesObject.getClass().getSuperclass().getDeclaredMethod("isDead");
-			isDead.setAccessible(true);
-
-			return (Boolean) isDead.invoke(notesObject);
-		} catch (Throwable exception) {
-		}
-
-		return true;
 	}
 
 	/**

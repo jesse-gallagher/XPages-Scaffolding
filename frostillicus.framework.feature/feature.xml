@@ -217,7 +217,7 @@
    </license>
 
    <plugin
-         id="frostillicus.framework"
+         id="frostillicus.framework.plugin"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

@@ -11,7 +11,6 @@ import lotus.domino.NotesException;
 
 import org.openntf.domino.*;
 import org.openntf.domino.design.*;
-import org.openntf.domino.utils.Factory;
 
 import com.ibm.commons.util.StringUtil;
 
