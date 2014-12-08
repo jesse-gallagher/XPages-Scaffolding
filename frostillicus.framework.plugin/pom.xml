@@ -2,6 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>frostillicus.framework.plugin</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+	</build>
 
 	<parent>
 		<groupId>frostillicus_framework</groupId>

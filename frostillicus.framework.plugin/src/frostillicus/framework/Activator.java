@@ -4,7 +4,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends Plugin {
-	public static final String PLUGIN_ID = Activator.class.getPackage().getName();
+	public static final String PLUGIN_ID = "frostillicus.framework.plugin";
 	public static final boolean _debug = false;
 
 	public static Activator instance;
