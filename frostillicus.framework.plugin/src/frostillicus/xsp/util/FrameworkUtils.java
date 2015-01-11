@@ -15,7 +15,6 @@ import com.ibm.xsp.component.UIViewRootEx2;
 import lotus.domino.NotesException;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
