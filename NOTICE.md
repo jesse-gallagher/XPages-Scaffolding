@@ -20,3 +20,4 @@ The project contains the following 3rd-party code:
 7. The Hibernate JPA API implementation 1.0.0, which is part of the Hibernate ORM, available from http://hibernate.org/ and licensed under the LGPL 2.1
 8. The annotations from FindBugs, which is available from http://findbugs.sourceforge.net/ and is licensed under the LGPL
 9. The org.openntf.xsp.extlib project from Tim Tripcony, which is available from https://github.com/timtripcony/org.openntf.xsp.extlib and is licensed under the Apache License 2.0. Its NOTICE file is included
+10. The "flash scope for XPages" from http://www.bleedyellow.com/blogs/andyc/entry/a_flash_scope_for_xpages?lang=en_gb
