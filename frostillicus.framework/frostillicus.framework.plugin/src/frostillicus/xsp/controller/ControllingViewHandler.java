@@ -28,6 +28,9 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 	public UIViewRoot createView(final FacesContext context, final String pageName) {
 		// Page name is in the format "/home"
 		String pageClassName = pageName.substring(1);
+		if(pageClassName.contains(".xsp")) {
+			pageClassName = FrameworkUtils.strLeft(pageClassName, ".xsp");
+		}
 
 		if(pageClassName.equalsIgnoreCase("$$OpenDominoDocument")) {
 			// Handle the virtual document page. There may be a better way to do this, but this will do for now
