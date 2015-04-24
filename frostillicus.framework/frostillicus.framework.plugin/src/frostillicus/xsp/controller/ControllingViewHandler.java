@@ -27,6 +27,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 	@Override
 	public UIViewRoot createView(final FacesContext context, final String pageName) {
 		// Page name is in the format "/home"
+		String truePageName = pageName;
 		String pageClassName = pageName.substring(1);
 		if(pageClassName.contains(".xsp")) {
 			pageClassName = FrameworkUtils.strLeft(pageClassName, ".xsp");
@@ -58,6 +59,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 					} else {
 						pageClassName = FrameworkUtils.strLeftBack(xpageAlt, ".xsp");
 					}
+					truePageName = "/" + pageClassName;
 				}
 			}
 		}
@@ -74,7 +76,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 			Map<String, Object> requestScope = (Map<String, Object>)resolveVariable(context, "requestScope");
 			requestScope.put(BEAN_NAME, pageController);
 
-			root = (UIViewRootEx)super.createView(context, pageName);
+			root = (UIViewRootEx)super.createView(context, truePageName);
 			root.getViewMap().put(BEAN_NAME, pageController);
 			requestScope.remove(BEAN_NAME);
 
@@ -88,7 +90,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 			root.setAfterRestoreView(afterRestoreView);
 		} catch(Exception e) {
 			e.printStackTrace();
-			root = (UIViewRootEx)super.createView(context, pageName);
+			root = (UIViewRootEx)super.createView(context, truePageName);
 		}
 
 		return root;
