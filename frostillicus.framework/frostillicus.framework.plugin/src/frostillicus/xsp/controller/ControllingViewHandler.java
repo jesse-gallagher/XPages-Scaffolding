@@ -33,21 +33,28 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 			// Handle the virtual document page. There may be a better way to do this, but this will do for now
 			Database database = (Database)resolveVariable(context, "database");
 			Map<String, String> param = (Map<String, String>)resolveVariable(context, "param");
-			Document doc = database.getDocumentByUNID(param.get("documentId"));
-			if(doc != null) {
-				String formName = doc.getItemValueString("Form");
-
-				// Now that we have the form, look for the XPageAlt
-				Form form = database.getForm(formName);
-				String formURL = form.getURL();
-				String formUNID = FrameworkUtils.strRightBack(FrameworkUtils.strLeftBack(formURL, "?Open"), "/");
-				Document formDoc = database.getDocumentByUNID(formUNID);
-				String xpageAlt = formDoc.getItemValueString("$XPageAlt");
-
-				if(StringUtil.isEmpty(xpageAlt)) {
-					pageClassName = formName;
-				} else {
-					pageClassName = FrameworkUtils.strLeftBack(xpageAlt, ".xsp");
+			String documentId = param.get("documentId");
+			if(StringUtil.isNotEmpty(documentId)) {
+				Document doc = database.getDocumentByUNID(param.get("documentId"));
+				if(doc == null) {
+					// Could be a Note ID
+					doc = database.getDocumentByID(documentId);
+				}
+				if(doc != null) {
+					String formName = doc.getItemValueString("Form");
+	
+					// Now that we have the form, look for the XPageAlt
+					Form form = database.getForm(formName);
+					String formURL = form.getURL();
+					String formUNID = FrameworkUtils.strRightBack(FrameworkUtils.strLeftBack(formURL, "?Open"), "/");
+					Document formDoc = database.getDocumentByUNID(formUNID);
+					String xpageAlt = formDoc.getItemValueString("$XPageAlt");
+	
+					if(StringUtil.isEmpty(xpageAlt)) {
+						pageClassName = formName;
+					} else {
+						pageClassName = FrameworkUtils.strLeftBack(xpageAlt, ".xsp");
+					}
 				}
 			}
 		}
