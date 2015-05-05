@@ -686,6 +686,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		private void writeObject(final java.io.ObjectOutputStream out) throws IOException {
 			out.defaultWriteObject();
+			
 			if(isDominoDocument()) {
 				dominoDocument_.beforeSerializing();
 			}

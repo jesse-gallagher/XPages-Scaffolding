@@ -27,7 +27,8 @@ public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.m
 	private String key_;
 	private Boolean readonly_;
 
-	public ModelDataSource() { }
+	public ModelDataSource() {
+	}
 
 	/* ******************************************************************************
 	 * Property getter/setters
