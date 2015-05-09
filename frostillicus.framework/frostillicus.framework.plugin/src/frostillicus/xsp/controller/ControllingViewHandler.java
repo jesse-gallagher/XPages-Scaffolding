@@ -18,12 +18,9 @@ import java.util.*;
 
 public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerExImpl {
 	public static final String BEAN_NAME = "controller";
-	
-	private ViewHandler delegate_;
 
 	public ControllingViewHandler(final ViewHandler delegate) {
 		super(delegate);
-		delegate_ = delegate;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -79,7 +76,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 			Map<String, Object> requestScope = (Map<String, Object>)resolveVariable(context, "requestScope");
 			requestScope.put(BEAN_NAME, pageController);
 
-			root = (UIViewRootEx)delegate_.createView(context, truePageName);
+			root = (UIViewRootEx)super.createView(FacesContext.getCurrentInstance(), truePageName);
 			root.getViewMap().put(BEAN_NAME, pageController);
 			requestScope.remove(BEAN_NAME);
 
