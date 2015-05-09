@@ -18,9 +18,12 @@ import java.util.*;
 
 public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerExImpl {
 	public static final String BEAN_NAME = "controller";
+	
+	private ViewHandler delegate_;
 
 	public ControllingViewHandler(final ViewHandler delegate) {
 		super(delegate);
+		delegate_ = delegate;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -35,7 +38,7 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 
 		if(pageClassName.equalsIgnoreCase("$$OpenDominoDocument")) {
 			// Handle the virtual document page. There may be a better way to do this, but this will do for now
-			Database database = (Database)resolveVariable(context, "database");
+			Database database = FrameworkUtils.getDatabase();
 			Map<String, String> param = (Map<String, String>)resolveVariable(context, "param");
 			String documentId = param.get("documentId");
 			if(StringUtil.isNotEmpty(documentId)) {
@@ -76,18 +79,24 @@ public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerE
 			Map<String, Object> requestScope = (Map<String, Object>)resolveVariable(context, "requestScope");
 			requestScope.put(BEAN_NAME, pageController);
 
-			root = (UIViewRootEx)super.createView(context, truePageName);
+			root = (UIViewRootEx)delegate_.createView(context, truePageName);
 			root.getViewMap().put(BEAN_NAME, pageController);
 			requestScope.remove(BEAN_NAME);
 
-			MethodBinding beforeRenderResponse = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".beforeRenderResponse}", new Class[] { PhaseEvent.class });
-			root.setBeforeRenderResponse(beforeRenderResponse);
+			if(root.getBeforeRenderResponse() == null) {
+				MethodBinding beforeRenderResponse = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".beforeRenderResponse}", new Class[] { PhaseEvent.class });
+				root.setBeforeRenderResponse(beforeRenderResponse);
+			}
 
-			MethodBinding afterRenderResponse = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".afterRenderResponse}", new Class[] { PhaseEvent.class });
-			root.setAfterRenderResponse(afterRenderResponse);
+			if(root.getAfterRenderResponse() == null) {
+				MethodBinding afterRenderResponse = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".afterRenderResponse}", new Class[] { PhaseEvent.class });
+				root.setAfterRenderResponse(afterRenderResponse);
+			}
 
-			MethodBinding afterRestoreView = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".afterRestoreView}", new Class[] { PhaseEvent.class });
-			root.setAfterRestoreView(afterRestoreView);
+			if(root.getAfterRestoreView() == null) {
+				MethodBinding afterRestoreView = context.getApplication().createMethodBinding("#{" + BEAN_NAME + ".afterRestoreView}", new Class[] { PhaseEvent.class });
+				root.setAfterRestoreView(afterRestoreView);
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 			root = (UIViewRootEx)super.createView(context, truePageName);
