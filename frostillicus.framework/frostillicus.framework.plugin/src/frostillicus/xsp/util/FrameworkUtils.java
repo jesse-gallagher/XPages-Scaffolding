@@ -37,7 +37,7 @@ public enum FrameworkUtils {
 		if(isFaces()) {
 			Object session = resolveVariable("session");
 			if(!(session instanceof Session)) {
-				session = resolveVariable("openSession");
+				session = Factory.getWrapperFactory().fromLotus((lotus.domino.Session)session, Session.SCHEMA, null);
 			}
 			return (Session)session;
 		} else {
@@ -62,11 +62,25 @@ public enum FrameworkUtils {
 
 	public static Database getDatabase() {
 		if(isFaces()) {
-			Object database = resolveVariable("database");
-			if(!(database instanceof Database)) {
-				database = resolveVariable("openDatabase");
+			lotus.domino.Database lotusDatabase = (lotus.domino.Database)resolveVariable("database");
+			Database database;
+			if(lotusDatabase instanceof Database) {
+				database = (Database)lotusDatabase;
+			} else {
+				try {
+					Session session;
+					lotus.domino.Session lotusSession = lotusDatabase.getParent();
+					if(lotusSession instanceof Session) {
+						session = (Session)lotusSession;
+					} else {
+						session = Factory.getWrapperFactory().fromLotus(lotusSession, Session.SCHEMA, null);
+					}
+					database = Factory.getWrapperFactory().fromLotus(lotusDatabase, Database.SCHEMA, session);
+				} catch(NotesException ne) {
+					throw new RuntimeException(ne);
+				}
 			}
-			return (Database)database;
+			return database;
 		} else {
 			Session session = getSession();
 			lotus.domino.Database lotusDatabase = ContextInfo.getUserDatabase();
