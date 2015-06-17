@@ -28,9 +28,12 @@ public class ModelObjectFactory implements DataModelFactory {
 		if(obj instanceof FileDownloadValue) {
 			// Then it will be a HashMap with one entry, representing a model object -> field name pair
 			FileDownloadValue download = (FileDownloadValue)obj;
-			for(Map.Entry<Object, String> downloadEntry : ((Map<Object, String>)download.getValue()).entrySet()) {
-				if(downloadEntry.getKey() instanceof ModelObject) {
-					return ((ModelObject)downloadEntry.getKey()).getAttachmentData(downloadEntry.getValue());
+			Object downloadValue = download.getValue();
+			if(downloadValue instanceof Map) {
+				for(Map.Entry<Object, String> downloadEntry : ((Map<Object, String>)downloadValue).entrySet()) {
+					if(downloadEntry.getKey() instanceof ModelObject) {
+						return ((ModelObject)downloadEntry.getKey()).getAttachmentData(downloadEntry.getValue());
+					}
 				}
 			}
 
