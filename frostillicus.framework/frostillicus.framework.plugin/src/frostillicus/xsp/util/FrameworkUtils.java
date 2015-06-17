@@ -37,7 +37,7 @@ public enum FrameworkUtils {
 		if(isFaces()) {
 			Object session = resolveVariable("session");
 			if(!(session instanceof Session)) {
-				session = resolveVariable("opensession");
+				session = resolveVariable("openSession");
 			}
 			return (Session)session;
 		} else {
@@ -64,7 +64,7 @@ public enum FrameworkUtils {
 		if(isFaces()) {
 			Object database = resolveVariable("database");
 			if(!(database instanceof Database)) {
-				database = resolveVariable("opendatabase");
+				database = resolveVariable("openDatabase");
 			}
 			return (Database)database;
 		} else {

@@ -11,6 +11,7 @@ import lotus.domino.NotesException;
 
 import org.openntf.domino.*;
 import org.openntf.domino.design.*;
+import org.openntf.domino.utils.Factory;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -107,26 +108,21 @@ public class AnnotatedBeanResolver extends VariableResolver {
 	}
 
 	private Database getDatabase(final FacesContext facesContext) throws NotesException {
-		Object database = delegate_.resolveVariable(facesContext, "database");
-		if(!(database instanceof Database)) {
-			database = delegate_.resolveVariable(facesContext, "opendatabase");
+		lotus.domino.Database lotusDatabase = (lotus.domino.Database)delegate_.resolveVariable(facesContext, "database");
+		Database database;
+		if(lotusDatabase instanceof Database) {
+			database = (Database)lotusDatabase;
+		} else {
+			Session session;
+			lotus.domino.Session lotusSession = lotusDatabase.getParent();
+			if(lotusSession instanceof Session) {
+				session = (Session)lotusSession;
+			} else {
+				session = Factory.getWrapperFactory().fromLotus(lotusSession, Session.SCHEMA, null);
+			}
+			database = Factory.getWrapperFactory().fromLotus(lotusDatabase, Database.SCHEMA, session);
 		}
-		return (Database)database;
-		//		lotus.domino.Database lotusDatabase = (lotus.domino.Database)delegate_.resolveVariable(facesContext, "database");
-		//		Database database;
-		//		if(lotusDatabase instanceof Database) {
-		//			database = (Database)lotusDatabase;
-		//		} else {
-		//			Session session;
-		//			lotus.domino.Session lotusSession = lotusDatabase.getParent();
-		//			if(lotusSession instanceof Session) {
-		//				session = (Session)lotusSession;
-		//			} else {
-		//				session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
-		//			}
-		//			database = Factory.fromLotus(lotusDatabase, Database.SCHEMA, session);
-		//		}
-		//		return database;
+		return database;
 	}
 
 	private static class BeanInfo implements Serializable {
