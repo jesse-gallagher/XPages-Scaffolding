@@ -12,6 +12,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.ibm.xsp.webapp.DesignerFacesServlet;
 
+/**
+ * AbstractXSPServlet extends DesignerFacesServlet by wrapping the overridden service method through an abstracted
+ * doService method, which is invoked by the former, to always enforce a closing of the OutputStream. The order of
+ * invokation means that during your overriding of the abstracted doService method, you can set the Content-Type
+ * to anything you like (defaults to 'text/plain'), along with any other FacesContext based work you need, such
+ * as establishing a handle on the given user's lotus.domino.Session, as it passes the handle to the FacesContext
+ * as a parameter in the abstracted doService method.
+ * 
+ * For further detail, please consult Jesse's blog post on the subject:
+ * https://frostillic.us/blog/posts/D815DC7ED059395885257D6B00001006
+ */
 public abstract class AbstractXSPServlet extends DesignerFacesServlet {
 	@Override
 	public void service(final ServletRequest servletRequest, final ServletResponse servletResponse) throws ServletException, IOException {
