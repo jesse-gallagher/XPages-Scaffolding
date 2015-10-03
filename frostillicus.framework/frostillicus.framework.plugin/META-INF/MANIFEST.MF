@@ -21,7 +21,7 @@ Require-Bundle: com.ibm.xsp.extlib;bundle-version="9.0.1",
  com.ibm.domino.napi;bundle-version="9.0.1",
  com.ibm.icu.base,
  com.ibm.notes.java.api;bundle-version="9.0.1";resolution:=optional,
- org.openntf.domino;bundle-version="1.0.0"
+ org.openntf.domino;bundle-version="2.0.0"
 Export-Package: frostillicus.framework,
  frostillicus.xsp,
  frostillicus.xsp.bean,

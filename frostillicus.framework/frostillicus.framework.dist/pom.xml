@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>frostillicus_framework</groupId>
 		<artifactId>frostillicus.framework</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<version>1.1.0</version>
 	</parent>
 	<artifactId>frostillicus.framework.dist</artifactId>
 	<packaging>pom</packaging>
@@ -17,19 +17,19 @@
 		<dependency>
 			<groupId>frostillicus_framework</groupId>
 			<artifactId>frostillicus.framework.plugin</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>1.1.0</version>
 			<type>eclipse-plugin</type>
 		</dependency>
 		<dependency>
 			<groupId>frostillicus_framework</groupId>
 			<artifactId>frostillicus.framework.feature</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>1.1.0</version>
 			<type>eclipse-feature</type>
 		</dependency>
 		<dependency>
 			<groupId>frostillicus_framework</groupId>
 			<artifactId>frostillicus.framework.update</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>1.1.0</version>
 			<type>eclipse-update-site</type>
 		</dependency>
 	</dependencies>

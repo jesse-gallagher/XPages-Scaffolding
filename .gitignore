@@ -9,3 +9,7 @@ Thumbs.db
 *.class
 features
 plugins
+
+# Maven Versions residue
+*.versionsBackup
+release.properties
