@@ -21,6 +21,14 @@
 		<tycho-version>0.23.1</tycho-version>
 		<compiler>1.6</compiler>
 	</properties>
+	
+	<scm>
+		<url>https://github.com/jesse-gallagher/XPages-Scaffolding.git</url>
+		<developerConnection>Jesse Gallagher</developerConnection>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/jesse-gallagher/XPages-Scaffolding/issues</url>
+	</issueManagement>
 
 	<repositories>
 		<repository>
