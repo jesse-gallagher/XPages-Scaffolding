@@ -171,7 +171,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@Override
 	public int getResortType(final String columnName) {
-		if (category_ != null) {
+		if (category_ != null || invalid_) {
 			return TabularDataModel.RESORT_NONE;
 		}
 
@@ -266,6 +266,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	}
 
 	private final DominoColumnInfo findColumnByName(final String columnName) {
+		if(invalid_) { return null; }
 		for (DominoColumnInfo col : columnInfo_) {
 			if (col.getItemName().equalsIgnoreCase(columnName)) {
 				return col;
