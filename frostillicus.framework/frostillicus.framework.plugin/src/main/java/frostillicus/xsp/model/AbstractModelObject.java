@@ -350,7 +350,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);
 			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException("InvocationTargetException when asking for '" + keyObject + "' on an object of class " + getClass().getName(), e.getCause());
 			}
 		}
 
