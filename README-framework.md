@@ -10,7 +10,7 @@ There is an overview of the Framework's functionality available in [NotesIn9 158
 Dependencies
 ------------
 
-The Framework requires Domino 9.0.1+ and the OpenNTF Domino API 1.5+. Additionally, to use the model framework, the plugin must be given access to reflection via Java policy. The quickest (and time-tested) method to do this is to create a file named `java.pol` in your `jvm/lib/ext` directory in your Domino installation with the following contents:
+The Framework requires Domino 9.0.1+ and the OpenNTF Domino API 2.0.0+. Additionally, to use the model framework, the plugin must be given access to reflection via Java policy. The quickest (and time-tested) method to do this is to create a file named `java.pol` in your `jvm/lib/ext` directory in your Domino installation with the following contents:
 
     grant {
             permission java.security.AllPermission;
