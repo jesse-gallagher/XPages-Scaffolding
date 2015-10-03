@@ -15,6 +15,8 @@ The project contains the following 3rd-party code:
 	2. ClassMate, which is available from https://github.com/cowtowncoder/java-classmate and is licensed under the Apache License 2.0
 	3. JBoss Logging 3.1.3, which is available from http://mvnrepository.com/artifact/org.jboss.logging/jboss-logging/3.1.3.GA and is licensed under the Apache License 2.0
 	4. The javax.validation API 1.1.0, which is available from http://mvnrepository.com/artifact/javax.validation/validation-api/1.1.0.Final and is licensed under the Apache License 2.0
+	5. The javax.el API 2.2.4, which is available from http://mvnrepository.com/artifact/javax.el/javax.el-api/2.2.4 and is dual-licensed under the CDDL and the GPLv2 with classpath exception, used here as CDDL
+	6. GlassFish's javax.el implementation 2.2.4, which is available from http://mvnrepository.com/artifact/org.glassfish.web/javax.el/2.2.4 and is dual-licensed under the CDDL and the GPLv2 with classpath exception, used here as CDDL
 7. The Eclipse JPA API implementation 2.1.0, which is available from http://mvnrepository.com/artifact/org.eclipse.persistence/javax.persistence/2.1.0 and is licensed under the Eclipse Public License 1.0
 8. The annotations from FindBugs, which is available from http://findbugs.sourceforge.net/ and is licensed under the LGPL
 9. The org.openntf.xsp.extlib project from Tim Tripcony, which is available from https://github.com/timtripcony/org.openntf.xsp.extlib and is licensed under the Apache License 2.0. Its NOTICE file is included
