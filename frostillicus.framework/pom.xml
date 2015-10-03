@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -5,6 +6,9 @@
 	<artifactId>frostillicus.framework</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
+	<name>frostillic.us Framework</name>
+	<url>https://github.com/jesse-gallagher/XPages-Scaffolding</url>
 
 	<modules>
 		<module>frostillicus.framework.plugin</module>
@@ -30,19 +34,6 @@
 			<url>${notes-platform}</url>
 		</repository>
 	</repositories>
-	
-	<dependencies>
-		<dependency>
-			<groupId>org.openntf.domino</groupId>
-			<artifactId>org.openntf.domino</artifactId>
-			<version>1.5.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openntf.domino</groupId>
-			<artifactId>org.openntf.domino.xsp</artifactId>
-			<version>1.5.0-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -162,72 +153,69 @@
 					<resolver>p2</resolver>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-p2-extras-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<source>
-						<!-- source repositories to mirror from -->
-						<repository>
-							<url>http://download.eclipse.org/releases/juno/</url>
-							<layout>p2</layout>
-							<!-- supported layouts are "p2-metadata", "p2-artifacts", and "p2" 
-								(for joint repositories; default) -->
-						</repository>
-					</source>
-
-					<!-- starting from here all configuration parameters are optional -->
-					<!-- they are only shown here with default values for documentation 
-						purpose -->
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-repository-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<includeAllDependencies>true</includeAllDependencies>
-				</configuration>
-			</plugin>
 		</plugins>
-
+		
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
 				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
+					<!-- javadoc configuration -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9</version>
 					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.apache.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-antrun-plugin
-										</artifactId>
-										<versionRange>
-											[1.4,)
-										</versionRange>
-										<goals>
-											<goal>run</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
+						<!-- Activated by profile below -->
+						<skip>true</skip>
+					
+						<failOnError>false</failOnError>
+						<excludePackageNames>com.sun.*:com.ibm.commons.*:com.ibm.sbt.core.*:com.ibm.sbt.plugin.*:com.ibm.sbt.jslibrray.*:com.ibm.sbt.proxy.*:com.ibm.sbt.security.*:*.util.*:com.ibm.sbt.portlet.*:com.ibm.sbt.playground.*:demo.*:acme.*</excludePackageNames>
+
+						<charset>UTF-8</charset>
+						<encoding>UTF-8</encoding>
+						<docencoding>UTF-8</docencoding>
+						<breakiterator>true</breakiterator>
+						<version>true</version>
+						<author>true</author>
+						<keywords>true</keywords>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.6</version>
+					<configuration>
+						<archive>
+							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
+						</archive>
 					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>distribution</id>
+			<modules>
+				<module>frostillicus.framework.plugin</module>
+				<module>frostillicus.framework.feature</module>
+				<module>frostillicus.framework.update</module>
+				<module>frostillicus.framework.dist</module>
+			</modules>
+			
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<!-- javadoc configuration -->
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>2.9</version>
+							<configuration>
+								<skip>false</skip>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
 </project>

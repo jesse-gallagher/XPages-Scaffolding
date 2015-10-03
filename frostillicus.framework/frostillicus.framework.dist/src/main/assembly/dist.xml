@@ -1,0 +1,69 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>dist</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	
+	<!-- Local files -->
+	<fileSets>
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<outputDirectory>.</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${project.basedir}/../..</directory>
+			<includes>
+				<include>COPYRIGHT-Hibernate-Validator</include>
+				<include>LICENSE</include>
+				<include>LICENSE-ExtLib</include>
+				<include>LICENSE-Hibernate-Validator</include>
+				<include>NOTICE.md</include>
+				<include>NOTICE-ExtLib</include>
+				<include>NOTICE-org.openntf.xsp.extlib</include>
+				<include>README-framework.md</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+	
+	<moduleSets>
+		<!-- Javadocs -->
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>frostillicus_framework:frostillicus.framework.plugin:eclipse-plugin:1.0.0-SNAPSHOT</include>
+			</includes>
+			
+			<binaries>
+				<attachmentClassifier>javadoc</attachmentClassifier>
+				<includeDependencies>false</includeDependencies>
+				<outputDirectory>apidocs</outputDirectory>
+				<unpack>true</unpack>
+			</binaries>
+		</moduleSet>
+	
+		<!-- The final update site -->
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>frostillicus_framework:frostillicus.framework.update</include>
+			</includes>
+			
+			<binaries>
+				<attachmentClassifier>assembly</attachmentClassifier>
+				<outputDirectory>.</outputDirectory>
+				<unpack>false</unpack>
+				<includeDependencies>false</includeDependencies>
+				<outputFileNameMapping>UpdateSite.zip</outputFileNameMapping>
+			</binaries>
+		</moduleSet>
+		
+		
+	</moduleSets>
+</assembly>
