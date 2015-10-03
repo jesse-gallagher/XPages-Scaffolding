@@ -31,9 +31,10 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	private transient int reset_ = 0;
 
-	// This is intended to store an extra reference to the Navigator, in case it's being recycled unnecessarily
+	// This is intended to store an extra reference to the Navigator and Entry, in case they're being recycled unnecessarily
 	// It's not meant for actual use
 	private transient ViewNavigator nav_ = null;
+	private transient ViewEntry current_ = null;
 
 	public DominoModelList(final Database database, final String viewName, final String category, final Class<E> clazz) {
 		super(clazz);
@@ -98,6 +99,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 						// "object has been removed or recycled" error. Check for that and switch to
 						// our exception handler to retry
 						ViewEntry entry = nav.getCurrent();
+						current_ = entry;
 						if(entry == null) { throw new NullPointerException(); }
 						cache.put(index, createFromViewEntry(entry, columnInfo_));
 					} catch(NullPointerException npe) {
@@ -248,6 +250,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		ViewNavigator nav = getNewNavigator();
 		nav.gotoPos(rowPosition, '.');
 		ViewEntry current = nav.getCurrent();
+		current_ = current;
 		int noteId = new BigInteger(current.getNoteID(), 16).intValue();
 		collapsedIds_.add(noteId);
 		expandedIds_.remove(noteId);
@@ -259,6 +262,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		ViewNavigator nav = getNewNavigator();
 		nav.gotoPos(rowPosition, '.');
 		ViewEntry current = nav.getCurrent();
+		current_ = current;
 		int noteId = new BigInteger(current.getNoteID(), 16).intValue();
 		collapsedIds_.remove(noteId);
 		expandedIds_.add(noteId);
