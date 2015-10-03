@@ -9,7 +9,7 @@ public class Activator extends Plugin {
 
 	public static Activator instance;
 
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(
 	                                                    value="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
 	                                                    justification="This is an intentional pattern")
 	public Activator() {

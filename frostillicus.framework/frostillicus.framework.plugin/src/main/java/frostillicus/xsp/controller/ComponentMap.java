@@ -50,7 +50,7 @@ public class ComponentMap implements DataObject, Serializable {
 
 	public static final String COMPONENT_MAP_SERVICE_NAME = "frostillicus.xsp.controller.ComponentMapAdapterFactory";
 
-	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+	@edu.umd.cs.findbugs.annotations.SuppressWarnings(
 	                                                    value="SE_BAD_FIELD",
 	                                                    justification="This is cleared during serialization")
 	private Map<Object, ComponentPropertyMap> cache_ = new HashMap<Object, ComponentPropertyMap>();
