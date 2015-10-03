@@ -2,7 +2,7 @@
 <feature
       id="frostillicus.framework.feature"
       label="frostillic.us Framework"
-      version="1.0.0.qualifier">
+      version="1.1.0.qualifier">
 
    <description>
       A collection of support classes for XPages development.
@@ -201,7 +201,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2014 Jesse Gallagher
+   Copyright 2015 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.

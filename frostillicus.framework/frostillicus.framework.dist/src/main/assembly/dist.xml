@@ -37,7 +37,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>frostillicus_framework:frostillicus.framework.plugin:eclipse-plugin:1.0.0-SNAPSHOT</include>
+				<include>frostillicus_framework:frostillicus.framework.plugin:eclipse-plugin</include>
 			</includes>
 			
 			<binaries>
