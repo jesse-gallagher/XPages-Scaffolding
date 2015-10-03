@@ -27,7 +27,7 @@
 				<include>NOTICE.md</include>
 				<include>NOTICE-ExtLib</include>
 				<include>NOTICE-org.openntf.xsp.extlib</include>
-				<include>README-framework.md</include>
+				<include>README.md</include>
 			</includes>
 		</fileSet>
 	</fileSets>
