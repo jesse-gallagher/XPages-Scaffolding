@@ -214,7 +214,7 @@
 				<module>frostillicus.framework.plugin</module>
 				<module>frostillicus.framework.feature</module>
 				<module>frostillicus.framework.update</module>
-				<module>frostillicus.framework.dist</module>
+				<module>framework-dist</module>
 			</modules>
 
 			<build>
