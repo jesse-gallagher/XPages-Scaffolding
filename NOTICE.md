@@ -15,7 +15,7 @@ The project contains the following 3rd-party code:
 	2. ClassMate, which is available from https://github.com/cowtowncoder/java-classmate and is licensed under the Apache License 2.0
 	3. JBoss Logging 3.1.3, which is available from http://mvnrepository.com/artifact/org.jboss.logging/jboss-logging/3.1.3.GA and is licensed under the Apache License 2.0
 	4. The javax.validation API 1.1.0, which is available from http://mvnrepository.com/artifact/javax.validation/validation-api/1.1.0.Final and is licensed under the Apache License 2.0
-7. The Hibernate JPA API implementation 1.0.0, which is part of the Hibernate ORM, available from http://hibernate.org/ and licensed under the LGPL 2.1
+7. The Eclipse JPA API implementation 2.1.0, which is available from http://mvnrepository.com/artifact/org.eclipse.persistence/javax.persistence/2.1.0 and is licensed under the Eclipse Public License 1.0
 8. The annotations from FindBugs, which is available from http://findbugs.sourceforge.net/ and is licensed under the LGPL
 9. The org.openntf.xsp.extlib project from Tim Tripcony, which is available from https://github.com/timtripcony/org.openntf.xsp.extlib and is licensed under the Apache License 2.0. Its NOTICE file is included
 10. The "flash scope for XPages" from http://www.bleedyellow.com/blogs/andyc/entry/a_flash_scope_for_xpages?lang=en_gb
