@@ -34,6 +34,9 @@ import frostillicus.xsp.model.ModelObject;
 import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 @Path("{managerName}/{key}")
 public class ModelResource {
 

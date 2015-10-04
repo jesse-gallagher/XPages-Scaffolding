@@ -18,10 +18,12 @@ import com.ibm.xsp.model.DocumentDataContainer;
 
 import frostillicus.xsp.model.ModelObject;
 
-/* ******************************************************************************************
+/**
  * Container class to encapsulate the actual object. Since models are Serializable,
  * this is pretty simple
- ********************************************************************************************/
+ * 
+ * @since 1.0
+ */
 public class ModelDataContainer extends AbstractDataContainer implements DocumentDataContainer {
 	private ModelObject modelObject_;
 	private byte[] serializedModel_;

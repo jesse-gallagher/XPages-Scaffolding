@@ -16,6 +16,9 @@ import org.openntf.domino.*;
 
 import java.util.*;
 
+/**
+ * @since 1.0
+ */
 public class ControllingViewHandler extends com.ibm.xsp.application.ViewHandlerExImpl {
 	public static final String BEAN_NAME = "controller";
 

@@ -45,6 +45,9 @@ import com.ibm.xsp.model.DataObject;
 import frostillicus.xsp.converter.EnumBindingConverter;
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 public class ComponentMap implements DataObject, Serializable {
 	private static final long serialVersionUID = 1L;
 

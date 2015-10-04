@@ -31,6 +31,9 @@ import frostillicus.xsp.model.ModelObject;
 import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 @SuppressWarnings("unused")
 @Path("{managerName}")
 public class ManagerResource {

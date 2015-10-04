@@ -4,6 +4,9 @@ import javax.faces.event.PhaseEvent;
 
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 public class BasicXPageController implements XPageController {
 	private static final long serialVersionUID = 1L;
 

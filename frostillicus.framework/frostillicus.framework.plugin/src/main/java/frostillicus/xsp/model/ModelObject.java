@@ -14,6 +14,9 @@ import com.ibm.xsp.model.FileRowData;
 import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.ViewRowData;
 
+/**
+ * @since 1.0
+ */
 public interface ModelObject extends Serializable, DataObject, ViewRowData {
 	public boolean delete();
 

@@ -9,6 +9,9 @@ import com.ibm.xsp.model.ViewDataContainer;
 
 import frostillicus.xsp.model.AbstractModelList;
 
+/**
+ * @since 1.0
+ */
 public class ModelListDataContainer extends AbstractDataContainer implements ViewDataContainer {
 	private AbstractModelList<?> modelList_;
 

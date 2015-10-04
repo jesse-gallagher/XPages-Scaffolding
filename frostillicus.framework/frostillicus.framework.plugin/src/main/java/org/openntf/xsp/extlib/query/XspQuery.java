@@ -19,6 +19,10 @@ import javax.faces.context.FacesContext;
 
 import com.ibm.xsp.context.FacesContextEx;
 
+/**
+ * @author Tim Tripcony
+ * @since 1.0
+ */
 public class XspQuery extends ArrayList<UIComponent> {
 	private static final long serialVersionUID = 1L;
 	protected static Logger _logger;

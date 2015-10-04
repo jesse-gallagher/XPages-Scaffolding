@@ -12,6 +12,9 @@ import com.ibm.xsp.extlib.component.dynamicview.UIDynamicViewPanel;
 import frostillicus.xsp.model.domino.DominoModelList;
 import frostillicus.xsp.model.ModelObject;
 
+/**
+ * @since 1.0
+ */
 public class ModelListDynamicColumnBuilder extends DominoDynamicColumnBuilder {
 
 	@SuppressWarnings("unused")

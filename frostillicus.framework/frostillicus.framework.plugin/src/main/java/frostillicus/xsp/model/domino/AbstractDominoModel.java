@@ -30,6 +30,9 @@ import org.openntf.domino.utils.Factory;
 
 import static frostillicus.xsp.model.ModelUtils.stringSet;
 
+/**
+ * @since 1.0
+ */
 public abstract class AbstractDominoModel extends AbstractModelObject {
 	private static final long serialVersionUID = 1L;
 

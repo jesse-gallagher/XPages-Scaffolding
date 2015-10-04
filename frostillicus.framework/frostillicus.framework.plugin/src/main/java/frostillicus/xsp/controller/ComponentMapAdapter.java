@@ -8,6 +8,9 @@ import java.util.Set;
 import javax.faces.validator.Validator;
 import javax.validation.metadata.ConstraintDescriptor;
 
+/**
+ * @since 1.0
+ */
 public interface ComponentMapAdapter {
 	public Object getObject();
 

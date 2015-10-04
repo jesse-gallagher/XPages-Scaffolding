@@ -9,6 +9,9 @@ import java.util.Map;
 import org.openntf.domino.View;
 import org.openntf.domino.ViewColumn;
 
+/**
+ * @since 1.0
+ */
 public class DominoColumnInfo implements Serializable {
 	private static final long serialVersionUID = -8895078572051370217L;
 

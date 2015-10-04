@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import com.ibm.xsp.model.DataObject;
 
+/**
+ * @since 1.0
+ */
 public interface ModelManager<E extends ModelObject> extends Serializable, DataObject {
 	public AbstractModelList<E> getNamedCollection(final String name, final String category);
 

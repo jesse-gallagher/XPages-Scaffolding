@@ -17,6 +17,9 @@ import frostillicus.xsp.controller.ArbitraryValidator;
 import frostillicus.xsp.controller.ComponentMapAdapter;
 import frostillicus.xsp.model.ModelObject;
 
+/**
+ * @since 1.0
+ */
 public class ModelComponentMapAdapter implements ComponentMapAdapter {
 	private final ModelObject model_;
 

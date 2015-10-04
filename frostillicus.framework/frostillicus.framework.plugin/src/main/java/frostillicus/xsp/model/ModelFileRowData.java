@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import com.ibm.xsp.model.FileRowData;
 
+/**
+ * @since 1.0
+ */
 public class ModelFileRowData implements FileRowData, Serializable {
 	private static final long serialVersionUID = 1L;
 

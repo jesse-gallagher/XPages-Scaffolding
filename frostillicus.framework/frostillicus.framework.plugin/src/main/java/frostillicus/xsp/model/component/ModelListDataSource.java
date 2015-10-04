@@ -20,6 +20,9 @@ import frostillicus.xsp.model.AbstractModelList;
 import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelUtils;
 
+/**
+ * @since 1.0
+ */
 public class ModelListDataSource extends AbstractDataSource implements ViewDataSource {
 
 	private String managerName_;

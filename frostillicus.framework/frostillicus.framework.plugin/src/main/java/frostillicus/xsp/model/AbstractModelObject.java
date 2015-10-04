@@ -37,6 +37,9 @@ import com.ibm.xsp.model.ViewRowData;
 
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 public abstract class AbstractModelObject extends DataModel implements ModelObject {
 	private static final long serialVersionUID = 1L;
 

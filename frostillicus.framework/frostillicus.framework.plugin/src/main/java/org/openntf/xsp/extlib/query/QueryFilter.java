@@ -8,6 +8,10 @@ import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+/**
+ * @author Tim Tripcony
+ * @since 1.0
+ */
 abstract class QueryFilter {
 	private String propertyName;
 	private Object content;

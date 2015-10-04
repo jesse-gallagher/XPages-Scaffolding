@@ -11,6 +11,9 @@ import frostillicus.xsp.util.FrameworkUtils;
 
 import org.openntf.domino.*;
 
+/**
+ * @since 1.0
+ */
 @SuppressWarnings("serial")
 public class DominoModelList<E extends AbstractDominoModel> extends AbstractModelList<E> implements RandomAccess {
 

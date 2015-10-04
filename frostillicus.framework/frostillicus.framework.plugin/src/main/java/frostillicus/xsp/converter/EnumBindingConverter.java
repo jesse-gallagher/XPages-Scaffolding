@@ -8,6 +8,9 @@ import javax.faces.el.ValueBinding;
 
 import com.ibm.commons.util.StringUtil;
 
+/**
+ * @since 1.0
+ */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class EnumBindingConverter implements Converter, StateHolder {
 	private Class<? extends Enum> enumType_ = null;

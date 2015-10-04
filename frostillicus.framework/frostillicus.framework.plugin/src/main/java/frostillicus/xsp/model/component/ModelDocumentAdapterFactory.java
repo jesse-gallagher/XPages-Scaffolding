@@ -9,6 +9,9 @@ import com.ibm.xsp.actions.document.DocumentAdapterFactory;
 
 import frostillicus.xsp.model.ModelObject;
 
+/**
+ * @since 1.0
+ */
 public class ModelDocumentAdapterFactory implements DocumentAdapterFactory {
 	private final DocumentAdapterFactory delegate_;
 

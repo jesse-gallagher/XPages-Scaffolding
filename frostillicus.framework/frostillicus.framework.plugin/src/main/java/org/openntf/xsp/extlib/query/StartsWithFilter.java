@@ -5,6 +5,10 @@ import java.util.logging.Logger;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+/**
+ * @author Tim Tripcony
+ * @since 1.0
+ */
 public class StartsWithFilter extends QueryFilter {
 	protected static Logger _logger;
 	static {

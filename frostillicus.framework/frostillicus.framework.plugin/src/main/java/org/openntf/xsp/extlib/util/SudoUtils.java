@@ -1,5 +1,5 @@
 /*
- * © Copyright OpenNTF 2013
+ * ï¿½ Copyright OpenNTF 2013
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -26,6 +26,10 @@ import com.ibm.domino.napi.c.xsp.XSPNative;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 import com.ibm.xsp.util.FacesUtil;
 
+/**
+ * @author Tim Tripcony
+ * @since 1.0
+ */
 public class SudoUtils {
 	public interface SudoCallback {
 		public Object run(Session session);

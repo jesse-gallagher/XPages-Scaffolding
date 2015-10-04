@@ -6,6 +6,9 @@ import frostillicus.xsp.controller.ComponentMapAdapter;
 import frostillicus.xsp.controller.ComponentMapAdapterFactory;
 import frostillicus.xsp.model.ModelObject;
 
+/**
+ * @since 1.0
+ */
 public class ModelComponentMapAdapterFactory implements ComponentMapAdapterFactory {
 
 	@SuppressWarnings("unchecked")

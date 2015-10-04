@@ -7,6 +7,9 @@ import lotus.domino.*;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
+/**
+ * @since 1.0
+ */
 public class DominoDocumentMap implements DataObject {
 
 	@Override

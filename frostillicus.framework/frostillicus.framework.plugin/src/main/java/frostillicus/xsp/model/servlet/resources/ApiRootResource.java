@@ -12,6 +12,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+/**
+ * @since 1.0
+ */
 @SuppressWarnings("unused")
 @Path("")
 public class ApiRootResource {

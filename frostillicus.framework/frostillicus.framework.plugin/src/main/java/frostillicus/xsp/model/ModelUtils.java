@@ -21,6 +21,9 @@ import com.ibm.commons.util.StringUtil;
 import frostillicus.xsp.bean.ManagedBean;
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 public enum ModelUtils {
 	;
 

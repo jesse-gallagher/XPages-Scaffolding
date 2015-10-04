@@ -8,6 +8,9 @@ import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelUtils;
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 public abstract class AbstractDominoManager<E extends AbstractDominoModel> implements ModelManager<E> {
 	private static final long serialVersionUID = 1L;
 

@@ -4,6 +4,9 @@ import java.util.*;
 
 import javax.faces.context.FacesContext;
 
+/**
+ * @since 1.0
+ */
 public class SimpleXPagesEventDispatcher implements XPagesEventDispatcher {
 	private static final long serialVersionUID = 4297933143684795646L;
 

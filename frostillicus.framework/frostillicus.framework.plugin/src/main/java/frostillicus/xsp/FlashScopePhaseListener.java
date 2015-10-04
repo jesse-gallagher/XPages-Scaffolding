@@ -6,6 +6,9 @@ import javax.faces.context.*;
 import javax.faces.event.*;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * @since 1.0
+ */
 @SuppressWarnings("serial")
 public class FlashScopePhaseListener implements PhaseListener {
 

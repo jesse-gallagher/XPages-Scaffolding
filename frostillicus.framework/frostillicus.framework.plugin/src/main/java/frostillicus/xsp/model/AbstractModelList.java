@@ -5,6 +5,9 @@ import java.util.*;
 
 import com.ibm.xsp.model.TabularDataModel;
 
+/**
+ * @since 1.0
+ */
 public abstract class AbstractModelList<E extends ModelObject> extends TabularDataModel implements Serializable, List<E> {
 	private static final long serialVersionUID = 1L;
 

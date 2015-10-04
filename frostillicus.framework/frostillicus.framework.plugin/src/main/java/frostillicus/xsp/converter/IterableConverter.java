@@ -5,6 +5,9 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 
+/**
+ * @since 1.0
+ */
 public class IterableConverter implements Converter, StateHolder {
 	private boolean transient_;
 	private String delimiter_;

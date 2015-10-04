@@ -8,6 +8,9 @@ import javax.faces.event.PhaseEvent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * @since 1.0
+ */
 public abstract class BasicXAgentController extends BasicXPageController {
 	private static final long serialVersionUID = 1L;
 

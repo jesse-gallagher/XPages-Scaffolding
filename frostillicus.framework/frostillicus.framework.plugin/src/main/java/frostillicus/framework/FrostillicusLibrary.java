@@ -2,6 +2,9 @@ package frostillicus.framework;
 
 import com.ibm.xsp.library.AbstractXspLibrary;
 
+/**
+ * @since 1.0
+ */
 public class FrostillicusLibrary extends AbstractXspLibrary {
 	private final static String LIBRARY_ID = FrostillicusLibrary.class.getPackage().getName() + ".library";
 	private final static boolean _debug = Activator._debug;

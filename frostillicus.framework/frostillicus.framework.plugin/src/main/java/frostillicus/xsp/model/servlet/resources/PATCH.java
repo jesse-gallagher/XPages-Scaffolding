@@ -10,6 +10,9 @@ import java.lang.annotation.Target;
 import javax.ws.rs.HttpMethod;
 
 
+/**
+ * @since 1.0
+ */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @HttpMethod("PATCH")

@@ -35,6 +35,9 @@ import org.openntf.domino.utils.xml.XMLDocument;
 import org.openntf.domino.utils.xml.XMLNode;
 
 
+/**
+ * @since 1.0
+ */
 public class DynamicViewCustomizer extends DominoViewCustomizer implements Serializable {
 	private static final long serialVersionUID = -5126984721484501732L;
 

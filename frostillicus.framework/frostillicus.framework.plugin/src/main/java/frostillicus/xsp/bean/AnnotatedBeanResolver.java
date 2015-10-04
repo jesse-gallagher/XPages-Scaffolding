@@ -21,6 +21,9 @@ import frostillicus.xsp.bean.RequestScoped;
 import frostillicus.xsp.bean.SessionScoped;
 import frostillicus.xsp.bean.ViewScoped;
 
+/**
+ * @since 1.0
+ */
 public class AnnotatedBeanResolver extends VariableResolver {
 
 	private final VariableResolver delegate_;

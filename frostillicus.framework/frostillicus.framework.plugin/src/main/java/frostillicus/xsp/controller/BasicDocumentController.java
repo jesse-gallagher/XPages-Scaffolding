@@ -11,6 +11,9 @@ import com.ibm.xsp.model.domino.wrapped.DominoDocument;
 
 import java.util.Map;
 
+/**
+ * @since 1.0
+ */
 public class BasicDocumentController extends BasicXPageController implements DocumentController {
 	private static final long serialVersionUID = 1L;
 

@@ -20,6 +20,9 @@ import frostillicus.xsp.model.domino.DominoColumnInfo;
 import frostillicus.xsp.model.domino.DominoModelList;
 import frostillicus.xsp.util.FrameworkUtils;
 
+/**
+ * @since 1.0
+ */
 public abstract class AbstractFormBasedManager extends AbstractDominoManager<AbstractDominoModel> {
 	private static final long serialVersionUID = 1L;
 

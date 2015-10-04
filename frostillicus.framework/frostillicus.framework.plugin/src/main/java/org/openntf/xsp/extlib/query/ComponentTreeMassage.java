@@ -12,6 +12,10 @@ import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.util.TypedUtil;
 import com.ibm.xsp.util.ValueBindingUtil;
 
+/**
+ * @author Tim Tripcony
+ * @since 1.0
+ */
 public class ComponentTreeMassage {
 
 	protected static Logger _logger;

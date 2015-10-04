@@ -15,6 +15,9 @@ import com.ibm.xsp.component.UIOutputLabel;
 import com.ibm.xsp.util.FacesUtilExtsn;
 import com.ibm.xsp.validator.AbstractValidator;
 
+/**
+ * @since 1.0
+ */
 public class ArbitraryValidator extends AbstractValidator implements ValueBindingObject {
 	private Class<?> clazz_;
 	private String property_;

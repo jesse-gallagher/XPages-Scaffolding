@@ -22,6 +22,8 @@ import com.ibm.xsp.webapp.DesignerFacesServlet;
  * 
  * <p>For further detail, please consult Jesse's blog post on the subject:
  * <a href="https://frostillic.us/blog/posts/D815DC7ED059395885257D6B00001006">https://frostillic.us/blog/posts/D815DC7ED059395885257D6B00001006</a>.</p>
+ * 
+ * @since 1.0
  */
 public abstract class AbstractXSPServlet extends DesignerFacesServlet {
 	@Override

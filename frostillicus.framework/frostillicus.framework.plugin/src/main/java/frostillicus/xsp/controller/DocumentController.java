@@ -1,5 +1,8 @@
 package frostillicus.xsp.controller;
 
+/**
+ * @since 1.0
+ */
 public interface DocumentController extends XPageController {
 	public void queryNewDocument() throws Exception;
 	public void postNewDocument() throws Exception;

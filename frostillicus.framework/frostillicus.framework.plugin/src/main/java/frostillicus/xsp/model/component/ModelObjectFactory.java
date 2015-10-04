@@ -9,9 +9,11 @@ import com.ibm.xsp.model.FileDownloadValue;
 
 import frostillicus.xsp.model.ModelObject;
 
-/* ******************************************************************************************
+/**
  * Delegating factories to work around the horrors of the xp:fileDownload control
- ********************************************************************************************/
+ * 
+ * @since 1.0
+ */
 public class ModelObjectFactory implements DataModelFactory {
 	private final DataModelFactory delegate_;
 

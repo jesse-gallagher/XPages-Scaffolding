@@ -19,6 +19,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * @since 1.0
+ */
 public enum FrameworkUtils {
 	;
 

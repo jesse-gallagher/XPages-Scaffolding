@@ -2,6 +2,9 @@ package frostillicus.xsp.event;
 
 import java.io.Serializable;
 
+/**
+ * @since 1.0
+ */
 public class SimpleXPagesEvent implements XPagesEvent, Serializable {
 	private static final long serialVersionUID = 2494192698824356379L;
 

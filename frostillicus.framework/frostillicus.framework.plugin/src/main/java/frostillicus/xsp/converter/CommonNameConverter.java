@@ -8,6 +8,9 @@ import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 import lotus.domino.*;
 
+/**
+ * @since 1.0
+ */
 public class CommonNameConverter implements Converter {
 
 	@Override

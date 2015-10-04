@@ -12,6 +12,9 @@ import com.ibm.xsp.model.FileRowData;
 
 import frostillicus.xsp.model.ModelObject;
 
+/**
+ * @since 1.0
+ */
 public class ModelDocumentAdapter implements DocumentAdapter {
 	private final String id_;
 

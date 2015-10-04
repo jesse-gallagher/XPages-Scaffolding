@@ -8,6 +8,9 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 import com.ibm.xsp.model.*;
 
+/**
+ * @since 1.0
+ */
 @SuppressWarnings("unchecked")
 public class SortableMapView extends TabularDataModel implements Serializable, TabularDataSource {
 	private static final long serialVersionUID = 1L;

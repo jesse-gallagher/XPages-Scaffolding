@@ -3,6 +3,9 @@ package frostillicus.xsp.model.servlet;
 import javax.servlet.ServletException;
 import com.ibm.domino.services.AbstractRestServlet;
 
+/**
+ * @since 1.0
+ */
 public class ModelServlet extends AbstractRestServlet {
 	private static final long serialVersionUID = 1L;
 

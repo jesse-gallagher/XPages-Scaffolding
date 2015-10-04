@@ -36,6 +36,9 @@ import com.ibm.domino.services.util.JsonWriter;
 import com.ibm.xsp.model.domino.DominoUtils;
 
 
+/**
+ * @since 1.0
+ */
 public enum ResourceUtils {
 	;
 

@@ -21,6 +21,9 @@ import frostillicus.xsp.model.ModelManager;
 import frostillicus.xsp.model.ModelObject;
 import frostillicus.xsp.model.ModelUtils;
 
+/**
+ * @since 1.0
+ */
 public class ModelDataSource extends AbstractDataSource implements com.ibm.xsp.model.ModelDataSource {
 
 	private String managerName_;

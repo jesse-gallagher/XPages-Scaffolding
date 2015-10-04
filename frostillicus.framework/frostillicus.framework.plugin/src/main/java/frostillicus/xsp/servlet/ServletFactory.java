@@ -4,6 +4,9 @@ import javax.servlet.ServletException;
 
 import com.ibm.designer.runtime.domino.adapter.*;
 
+/**
+ * @since 1.0
+ */
 public class ServletFactory implements IServletFactory {
 	private ComponentModule module_;
 

@@ -15,6 +15,9 @@ import com.ibm.xsp.designer.context.XSPContext;
 import frostillicus.xsp.controller.ComponentMapAdapter;
 import frostillicus.xsp.model.ModelObject;
 
+/**
+ * @since 1.0
+ */
 public class ModelClassComponentMapAdapter implements ComponentMapAdapter {
 	private final Class<? extends ModelObject> clazz_;
 

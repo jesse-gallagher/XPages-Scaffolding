@@ -7,6 +7,9 @@ import javax.faces.convert.Converter;
 
 import com.ibm.commons.util.StringUtil;
 
+/**
+ * @since 1.0
+ */
 public class EmptyValueConverter implements Converter, StateHolder {
 	private boolean transient_;
 	private String emptyString_;

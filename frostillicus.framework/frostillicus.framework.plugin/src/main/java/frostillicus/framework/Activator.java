@@ -3,6 +3,9 @@ package frostillicus.framework;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+/**
+ * @since 1.0
+ */
 public class Activator extends Plugin {
 	public static final String PLUGIN_ID = "frostillicus.framework.plugin";
 	public static final boolean _debug = false;
