@@ -48,6 +48,6 @@ Bundle-ClassPath: .,
  lib/classmate-1.0.0.jar,
  lib/hibernate-validator-5.1.1.Final.jar,
  lib/jboss-logging-3.1.3.GA.jar,
- lib/annotations.jar,
  lib/commons-io-2.4.jar,
- lib/javax.persistence-2.1.0.jar
+ lib/javax.persistence-2.1.0.jar,
+ lib/findbugs-annotations-1.3.9-1.jar
