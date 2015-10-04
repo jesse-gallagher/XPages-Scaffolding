@@ -34,6 +34,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	// This is intended to store an extra reference to the Navigator and Entry, in case they're being recycled unnecessarily
 	// It's not meant for actual use
 	private transient ViewNavigator nav_ = null;
+	@SuppressWarnings("unused")
 	private transient ViewEntry current_ = null;
 
 	public DominoModelList(final Database database, final String viewName, final String category, final Class<E> clazz) {
