@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>frostillicus_framework</groupId>
+	<artifactId>framework-target-platform</artifactId>
+	<version>1.2.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<name>frostillic.us Framework Target Platform</name>
+	<url>https://github.com/jesse-gallagher/XPages-Scaffolding</url>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.reficio</groupId>
+				<artifactId>p2-maven-plugin</artifactId>
+				<version>1.1.1</version>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<artifacts>
+								<!-- For validation -->
+								<artifact><id>org.hibernate:hibernate-validator:5.2.2.Final</id></artifact>
+								<artifact><id>javax.validation:validation-api:1.1.0.Final</id></artifact>
+								<artifact>
+									<id>org.apache.logging.log4j:log4j-api:2.4</id>
+									
+									<!-- Re-package this one so we don't end up with an unresolvable dependency chain -->
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.apache.logging.log4j.api</Bundle-SymbolicName>
+										<Import-Package></Import-Package>
+										<Export-Package>*;version="2.4.0"</Export-Package>
+										<Bundle-Version>2.4.0.SNAPSHOT</Bundle-Version>
+										<_snapshot>${tstamp}</_snapshot>
+										<_nouses>true</_nouses>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.logging:jboss-logging:3.2.1.Final</id>
+									
+									<!-- Re-package this one too -->
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.jboss.logging.jboss-logging</Bundle-SymbolicName>
+										<Import-Package></Import-Package>
+										<Export-Package>*;version="3.2.1"</Export-Package>
+										<Bundle-Version>2.4.0.SNAPSHOT</Bundle-Version>
+										<_snapshot>${tstamp}</_snapshot>
+										<_nouses>true</_nouses>
+									</instructions>
+								</artifact>
+								<artifact><id>com.thoughtworks.paranamer:paranamer:2.8</id></artifact>
+								<artifact><id>org.jsoup:jsoup:1.8.3</id></artifact>
+								<artifact><id>joda-time:joda-time:1.6.2</id></artifact>
+								
+								<!-- For the JPA annotations -->
+								<artifact><id>org.eclipse.persistence:javax.persistence:2.1.0</id></artifact>
+								
+								<!-- For its ClassLoaderObjectInputStream -->
+								<artifact><id>commons-io:commons-io:2.4</id></artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

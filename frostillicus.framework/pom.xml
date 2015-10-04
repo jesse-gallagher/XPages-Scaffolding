@@ -49,6 +49,11 @@
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
 		</repository>
+		<repository>
+			<id>framework-target-platform</id>
+			<layout>p2</layout>
+			<url>file:../framework-target-platform/target/repository</url>
+		</repository>
 	</repositories>
 
 	<build>
