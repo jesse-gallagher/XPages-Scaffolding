@@ -14,7 +14,7 @@ The first requirement for building is the [IBM Domino Update Site for Build Mana
             <profile>
                 <id>main</id>
                 <properties>
-                    <android.sdk.path>/Users/jesse/Documents/Java/android-sdks</android.sdk.path>
+                    <notes-platform>file:///Users/jesse/Documents/Java/IBM/UpdateSite</notes-platform>
                 </properties>
             </profile>
         </profiles>
