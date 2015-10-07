@@ -109,7 +109,7 @@ public enum FrameworkUtils {
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getSessionScope() {
 		if(isFaces()) {
-			return (Map<String, Object>)resolveVariable("applicationScope");
+			return (Map<String, Object>)resolveVariable("sessionScope");
 		} else {
 			return new HashMap<String, Object>();
 		}
