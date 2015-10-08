@@ -24,5 +24,5 @@ The project contains the following 3rd-party code:
 7. The Eclipse JPA API implementation 2.1.0, which is available from http://mvnrepository.com/artifact/org.eclipse.persistence/javax.persistence/2.1.0 and is licensed under the Eclipse Public License 1.0
 8. An implementation of the annotations from FindBugs, which is available from https://github.com/stephenc/findbugs-annotations and is licensed under the Apache License 2.0
 9. The org.openntf.xsp.extlib project from Tim Tripcony, which is available from https://github.com/timtripcony/org.openntf.xsp.extlib and is licensed under the Apache License 2.0. Its NOTICE file is included
-10. The "flash scope for XPages" from http://www.bleedyellow.com/blogs/andyc/entry/a_flash_scope_for_xpages?lang=en_gb
+10. The "flash scope for XPages" from http://www.bleedyellow.com/blogs/andyc/entry/a_flash_scope_for_xpages?lang=en_gb by Andy Cunliffe, used with permission as the Apache License 2.0
 11. Apache Commons IO, which is available from https://commons.apache.org/proper/commons-io/ and is licensed under the Apache License 2.0
