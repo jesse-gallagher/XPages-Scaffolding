@@ -28,12 +28,12 @@ public class FrostillicusLibrary extends AbstractXspLibrary {
 
 	@Override
 	public String getPluginId() {
-		return Activator.PLUGIN_ID;
+		return Activator.getContext().getBundle().getSymbolicName();
 	}
 
 	@Override
 	public String getTagVersion() {
-		return "1.0.0";
+		return "1.2.0";
 	}
 
 	@Override
