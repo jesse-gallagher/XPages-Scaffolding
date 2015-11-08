@@ -1,15 +1,26 @@
 package frostillicus.xsp.model.domino;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.RandomAccess;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Vector;
+
+import org.openntf.domino.Database;
+import org.openntf.domino.View;
+import org.openntf.domino.ViewEntry;
+import org.openntf.domino.ViewEntryCollection;
+import org.openntf.domino.ViewNavigator;
 
 import com.ibm.designer.runtime.domino.bootstrap.util.StringUtil;
 import com.ibm.xsp.model.TabularDataModel;
 
 import frostillicus.xsp.model.AbstractModelList;
 import frostillicus.xsp.util.FrameworkUtils;
-
-import org.openntf.domino.*;
 
 /**
  * @since 1.0
@@ -209,7 +220,11 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		clearCache();
 
 		// Find the proper-cased name, since Domino cares
-		String properColumnName = findColumnByName(columnName).getItemName();
+		DominoColumnInfo col = findColumnByName(columnName);
+		if(col == null) {
+			throw new IllegalArgumentException(MessageFormat.format("View \"{0}\" does not contain a column named \"{1}\"", this.getView().getName(), columnName));
+		}
+		String properColumnName = col.getItemName();
 
 		if (TabularDataModel.SORT_TOGGLE.equals(sortOrder)) {
 			// Cycle between ascending, descending, and off
