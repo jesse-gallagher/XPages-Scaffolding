@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: frostillic.us Framework Darwino Support
+Bundle-SymbolicName: frostillicus.framework.darwino.plugin;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.ibm.xsp.core;bundle-version="9.0.1",
+ org.openntf.domino;bundle-version="2.0.0",
+ frostillicus.framework.plugin;bundle-version="1.0.0",
+ com.darwino.domino.libs;bundle-version="1.0.1",
+ com.darwino.domino.platform;bundle-version="1.0.1",
+ org.eclipse.core.runtime
+Bundle-Vendor: frostillic.us
+Export-Package: frostillicus.xsp.darwino,
+ frostillicus.xsp.darwino.model
+Bundle-Activator: frostillicus.xsp.darwino.Activator
+Bundle-ActivationPolicy: lazy

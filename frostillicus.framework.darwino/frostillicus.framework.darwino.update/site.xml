@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/frostillicus.framework.darwino.feature_1.0.0.qualifier.jar" id="frostillicus.framework.darwino.feature" version="1.0.0.qualifier">
+      <category name="frostillic.us"/>
+   </feature>
+   <category-def name="frostillic.us" label="frostillic.us"/>
+</site>

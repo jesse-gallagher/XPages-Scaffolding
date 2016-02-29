@@ -1,0 +1,155 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>frostillicus_framework</groupId>
+	<artifactId>frostillicus.framework.darwino</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+	
+    <modules>
+    	<module>frostillicus.framework.darwino.plugin</module>
+    	<module>frostillicus.framework.darwino.feature</module>
+    	<module>frostillicus.framework.darwino.update</module>
+    </modules>
+	
+	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <tycho-version>0.24.0</tycho-version>
+        <compiler>1.6</compiler>
+    </properties>
+ 
+    <repositories>
+        <repository>
+            <id>Luna</id>
+            <layout>p2</layout>
+            <url>http://download.eclipse.org/releases/luna/</url>
+        </repository>
+        <repository>
+            <id>notes</id>
+            <layout>p2</layout>
+            <url>${notes-platform}</url>
+        </repository>
+		<repository>
+			<id>framework-target-platform</id>
+			<layout>p2</layout>
+			<url>file:../framework-target-platform/target/repository</url>
+		</repository>
+    </repositories>
+ 
+    <build>
+        <plugins>
+            <!--
+                Maven compiler options
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${compiler}</source>
+                    <target>${compiler}</target>
+                    <compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
+                </configuration>
+            </plugin>
+             
+            <!--
+                Tycho plugins
+            -->
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-packaging-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <strictVersions>false</strictVersions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-compiler-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <source>${compiler}</source>
+                    <target>${compiler}</target>
+                    <compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-source-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <executions>
+                    <execution>
+                        <id>plugin-source</id>
+                        <goals>
+                            <goal>plugin-source</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+ 
+                    <pomDependencies>consider</pomDependencies>
+                    <dependency-resolution>
+                        <extraRequirements>
+                            <requirement>
+                                <type>eclipse-plugin</type>
+                                <id>com.ibm.notes.java.api.win32.linux</id>
+                                <versionRange>[9.0.1,9.0.2)</versionRange>
+                            </requirement>
+                        </extraRequirements>
+                        <optionalDependencies>ignore</optionalDependencies>
+                    </dependency-resolution>
+ 
+                    <filters>
+                        <!-- work around Equinox bug 348045 -->
+                        <filter>
+                            <type>p2-installable-unit</type>
+                            <id>org.eclipse.equinox.servletbridge.extensionbundle</id>
+                            <removeAll />
+                        </filter>
+                    </filters>
+ 
+                    <environments>
+                        <environment>
+                            <os>linux</os>
+                            <ws>gtk</ws>
+                            <arch>x86</arch>
+                        </environment>
+                        <environment>
+                            <os>linux</os>
+                            <ws>gtk</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                        <environment>
+                            <os>win32</os>
+                            <ws>win32</ws>
+                            <arch>x86</arch>
+                        </environment>
+                        <environment>
+                            <os>win32</os>
+                            <ws>win32</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                        <environment>
+                            <os>macosx</os>
+                            <ws>cocoa</ws>
+                            <arch>x86_64</arch>
+                        </environment>
+                    </environments>
+                    <resolver>p2</resolver>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
