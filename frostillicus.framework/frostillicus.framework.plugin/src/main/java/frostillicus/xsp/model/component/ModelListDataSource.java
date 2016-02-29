@@ -68,7 +68,7 @@ public class ModelListDataSource extends AbstractDataSource implements ViewDataS
 			return (String)valueBinding.getValue(FacesContext.getCurrentInstance());
 		}
 
-		return "new";
+		return "";
 	}
 
 	public void setSearch(final String search) { search_ = search; }
