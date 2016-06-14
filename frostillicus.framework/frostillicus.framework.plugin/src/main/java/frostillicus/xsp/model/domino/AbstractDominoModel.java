@@ -522,11 +522,11 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		public boolean isNewNote() {
 			try {
-				if(isDominoDocument()) {
-					return dominoDocument_.isNewNote();
+				if(StringUtil.isEmpty(documentId_)) {
+					return true;
 				} else {
-					if(StringUtil.isEmpty(documentId_)) {
-						return true;
+					if(isDominoDocument()) {
+						return dominoDocument_.isNewNote();
 					} else {
 						Document doc = getDocument(false);
 						return doc.isNewNote();
