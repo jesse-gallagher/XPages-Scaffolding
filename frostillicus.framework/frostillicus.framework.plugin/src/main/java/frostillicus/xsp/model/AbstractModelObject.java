@@ -147,8 +147,10 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 				}
 				return false;
 			} else {
-				// Otherwise, throw an outright exception
-				throw new ConstraintViolationException(constraintViolations);
+				// Otherwise, throw an outright exception, casting the Set to appease the compiler
+				@SuppressWarnings("unchecked")
+				Set<ConstraintViolation<?>> castedViolations = (Set<ConstraintViolation<?>>)(Set<?>)constraintViolations;
+				throw new ConstraintViolationException(castedViolations);
 			}
 		}
 
