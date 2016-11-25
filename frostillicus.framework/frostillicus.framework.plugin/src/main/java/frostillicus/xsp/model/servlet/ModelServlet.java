@@ -1,6 +1,17 @@
 package frostillicus.xsp.model.servlet;
 
+import java.io.IOException;
+
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.openntf.domino.AutoMime;
+import org.openntf.domino.utils.Factory;
+import org.openntf.domino.ext.Session.Fixes;
+import org.openntf.domino.utils.Factory.ThreadConfig;
+
+import com.ibm.domino.das.servlet.DasHttpResponseWrapper;
 import com.ibm.domino.services.AbstractRestServlet;
 
 /**
@@ -23,5 +34,24 @@ public class ModelServlet extends AbstractRestServlet {
 		super.doInit();
 	}
 
+	@Override
+	protected void doService(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		Factory.initThread(getDataServiceConfig());
 
+		try {
+			//Wrap the http response for Gzip/Deflate the output stream
+			DasHttpResponseWrapper responseWrapper = new DasHttpResponseWrapper(request, response);
+
+			super.doService(request, responseWrapper);
+		} finally {
+			Factory.termThread();
+		}
+	}
+
+	protected ThreadConfig getDataServiceConfig() {
+		Fixes[] fixes = Fixes.values();
+		AutoMime autoMime = AutoMime.WRAP_32K;
+		boolean bubbleExceptions = true;
+		return new ThreadConfig(fixes, autoMime, bubbleExceptions);
+	}
 }
