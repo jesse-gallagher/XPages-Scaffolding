@@ -602,7 +602,12 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 			if(isDominoDocument()) {
 				return getDominoDocument().getType(key);
 			} else {
-				return getValue(key).getClass();
+				Object val = getValue(key);
+				if(val != null) {
+					return val.getClass();
+				} else {
+					return Object.class;
+				}
 			}
 		}
 		@Override
