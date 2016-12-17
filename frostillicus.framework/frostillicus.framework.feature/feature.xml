@@ -2,14 +2,14 @@
 <feature
       id="frostillicus.framework.feature"
       label="frostillic.us Framework"
-      version="1.1.0.qualifier">
+      version="1.2.0.qualifier">
 
    <description>
       A collection of support classes for XPages development.
    </description>
 
    <copyright>
-      © 2014, 2015 Jesse Gallagher
+      © 2014-2016 Jesse Gallagher
    </copyright>
 
    <license>
@@ -221,7 +221,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-         
+
    <plugin
          id="frostillicus.framework.plugin.source"
          download-size="0"

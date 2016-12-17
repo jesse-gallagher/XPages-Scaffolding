@@ -81,6 +81,12 @@
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>
+				<!-- enable tycho versions extension -->
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+			<plugin>
 				<!-- enable tycho packaging extension -->
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
