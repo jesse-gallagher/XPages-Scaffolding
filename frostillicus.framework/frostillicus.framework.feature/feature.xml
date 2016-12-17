@@ -2,7 +2,7 @@
 <feature
       id="frostillicus.framework.feature"
       label="frostillic.us Framework"
-      version="1.2.0.qualifier">
+      version="1.1.0.qualifier">
 
    <description>
       A collection of support classes for XPages development.
@@ -221,81 +221,11 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
+         
    <plugin
          id="frostillicus.framework.plugin.source"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="classmate"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="javax.persistence"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="javax.validation.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.io"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.hibernate.validator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.jboss.logging.jboss-logging"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.thoughtworks.paranamer"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.jsoup"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="joda-time"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.logging.log4j.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
 </feature>

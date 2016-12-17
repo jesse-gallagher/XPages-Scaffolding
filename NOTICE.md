@@ -1,4 +1,4 @@
-frostillic.us Framework
+XPages Scaffolding and frostillic.us Framework
 (C)Copyright Jesse Gallagher
 
 This project is licensed under the terms of the Apache 2.0 license.
@@ -17,10 +17,6 @@ The project contains the following 3rd-party code:
 	4. The javax.validation API 1.1.0, which is available from http://mvnrepository.com/artifact/javax.validation/validation-api/1.1.0.Final and is licensed under the Apache License 2.0
 	5. The javax.el API 2.2.4, which is available from http://mvnrepository.com/artifact/javax.el/javax.el-api/2.2.4 and is dual-licensed under the CDDL and the GPLv2 with classpath exception, used here as CDDL
 	6. GlassFish's javax.el implementation 2.2.4, which is available from http://mvnrepository.com/artifact/org.glassfish.web/javax.el/2.2.4 and is dual-licensed under the CDDL and the GPLv2 with classpath exception, used here as CDDL
-	7. Paranamer, which is available from https://github.com/paul-hammant/paranamer and is licensed under the BSD license
-	8. Jsoup, which is available from http://mvnrepository.com/artifact/org.jsoup/jsoup/1.8.3 and is licensed under the MIT license
-	9. Joda Time, which is available from http://mvnrepository.com/artifact/joda-time/joda-time/2.8.2 and is licensed under the Apache License 2.0
-	10. Apache Log4j, which is available from http://logging.apache.org/log4j/2.x/ and is licensed under the Apache 
 7. The Eclipse JPA API implementation 2.1.0, which is available from http://mvnrepository.com/artifact/org.eclipse.persistence/javax.persistence/2.1.0 and is licensed under the Eclipse Public License 1.0
 8. An implementation of the annotations from FindBugs, which is available from https://github.com/stephenc/findbugs-annotations and is licensed under the Apache License 2.0
 9. The org.openntf.xsp.extlib project from Tim Tripcony, which is available from https://github.com/timtripcony/org.openntf.xsp.extlib and is licensed under the Apache License 2.0. Its NOTICE file is included
