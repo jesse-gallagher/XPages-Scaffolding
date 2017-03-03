@@ -11,9 +11,9 @@
 	<url>https://github.com/jesse-gallagher/XPages-Scaffolding</url>
 
 	<modules>
-		<module>frostillicus.framework.plugin</module>
-		<module>frostillicus.framework.feature</module>
-		<module>frostillicus.framework.update</module>
+		<module>bundles/frostillicus.framework.plugin</module>
+		<module>features/frostillicus.framework.feature</module>
+		<module>releng/frostillicus.framework.update</module>
 	</modules>
 
 	<properties>
@@ -217,10 +217,7 @@
 		<profile>
 			<id>distribution</id>
 			<modules>
-				<module>frostillicus.framework.plugin</module>
-				<module>frostillicus.framework.feature</module>
-				<module>frostillicus.framework.update</module>
-				<module>framework-dist</module>
+				<module>releng/framework-dist</module>
 			</modules>
 
 			<build>
