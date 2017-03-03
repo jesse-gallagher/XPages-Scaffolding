@@ -24,6 +24,9 @@ import java.util.*;
  */
 public enum FrameworkUtils {
 	;
+	
+	// Used during automated tests
+	private static Session fallbackSession;
 
 	public static Database getDatabase(final String server, final String filePath) {
 		Map<String, Object> requestScope = getRequestScope();
@@ -44,15 +47,24 @@ public enum FrameworkUtils {
 			}
 			return (Session)session;
 		} else {
-			lotus.domino.Session lotusSession = ContextInfo.getUserSession();
-			Session session;
-			if(lotusSession == null) {
-				session = Factory.getSession();
-			} else {
-				session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+			try {
+				lotus.domino.Session lotusSession = ContextInfo.getUserSession();
+				Session session;
+				if(lotusSession == null) {
+					session = Factory.getSession();
+				} else {
+					session = Factory.fromLotus(lotusSession, Session.SCHEMA, null);
+				}
+				session.setConvertMime(false);
+				return session;
+			} catch(NoClassDefFoundError e) {
+				// This is the case during automated tests
+				if(fallbackSession != null) {
+					return fallbackSession;
+				} else {
+					throw new IllegalStateException("Unable to locate ContextInfo class and no fallback session is set");
+				}
 			}
-			session.setConvertMime(false);
-			return session;
 		}
 	}
 	public static Session getSessionAsSigner() {
@@ -616,5 +628,15 @@ public enum FrameworkUtils {
 	public static String getActionURL(final String url) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		return facesContext.getExternalContext().encodeActionURL(facesContext.getApplication().getViewHandler().getActionURL(facesContext, url));
+	}
+	
+	/**
+	 * Sets the session object to use when no other session is available. This is meant for
+	 * automated test use.
+	 * 
+	 * @param session the session to set as the fallback
+	 */
+	public static void setFallbackSession(Session session) {
+		fallbackSession = session;
 	}
 }
