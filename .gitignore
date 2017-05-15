@@ -7,8 +7,6 @@ Thumbs.db
 
 #*.jar
 *.class
-features
-plugins
 
 # Maven Versions residue
 *.versionsBackup
