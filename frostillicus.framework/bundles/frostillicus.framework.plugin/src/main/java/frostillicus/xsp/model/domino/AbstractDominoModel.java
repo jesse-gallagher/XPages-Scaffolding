@@ -526,7 +526,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 					return true;
 				} else {
 					if(isDominoDocument()) {
-						return dominoDocument_.isNewNote();
+						return getDominoDocument().isNewNote();
 					} else {
 						Document doc = getDocument(false);
 						return doc.isNewNote();
