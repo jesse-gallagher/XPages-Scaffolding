@@ -8,6 +8,7 @@ import javax.faces.el.ValueBinding;
 import org.openntf.domino.*;
 import org.openntf.domino.utils.Factory;
 import org.openntf.domino.utils.XSPUtil;
+import org.openntf.domino.utils.Factory.SessionType;
 
 import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.component.UIViewRootEx2;
@@ -48,6 +49,12 @@ public enum FrameworkUtils {
 			return (Session)session;
 		} else {
 			try {
+				// Check if there's already a current available from ODA
+				Session odaSession = Factory.getSession(SessionType.CURRENT);
+				if(odaSession != null) {
+					return odaSession;
+				}
+				
 				lotus.domino.Session lotusSession = ContextInfo.getUserSession();
 				Session session;
 				if(lotusSession == null) {
@@ -69,7 +76,7 @@ public enum FrameworkUtils {
 	}
 	public static Session getSessionAsSigner() {
 		if(isFaces()) {
-			return XSPUtil.getCurrentSessionAsSigner();
+			return Factory.getSession(SessionType.SIGNER);
 		} else {
 			return getSession();
 		}

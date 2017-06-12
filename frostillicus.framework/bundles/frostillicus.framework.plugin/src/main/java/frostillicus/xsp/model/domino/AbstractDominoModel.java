@@ -378,7 +378,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 					// Attempt to update the FT index
 					Database database = doc.getParentDatabase();
-					Session sessionAsSigner = FrameworkUtils.getSessionAsSigner();
+					Session sessionAsSigner = sessionAsSigner();
 					if(sessionAsSigner != null) {
 						Database signerDB = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 						if(signerDB.isFTIndexed()) {
@@ -444,8 +444,27 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 	protected List<Object> evaluate(final String formula) {
 		Document doc = document();
-		Session session = FrameworkUtils.getSession();
+		Session session = session();
 		return session.evaluate(formula, doc);
+	}
+	
+	/**
+	 * This method can be overridden by downstream implementations to change the session
+	 * source used by internal operations. By default, this calls {@link FrameworkUtils#getSession()}.
+	 * 
+	 * @return the {@link Session} to use for internal operations
+	 */
+	protected Session session() {
+		return FrameworkUtils.getSession();
+	}
+	/**
+	 * This method can be overridden by downstream implementations to change the higher-level session
+	 * source used by internal operations. By default, this calls {@link FrameworkUtils#getSessionAsSigner()}.
+	 * 
+	 * @return the higher-access {@link Session} to use for internal operations
+	 */
+	protected Session sessionAsSigner() {
+		return FrameworkUtils.getSessionAsSigner();
 	}
 
 
@@ -545,7 +564,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 				}
 			} else {
 				if(storedDoc_ == null) {
-					Database database = FrameworkUtils.getSession().getDatabase(databasePath_);
+					Database database = session().getDatabase(databasePath_);
 					if(StringUtil.isEmpty(documentId_)) {
 						storedDoc_ = database.createDocument();
 					} else {
@@ -569,7 +588,7 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		public DominoDocument getDominoDocument() {
 			if(isDominoDocument_ && dominoDocument_ == null) {
-				Database database = FrameworkUtils.getSession().getDatabase(databasePath_);
+				Database database = session().getDatabase(databasePath_);
 				if(StringUtil.isEmpty(documentId_)) {
 					dominoDocument_ = DominoDocument.wrap(
 					                                      database.getApiPath(),		// database
