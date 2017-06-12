@@ -5,6 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +35,7 @@ import javax.validation.metadata.PropertyDescriptor;
 
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 
+import com.ibm.commons.util.NotImplementedException;
 import com.ibm.xsp.designer.context.XSPContext;
 import com.ibm.xsp.model.ViewRowData;
 
@@ -67,13 +71,17 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	@Override
 	public Set<String> propertyNames(final boolean includeSystem, final boolean includeAll) {
-		Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		for(Field field : getClass().getDeclaredFields()) {
-			if(!Modifier.isStatic(field.getModifiers()) && !field.getName().endsWith("_")) {
-				result.add(field.getName());
+		return AccessController.doPrivileged(new PrivilegedAction<Set<String>>() {
+			@Override public Set<String> run() {
+				Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+				for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
+					if(!Modifier.isStatic(field.getModifiers()) && !field.getName().endsWith("_")) {
+						result.add(field.getName());
+					}
+				}
+				return result;
 			}
-		}
-		return result;
+		});
 	}
 
 	@Override
@@ -83,58 +91,70 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		// Time for validation!
 
 		// We'll be getting values up to twice, so do a bit of cache
-		Map<String, Object> valCache = new HashMap<String, Object>();
+		final Map<String, Object> valCache = new HashMap<String, Object>();
 
 		// First, check that the data types of all @Columns match
-		boolean invalidSetters = false;
-		for(Field field : getClass().getDeclaredFields()) {
-			if(field.getAnnotation(Column.class) != null) {
-				Object val;
-				if(!valCache.containsKey(field.getName())) {
-					valCache.put(field.getName(), getValue(field.getName()));
-				}
-				val = valCache.get(field.getName());
+		final ThreadLocal<Boolean> invalidSetters = new ThreadLocal<Boolean>() {
+			@Override protected Boolean initialValue() { return false; }
+		};
+		AccessController.doPrivileged(new PrivilegedAction<Void>() {
+			@Override public Void run() {
+				for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
+					if(field.getAnnotation(Column.class) != null) {
+						Object val;
+						if(!valCache.containsKey(field.getName())) {
+							valCache.put(field.getName(), getValue(field.getName()));
+						}
+						val = valCache.get(field.getName());
 
-				boolean valid = checkSetter(field, val);
-				if(!valid) {
-					FrameworkUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
-					invalidSetters = true;
-					continue;
+						boolean valid = checkSetter(field, val);
+						if(!valid) {
+							FrameworkUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
+							invalidSetters.set(true);
+							continue;
+						}
+					}
 				}
+				return null;
 			}
-		}
-		if(invalidSetters) { return false; }
+		});
+		if(invalidSetters.get()) { return false; }
 
 
 		// Now, build a validator for the class
-		Validator validator = Validation.byDefaultProvider().configure()
+		final Validator validator = Validation.byDefaultProvider().configure()
 				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
 				.buildValidatorFactory().getValidator();
+		
+		AccessController.doPrivileged(new PrivilegedAction<Void>() {
+			@Override public Void run() {
 
-		// Run through the constrained fields to populate their values from the model object
-		BeanDescriptor desc = validator.getConstraintsForClass(this.getClass());
-		for(PropertyDescriptor prop : desc.getConstrainedProperties()) {
-			try {
-				Field field = getClass().getDeclaredField(prop.getPropertyName());
-				Object val;
-				if(!valCache.containsKey(field.getName())) {
-					valCache.put(field.getName(), getValue(field.getName()));
+				// Run through the constrained fields to populate their values from the model object
+				BeanDescriptor desc = validator.getConstraintsForClass(AbstractModelObject.this.getClass());
+				for(PropertyDescriptor prop : desc.getConstrainedProperties()) {
+					try {
+						Field field = AbstractModelObject.this.getClass().getDeclaredField(prop.getPropertyName());
+						Object val;
+						if(!valCache.containsKey(field.getName())) {
+							valCache.put(field.getName(), getValue(field.getName()));
+						}
+						val = valCache.get(field.getName());
+
+						field.setAccessible(true);
+						field.set(AbstractModelObject.this, val);
+					} catch (IllegalArgumentException e) {
+						throw new RuntimeException(e);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					} catch (SecurityException e) {
+						throw new RuntimeException(e);
+					} catch (NoSuchFieldException e) {
+						throw new RuntimeException(e);
+					}
 				}
-				val = valCache.get(field.getName());
-
-				field.setAccessible(true);
-				field.set(this, val);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (SecurityException e) {
-				throw new RuntimeException(e);
-			} catch (NoSuchFieldException e) {
-				throw new RuntimeException(e);
+				return null;
 			}
-		}
-
+		});
 
 		// Now run the constraint tests and publish any failures
 		Set<ConstraintViolation<AbstractModelObject>> constraintViolations = validator.validate(this);
@@ -210,21 +230,26 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
 		}
-		String key = ((String) keyObject).toLowerCase();
+		final String key = ((String) keyObject).toLowerCase();
 
-		Method getter = findGetter(key);
-		if(getter != null) {
-			return getter.getGenericReturnType();
-		} else {
-			// Look for the property in the classes declared fields, case-insensitive
-			for(Field field : getClass().getDeclaredFields()) {
-				if(field.getName().equalsIgnoreCase(key)) {
-					return field.getGenericType();
+		return AccessController.doPrivileged(new PrivilegedAction<Type>() {
+			@Override
+			public Type run() {
+				Method getter = findGetter(key);
+				if(getter != null) {
+					return getter.getGenericReturnType();
+				} else {
+					// Look for the property in the classes declared fields, case-insensitive
+					for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
+						if(field.getName().equalsIgnoreCase(key)) {
+							return field.getGenericType();
+						}
+					}
+					// If we're here, there's no definition
+					return Object.class;
 				}
 			}
-			// If we're here, there's no definition
-			return Object.class;
-		}
+		});
 	}
 
 	@Override
@@ -243,13 +268,17 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 
 	@Override
 	public Field getField(final Object keyObj) {
-		String key = String.valueOf(keyObj);
-		for(Field field : getClass().getDeclaredFields()) {
-			if(field.getName().equalsIgnoreCase(key)) {
-				return field;
+		return AccessController.doPrivileged(new PrivilegedAction<Field>() {
+			@Override public Field run() {
+				String key = String.valueOf(keyObj);
+				for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
+					if(field.getName().equalsIgnoreCase(key)) {
+						return field;
+					}
+				}
+				return null;
 			}
-		}
-		return null;
+		});
 	}
 
 	/* **********************************************************************
@@ -295,21 +324,25 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
 		}
-		String key = ((String) keyObject).toLowerCase();
+		final String key = ((String) keyObject).toLowerCase();
 
-		Method getter = findGetter(key);
-		if(getter != null) {
-			return getter.getReturnType();
-		} else {
-			// Look for the property in the classes declared fields, case-insensitive
-			for(Field field : getClass().getDeclaredFields()) {
-				if(field.getName().equalsIgnoreCase(key)) {
-					return field.getType();
+		return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+			@Override public Class<?> run() {
+				Method getter = findGetter(key);
+				if(getter != null) {
+					return getter.getReturnType();
+				} else {
+					// Look for the property in the classes declared fields, case-insensitive
+					for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
+						if(field.getName().equalsIgnoreCase(key)) {
+							return field.getType();
+						}
+					}
+					// If we're here, there's no definition
+					return Object.class;
 				}
 			}
-			// If we're here, there's no definition
-			return Object.class;
-		}
+		});
 	}
 
 	@Override
@@ -340,7 +373,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		if (!(keyObject instanceof String)) {
 			throw new IllegalArgumentException();
 		}
-		String key = ((String) keyObject).toLowerCase();
+		final String key = ((String) keyObject).toLowerCase();
 
 		// First priority: id
 		if ("id".equalsIgnoreCase(key)) {
@@ -348,15 +381,21 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		}
 
 		// Second priority: getters
-		Method getter = findGetter(key);
-		if (getter != null) {
-			try {
-				return getter.invoke(this);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException("InvocationTargetException when asking for '" + keyObject + "' on an object of class " + getClass().getName(), e.getCause());
-			}
+		try {
+			return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+				@Override public Object run() throws Exception {
+					final Method getter = findGetter(key);
+					if (getter != null) {
+						return getter.invoke(AbstractModelObject.this);
+					} else {
+						throw new NotImplementedException();
+					}
+				}
+			});
+		} catch(NotImplementedException e) {
+			// This is a signal for no getter found
+		} catch(Exception e) {
+			throw new RuntimeException(e);
 		}
 
 		return getValueImmediate(keyObject);
@@ -488,37 +527,48 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	 * Reflection seeker methods
 	 ************************************************************************/
 	protected final Method findGetter(final String key) {
-		String lkey = key.toLowerCase();
+		final String lkey = key.toLowerCase();
 		if (!getterCache().containsKey(lkey)) {
-			Method result = null;
-			for (Method method : getClass().getMethods()) {
-				String methodName = method.getName().toLowerCase();
-				if (method.getParameterTypes().length == 0 && (methodName.equals("get" + lkey) || methodName.equals("is" + lkey))) {
-					try {
-						result = method;
-						break;
-					} catch (IllegalArgumentException e) {
-						throw new RuntimeException(e);
+			AccessController.doPrivileged(new PrivilegedAction<Void>() {
+				@Override public Void run() {
+					Method result = null;
+					for (Method method : AbstractModelObject.this.getClass().getMethods()) {
+						String methodName = method.getName().toLowerCase();
+						if (method.getParameterTypes().length == 0 && (methodName.equals("get" + lkey) || methodName.equals("is" + lkey))) {
+							try {
+								result = method;
+								break;
+							} catch (IllegalArgumentException e) {
+								throw new RuntimeException(e);
+							}
+						}
 					}
+					getterCache().put(lkey, result);
+					return null;
 				}
-			}
-			getterCache().put(lkey, result);
+			});
+			
 		}
 		return getterCache().get(lkey);
 	}
 
 	protected final List<Method> findSetters(final String key) {
-		String lkey = key.toLowerCase();
+		final String lkey = key.toLowerCase();
 		if (!setterCache().containsKey(lkey)) {
-			List<Method> result = new ArrayList<Method>();
-			for (Method method : getClass().getMethods()) {
-				Class<?>[] parameters = method.getParameterTypes();
-				String methodName = method.getName().toLowerCase();
-				if (parameters.length == 1 && methodName.equals("set" + lkey)) {
-					result.add(method);
+			AccessController.doPrivileged(new PrivilegedAction<Void>() {
+				@Override public Void run() {
+					List<Method> result = new ArrayList<Method>();
+					for (Method method : AbstractModelObject.this.getClass().getMethods()) {
+						Class<?>[] parameters = method.getParameterTypes();
+						String methodName = method.getName().toLowerCase();
+						if (parameters.length == 1 && methodName.equals("set" + lkey)) {
+							result.add(method);
+						}
+					}
+					setterCache().put(lkey, result);
+					return null;
 				}
-			}
-			setterCache().put(lkey, result);
+			});
 		}
 		return setterCache().get(lkey);
 	}
