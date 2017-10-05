@@ -181,7 +181,9 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 		if(includeAll || (parent.isEmpty() && !category())) {
 			result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			result.addAll(parent);
-			result.addAll(docHolder_.getItemNames(includeSystem));
+			if(docHolder_ != null) {
+				result.addAll(docHolder_.getItemNames(includeSystem));
+			}
 		} else {
 			result = parent;
 		}
@@ -709,10 +711,15 @@ public abstract class AbstractDominoModel extends AbstractModelObject {
 
 		public Set<String> getItemNames(final boolean includeSystem) {
 			Set<String> result = new HashSet<String>();
-			for(Item item : getDocument().getItems()) {
-				String itemName = item.getName();
-				if(includeSystem || !itemName.startsWith("$")) {
-					result.add(itemName);
+			Document doc = getDocument(true);
+			if(doc != null) {
+				for(Item item : doc.getItems()) {
+					if(item != null) {
+						String itemName = item.getName();
+						if(includeSystem || !itemName.startsWith("$")) {
+							result.add(itemName);
+						}
+					}
 				}
 			}
 			return result;

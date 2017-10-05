@@ -96,5 +96,4 @@ public class ModelDocumentAdapter implements DocumentAdapter {
 			model.unfreeze();
 		}
 	}
-
 }
