@@ -19,8 +19,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>0.22.0</tycho-version>
-		<compiler>1.6</compiler>
+		<tycho-version>1.1.0</tycho-version>
+		<compiler>1.8</compiler>
 	</properties>
 
 	<scm>
@@ -43,7 +43,7 @@
 		<repository>
 			<id>Luna</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/luna/</url>
+			<url>http://download.eclipse.org/releases/neon/</url>
 		</repository>
 		<repository>
 			<id>notes</id>
@@ -200,6 +200,14 @@
 						<author>true</author>
 						<keywords>true</keywords>
 					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
@@ -208,17 +216,6 @@
 						<archive>
 							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
 						</archive>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.18.1</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-						<inputEncoding>UTF-8</inputEncoding>
-						<outputEncoding>UTF-8</outputEncoding>
-						<argLine>-ea -Dfile.encoding=UTF-8</argLine>
 					</configuration>
 				</plugin>
 				<!-- This is to enable test execution only on supported platforms below -->
@@ -232,8 +229,9 @@
 						<encoding>UTF-8</encoding>
 						<inputEncoding>UTF-8</inputEncoding>
 						<outputEncoding>UTF-8</outputEncoding>
-						<argLine>-Dfile.encoding=UTF-8</argLine>
+						<argLine>${tycho.testArgLine} -Dfile.encoding=UTF-8</argLine>
 						<providerHint>junit4</providerHint>
+						<failIfNoTests>false</failIfNoTests>
 					</configuration>
 				</plugin>
 			</plugins>

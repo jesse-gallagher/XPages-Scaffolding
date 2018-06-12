@@ -1,5 +1,6 @@
 package frostillicus.xsp.model;
 
+import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,6 +28,9 @@ import javax.persistence.Column;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.MessageInterpolator;
+import javax.validation.Path;
+import javax.validation.Path.Node;
+import javax.validation.TraversableResolver;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.metadata.BeanDescriptor;
@@ -94,29 +98,26 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		final Map<String, Object> valCache = new HashMap<String, Object>();
 
 		// First, check that the data types of all @Columns match
-		final ThreadLocal<Boolean> invalidSetters = new ThreadLocal<Boolean>() {
-			@Override protected Boolean initialValue() { return false; }
-		};
-		AccessController.doPrivileged(new PrivilegedAction<Void>() {
-			@Override public Void run() {
-				for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
-					if(field.getAnnotation(Column.class) != null) {
-						Object val;
-						if(!valCache.containsKey(field.getName())) {
-							valCache.put(field.getName(), getValue(field.getName()));
-						}
-						val = valCache.get(field.getName());
+		final ThreadLocal<Boolean> invalidSetters = ThreadLocal.withInitial(() -> Boolean.FALSE);
+		
+		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+			for(Field field : AbstractModelObject.this.getClass().getDeclaredFields()) {
+				if(field.getAnnotation(Column.class) != null) {
+					Object val;
+					if(!valCache.containsKey(field.getName())) {
+						valCache.put(field.getName(), getValue(field.getName()));
+					}
+					val = valCache.get(field.getName());
 
-						boolean valid = checkSetter(field, val);
-						if(!valid) {
-							FrameworkUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
-							invalidSetters.set(true);
-							continue;
-						}
+					boolean valid = checkSetter(field, val);
+					if(!valid) {
+						FrameworkUtils.addMessage(FacesMessage.SEVERITY_ERROR, "Field '" + field.getName() + "' is of invalid type " + val.getClass().getName(), null);
+						invalidSetters.set(true);
+						continue;
 					}
 				}
-				return null;
 			}
+			return null;
 		});
 		if(invalidSetters.get()) { return false; }
 
@@ -124,40 +125,56 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 		// Now, build a validator for the class
 		final Validator validator = Validation.byDefaultProvider().configure()
 				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
+				// Override the TraversableResolver to avoid "ClassNotFoundException: javax.persistence.spi.PersistenceProvider"
+				.traversableResolver(new TraversableResolver() {
+					@Override
+					public boolean isReachable(Object traversableObject, Node traversableProperty, Class<?> rootBeanType, Path pathToTraversableObject, ElementType elementType) {
+						return true;
+					}
+
+					@Override
+					public boolean isCascadable(Object traversableObject, Node traversableProperty, Class<?> rootBeanType, Path pathToTraversableObject, ElementType elementType) {
+						return true;
+					}
+					
+				})
 				.buildValidatorFactory().getValidator();
 		
-		AccessController.doPrivileged(new PrivilegedAction<Void>() {
-			@Override public Void run() {
+		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 
-				// Run through the constrained fields to populate their values from the model object
-				BeanDescriptor desc = validator.getConstraintsForClass(AbstractModelObject.this.getClass());
-				for(PropertyDescriptor prop : desc.getConstrainedProperties()) {
-					try {
-						Field field = AbstractModelObject.this.getClass().getDeclaredField(prop.getPropertyName());
-						Object val;
-						if(!valCache.containsKey(field.getName())) {
-							valCache.put(field.getName(), getValue(field.getName()));
-						}
-						val = valCache.get(field.getName());
-
-						field.setAccessible(true);
-						field.set(AbstractModelObject.this, val);
-					} catch (IllegalArgumentException e) {
-						throw new RuntimeException(e);
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException(e);
-					} catch (SecurityException e) {
-						throw new RuntimeException(e);
-					} catch (NoSuchFieldException e) {
-						throw new RuntimeException(e);
+			// Run through the constrained fields to populate their values from the model object
+			BeanDescriptor desc = validator.getConstraintsForClass(AbstractModelObject.this.getClass());
+			for(PropertyDescriptor prop : desc.getConstrainedProperties()) {
+				try {
+					Field field = AbstractModelObject.this.getClass().getDeclaredField(prop.getPropertyName());
+					Object val;
+					if(!valCache.containsKey(field.getName())) {
+						valCache.put(field.getName(), getValue(field.getName()));
 					}
-				}
-				return null;
-			}
-		});
+					val = valCache.get(field.getName());
 
-		// Now run the constraint tests and publish any failures
-		Set<ConstraintViolation<AbstractModelObject>> constraintViolations = validator.validate(this);
+					field.setAccessible(true);
+					field.set(AbstractModelObject.this, val);
+				} catch (IllegalArgumentException | IllegalAccessException | SecurityException | NoSuchFieldException e1) {
+					throw new RuntimeException(e1);
+				}
+			}
+			return null;
+		});
+		
+		Set<ConstraintViolation<AbstractModelObject>> constraintViolations = AccessController
+				.doPrivileged((PrivilegedAction<Set<ConstraintViolation<AbstractModelObject>>>) () -> {
+					// Juggling the ClassLoader avoids a problem where the XPages ClassLoader can't
+					// find the com.sun.el classes privately in this plugin
+					ClassLoader loader = Thread.currentThread().getContextClassLoader();
+					Thread.currentThread().setContextClassLoader(AbstractModelObject.class.getClassLoader());
+					try {
+						return validator.validate(AbstractModelObject.this);
+					} finally {
+						Thread.currentThread().setContextClassLoader(loader);
+					}
+				});
+		
 		if(!constraintViolations.isEmpty()) {
 			if(FrameworkUtils.isFaces()) {
 				// In a Faces environment, report the problems to the UI

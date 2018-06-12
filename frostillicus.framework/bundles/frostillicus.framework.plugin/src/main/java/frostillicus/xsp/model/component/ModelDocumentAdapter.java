@@ -96,4 +96,9 @@ public class ModelDocumentAdapter implements DocumentAdapter {
 			model.unfreeze();
 		}
 	}
+	
+	@Override
+	public boolean isEncrypted(FacesContext context, Object document) {
+		return false;
+	}
 }

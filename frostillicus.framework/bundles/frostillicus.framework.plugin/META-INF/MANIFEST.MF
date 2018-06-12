@@ -4,7 +4,7 @@ Bundle-Name: frostillic.us Framework
 Bundle-SymbolicName: frostillicus.framework.plugin;singleton:=true
 Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: frostillicus.framework.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.core.runtime,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
