@@ -7,7 +7,6 @@ import javax.faces.el.ValueBinding;
 
 import org.openntf.domino.*;
 import org.openntf.domino.utils.Factory;
-import org.openntf.domino.utils.XSPUtil;
 import org.openntf.domino.utils.Factory.SessionType;
 
 import com.ibm.domino.osgi.core.context.ContextInfo;
@@ -16,6 +15,11 @@ import com.ibm.xsp.component.UIViewRootEx2;
 import lotus.domino.NotesException;
 
 import java.io.*;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
@@ -645,5 +649,42 @@ public enum FrameworkUtils {
 	 */
 	public static void setFallbackSession(Session session) {
 		fallbackSession = session;
+	}
+	
+	public static boolean isIntegerType(Type clazz) {
+		return Byte.class.equals(clazz) || byte.class.equals(clazz)
+				|| Short.class.equals(clazz) || short.class.equals(clazz)
+				|| Integer.class.equals(clazz) || int.class.equals(clazz)
+				|| Long.class.equals(clazz) || long.class.equals(clazz)
+				|| Float.class.equals(clazz) || float.class.equals(clazz)
+				|| BigInteger.class.equals(clazz);
+	}
+	
+	public static boolean isNumericType(Type clazz) {
+		return Byte.class.equals(clazz) || byte.class.equals(clazz)
+				|| Short.class.equals(clazz) || short.class.equals(clazz)
+				|| Integer.class.equals(clazz) || int.class.equals(clazz)
+				|| Long.class.equals(clazz) || long.class.equals(clazz)
+				|| Float.class.equals(clazz) || float.class.equals(clazz)
+				|| Double.class.equals(clazz) || double.class.equals(clazz)
+				|| Currency.class.equals(clazz)
+				|| BigInteger.class.equals(clazz)
+				|| BigDecimal.class.equals(clazz);
+	}
+	
+	/**
+	 * Attempts to get the underlying {@link Class} instance for this {@link Type},
+	 * which may be the object itself.
+	 */
+	public static Class<?> toClass(final Type type) {
+		if(type instanceof Class) {
+			return (Class<?>)type;
+		} else if(type instanceof AnnotatedType) {
+			return toClass(((AnnotatedType)type).getType());
+		} else if(type instanceof ParameterizedType) {
+			return (Class<?>)((ParameterizedType) type).getRawType();
+		} else {
+			throw new IllegalArgumentException("Cannot find class for " + type + ", " + type.getClass()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 }

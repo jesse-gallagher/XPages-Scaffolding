@@ -154,7 +154,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 					val = valCache.get(field.getName());
 
 					field.setAccessible(true);
-					field.set(AbstractModelObject.this, val);
+					field.set(AbstractModelObject.this, coaxValue(field.getGenericType(), val));
 				} catch (IllegalArgumentException | IllegalAccessException | SecurityException | NoSuchFieldException e1) {
 					throw new RuntimeException(e1);
 				}
@@ -211,6 +211,8 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 				} else {
 					return false;
 				}
+			} else if(FrameworkUtils.isNumericType(fieldClass) && (val == null || FrameworkUtils.isNumericType(val.getClass()))) {
+				return true;
 			} else if(!fieldClass.isAssignableFrom(val.getClass())) {
 				return false;
 			}
@@ -464,11 +466,15 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 	protected abstract Object getValueImmediate(Object keyObject);
 	protected abstract void setValueImmediate(Object keyObject, Object value);
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Object coaxValue(final String keyObject, final Object value) {
 		Class<?> type = getType(keyObject);
+		return coaxValue(type, value);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected Object coaxValue(Type type, Object value) {
 		if(type != null) {
-			if(type.isEnum() && value != null && !"".equals(value)) {
+			if(type instanceof Class && ((Class<?>)type).isEnum() && value != null && !"".equals(value)) {
 				return Enum.valueOf((Class<? extends Enum>)type, String.valueOf(value));
 			} else if(Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {
 				if(value != null) {
@@ -484,7 +490,7 @@ public abstract class AbstractModelObject extends DataModel implements ModelObje
 				} else {
 					return null;
 				}
-			} else if(List.class.isAssignableFrom(type)) {
+			} else if(List.class.isAssignableFrom(FrameworkUtils.toClass(type))) {
 				if(value == null) {
 					return new ArrayList<Object>();
 				} else if(!List.class.isAssignableFrom(value.getClass())) {

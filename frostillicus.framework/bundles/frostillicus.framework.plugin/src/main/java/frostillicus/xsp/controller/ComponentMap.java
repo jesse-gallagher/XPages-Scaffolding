@@ -38,6 +38,7 @@ import com.ibm.xsp.component.xp.XspSelectOneRadio;
 import com.ibm.xsp.component.xp.XspViewColumn;
 import com.ibm.xsp.component.xp.XspViewColumnHeader;
 import com.ibm.xsp.convert.DateTimeConverter;
+import com.ibm.xsp.convert.NumberConverter;
 import com.ibm.xsp.extlib.component.data.UIFormLayoutRow;
 import com.ibm.xsp.extlib.component.data.UIFormTable;
 import com.ibm.xsp.model.DataObject;
@@ -467,6 +468,17 @@ public class ComponentMap implements DataObject, Serializable {
 				component.getChildren().add(helper);
 				helper.setParent(component);
 			}
+			
+			// Add a converter for numeric fields
+			if(FrameworkUtils.isNumericType(baseType)) {
+				if(input.getConverter() == null) {
+					NumberConverter conv = new NumberConverter();
+					if(FrameworkUtils.isIntegerType(baseType)) {
+						conv.setIntegerOnly(true);
+					}
+					input.setConverter(conv);
+				}
+			}
 		}
 
 
@@ -513,6 +525,8 @@ public class ComponentMap implements DataObject, Serializable {
 				item.setParent(component);
 			}
 		}
+		
+		
 	}
 }
 
