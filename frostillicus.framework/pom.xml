@@ -50,6 +50,11 @@
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
 		</repository>
+		<repository>
+			<id>oda</id>
+			<layout>p2</layout>
+			<url>http://p2.openntf.org/repository.nsf/home.xsp/oda/release</url>
+		</repository>
 	</repositories>
 
 	<build>
@@ -131,7 +136,7 @@
 							<requirement>
 								<type>eclipse-plugin</type>
 								<id>com.ibm.notes.java.api.win32.linux</id>
-								<versionRange>[9.0.1,9.0.2)</versionRange>
+								<versionRange>9.0.1</versionRange>
 							</requirement>
 						</extraRequirements>
 						<optionalDependencies>ignore</optionalDependencies>
