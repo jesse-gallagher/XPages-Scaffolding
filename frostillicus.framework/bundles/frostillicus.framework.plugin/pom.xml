@@ -11,8 +11,6 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<build>
-		<directory>bin</directory>
-		
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
