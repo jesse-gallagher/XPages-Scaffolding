@@ -2,7 +2,10 @@ package frostillicus.xsp.model.domino;
 
 import java.math.BigInteger;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
@@ -16,7 +19,7 @@ import org.openntf.domino.ViewEntry;
 import org.openntf.domino.ViewEntryCollection;
 import org.openntf.domino.ViewNavigator;
 
-import com.ibm.designer.runtime.domino.bootstrap.util.StringUtil;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.model.TabularDataModel;
 
 import frostillicus.xsp.model.AbstractModelList;
@@ -27,7 +30,15 @@ import frostillicus.xsp.util.FrameworkUtils;
  */
 @SuppressWarnings("serial")
 public class DominoModelList<E extends AbstractDominoModel> extends AbstractModelList<E> implements RandomAccess {
-
+	/**
+	 * Domino-specific full-text search options
+	 * 
+	 * @since 1.2.0
+	 */
+	public static enum DominoSearchOption implements SearchOption {
+		EXACT, WORD_VARIANTS, FUZZY 
+	}
+	
 	private transient Map<String, Object> internalCacheScope_ = new HashMap<String, Object>();;
 
 	private final String server_;
@@ -36,6 +47,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	private final String category_;
 	private final List<DominoColumnInfo> columnInfo_;
 	private String searchQuery_;
+	private Set<SearchOption> searchOptions_ = new HashSet<>();
 
 	private final boolean invalid_;
 	private int size_ = -1;
@@ -81,6 +93,7 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 	@Override
 	public void stampAll(final String propertyName, final Object value) {
 		ViewEntryCollection vec = getEntries();
+		this.search("foo", DominoSearchOption.FUZZY, DominoSearchOption.WORD_VARIANTS);
 		vec.stampAll(propertyName, value);
 	}
 
@@ -304,6 +317,11 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 
 	@Override
 	public void search(final String searchQuery) {
+		search(searchQuery, new SearchOption[0]);
+	}
+	
+	@Override
+	public void search(String searchQuery, SearchOption... options) {
 		if(invalid_) {
 			return;
 		}
@@ -315,6 +333,11 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		clearCache();
 
 		searchQuery_ = searchQuery;
+		if(options == null) {
+			searchOptions_ = Collections.emptySet();
+		} else {
+			searchOptions_ = new HashSet<>(Arrays.asList(options));
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -380,11 +403,10 @@ public class DominoModelList<E extends AbstractDominoModel> extends AbstractMode
 		if (!requestScope.containsKey(key)) {
 			View view = getView();
 			if(StringUtil.isNotEmpty(searchQuery_)) {
-				if (getResortColumn() != null) {
-					view.FTSearchSorted(searchQuery_, 0, getResortColumn(), isAscending(), false, false, false);
-				} else {
-					view.FTSearch(searchQuery_);
-				}
+				boolean exact = searchOptions_.contains(DominoSearchOption.EXACT);
+				boolean variants = searchOptions_.contains(DominoSearchOption.WORD_VARIANTS);
+				boolean fuzzy = searchOptions_.contains(DominoSearchOption.FUZZY);
+				view.FTSearchSorted(searchQuery_, 0, StringUtil.toString(getResortColumn()), isAscending(), exact, variants, fuzzy);
 			}
 
 			if(category_ != null) {

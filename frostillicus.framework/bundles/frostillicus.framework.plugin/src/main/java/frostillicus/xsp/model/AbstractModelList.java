@@ -10,6 +10,10 @@ import com.ibm.xsp.model.TabularDataModel;
  */
 public abstract class AbstractModelList<E extends ModelObject> extends TabularDataModel implements Serializable, List<E> {
 	private static final long serialVersionUID = 1L;
+	
+	public static interface SearchOption {
+		
+	}
 
 	private String sortColumn_;
 	private boolean ascending_;
@@ -22,6 +26,13 @@ public abstract class AbstractModelList<E extends ModelObject> extends TabularDa
 	public abstract E getByKey(final Object key);
 
 	public abstract void search(final String searchQuery);
+	
+	/**
+	 * @param searchQuery the backend-specific search query to use
+	 * @param options an array of backend-specific search options
+	 * @since 1.2.0
+	 */
+	public abstract void search(String searchQuery, SearchOption... options);
 
 	protected Class<E> getClazz() {
 		return clazz_;
