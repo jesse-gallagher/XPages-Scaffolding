@@ -15,6 +15,7 @@
 		<module>tests/frostillicus.framework.plugin.test</module>
 		<module>features/frostillicus.framework.feature</module>
 		<module>releng/frostillicus.framework.update</module>
+		<module>releng/framework-dist</module>
 	</modules>
 
 	<properties>
@@ -191,8 +192,6 @@
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.9</version>
 					<configuration>
-						<!-- Activated by profile below -->
-						<skip>true</skip>
 
 						<failOnError>false</failOnError>
 						<excludePackageNames>com.sun.*:com.ibm.commons.*:com.ibm.sbt.core.*:com.ibm.sbt.plugin.*:com.ibm.sbt.jslibrray.*:com.ibm.sbt.proxy.*:com.ibm.sbt.security.*:*.util.*:com.ibm.sbt.portlet.*:com.ibm.sbt.playground.*:demo.*:acme.*</excludePackageNames>
@@ -244,29 +243,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>distribution</id>
-			<modules>
-				<module>releng/framework-dist</module>
-			</modules>
-
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<!-- javadoc configuration -->
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-javadoc-plugin</artifactId>
-							<version>2.9</version>
-							<configuration>
-								<skip>false</skip>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
-		
 		<!-- These profiles add support for specific platforms for tests -->
 		<profile>
 			<activation>
