@@ -6,7 +6,8 @@ Automatic-Module-Name: frostillicus.framework.plugin
 Bundle-Version: 1.2.0.qualifier
 Bundle-Activator: frostillicus.framework.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.core.runtime,
+Import-Package: com.ibm.domino.das.servlet;resolution:=optional,
+ org.eclipse.core.runtime,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.ibm.xsp.extlib;bundle-version="9.0.1",
@@ -14,7 +15,6 @@ Require-Bundle: com.ibm.xsp.extlib;bundle-version="9.0.1",
  com.ibm.wink;bundle-version="9.0.1",
  com.ibm.domino.osgi.core;bundle-version="9.0.1",
  com.ibm.xsp.designer;bundle-version="9.0.1",
- com.ibm.domino.das;bundle-version="9.0.1",
  com.ibm.domino.commons;bundle-version="9.0.1",
  com.ibm.domino.xsp.bootstrap;bundle-version="9.0.1",
  com.ibm.commons.vfs;bundle-version="9.0.1",
