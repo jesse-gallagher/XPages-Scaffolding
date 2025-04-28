@@ -44,7 +44,7 @@
 		<repository>
 			<id>Luna</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/neon/</url>
+			<url>https://download.eclipse.org/releases/neon/</url>
 		</repository>
 		<repository>
 			<id>notes</id>
