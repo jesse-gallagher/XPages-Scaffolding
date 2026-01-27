@@ -17,21 +17,9 @@
 	<dependencies>
 		<dependency>
 			<groupId>frostillicus_framework</groupId>
-			<artifactId>frostillicus.framework.plugin</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
-			<type>eclipse-plugin</type>
-		</dependency>
-		<dependency>
-			<groupId>frostillicus_framework</groupId>
-			<artifactId>frostillicus.framework.feature</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
-			<type>eclipse-feature</type>
-		</dependency>
-		<dependency>
-			<groupId>frostillicus_framework</groupId>
 			<artifactId>frostillicus.framework.update</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
-			<type>eclipse-update-site</type>
+			<version>${project.version}</version>
+			<type>zip</type>
 		</dependency>
 	</dependencies>
 	

@@ -9,6 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.domino.commons.json;resolution:=optional,
  com.ibm.domino.commons.mime;resolution:=optional,
  com.ibm.domino.das.servlet;resolution:=optional,
+ javax.servlet,
+ javax.servlet.http,
  org.eclipse.core.runtime,
  org.osgi.framework
 Bundle-ActivationPolicy: lazy
