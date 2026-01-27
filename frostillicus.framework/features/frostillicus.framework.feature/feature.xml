@@ -2,7 +2,7 @@
 <feature
       id="frostillicus.framework.feature"
       label="frostillic.us Framework"
-      version="1.3.0.qualifier">
+      version="1.4.0.qualifier">
 
    <description>
       A collection of support classes for XPages development.

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: frostillic.us Framework
 Bundle-SymbolicName: frostillicus.framework.plugin;singleton:=true
 Automatic-Module-Name: frostillicus.framework.plugin
-Bundle-Version: 1.3.0.qualifier
+Bundle-Version: 1.4.0.qualifier
 Bundle-Activator: frostillicus.framework.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.domino.commons.json;resolution:=optional,
