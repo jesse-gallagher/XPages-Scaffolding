@@ -36,12 +36,14 @@ public enum FrameworkUtils {
 	public static Database getDatabase(final String server, final String filePath) {
 		Map<String, Object> requestScope = getRequestScope();
 		String key = "database-" + server + "!!" + filePath;
-		if (!requestScope.containsKey(key)) {
+		Database db = (Database)requestScope.get(key);
+		if (db == null) {
 			Session session = getSession();
-			requestScope.put(key, session.getDatabase(server, filePath));
+			db = session.getDatabase(server, filePath);
+			requestScope.put(key, db);
 		}
 
-		return (Database) requestScope.get(key);
+		return db;
 	}
 
 	public static Session getSession() {

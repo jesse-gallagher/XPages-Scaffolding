@@ -33,21 +33,6 @@
 	</fileSets>
 	
 	<moduleSets>
-		<!-- Javadocs -->
-		<moduleSet>
-			<useAllReactorProjects>true</useAllReactorProjects>
-			<includes>
-				<include>frostillicus_framework:frostillicus.framework.plugin:eclipse-plugin</include>
-			</includes>
-			
-			<binaries>
-				<attachmentClassifier>javadoc</attachmentClassifier>
-				<includeDependencies>false</includeDependencies>
-				<outputDirectory>apidocs</outputDirectory>
-				<unpack>true</unpack>
-			</binaries>
-		</moduleSet>
-	
 		<!-- The final update site -->
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
@@ -56,7 +41,6 @@
 			</includes>
 			
 			<binaries>
-				<attachmentClassifier>assembly</attachmentClassifier>
 				<outputDirectory>.</outputDirectory>
 				<unpack>false</unpack>
 				<includeDependencies>false</includeDependencies>

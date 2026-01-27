@@ -50,9 +50,9 @@ public class AnnotatedBeanResolver extends VariableResolver {
 			try {
 				// If the main resolver couldn't find it, check our annotated managed beans
 				Map<String, Object> applicationScope = (Map<String, Object>)delegate_.resolveVariable(facesContext, "applicationScope");
-				if(!applicationScope.containsKey("$$annotatedManagedBeanMap")) {
-					Map<String, BeanInfo> beanMap = new HashMap<String, BeanInfo>();
-
+				Map<String, BeanInfo> beanMap = (Map<String, BeanInfo>)applicationScope.get("$$annotatedManagedBeanMap");
+				if(beanMap == null) {
+					beanMap = new HashMap<String, BeanInfo>();
 
 					Database database = getDatabase(facesContext);
 					DatabaseDesign design = database.getDesign();
@@ -86,7 +86,6 @@ public class AnnotatedBeanResolver extends VariableResolver {
 				}
 
 				// Now that we know we have a built map, look for the requested name
-				Map<String, BeanInfo> beanMap = (Map<String, BeanInfo>)applicationScope.get("$$annotatedManagedBeanMap");
 				if(beanMap.containsKey(name)) {
 					BeanInfo info = beanMap.get(name);
 					Class<?> loadedClass = Class.forName(info.className, true, facesContext.getContextClassLoader());
@@ -95,10 +94,12 @@ public class AnnotatedBeanResolver extends VariableResolver {
 						return loadedClass.newInstance();
 					} else {
 						Map<String, Object> scope = (Map<String, Object>)delegate_.resolveVariable(facesContext, info.scope + "Scope");
-						if(!scope.containsKey(name)) {
-							scope.put(name, loadedClass.newInstance());
+						Object val = scope.get(name);
+						if(val == null) {
+							val = loadedClass.newInstance();
+							scope.put(name, val);
 						}
-						return scope.get(name);
+						return val;
 					}
 				}
 			} catch(Throwable e) {
